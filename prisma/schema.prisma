@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  TREINADOR
+}
+
+enum StatusSolicitacao {
+  PENDENTE
+  APROVADA
+  RECUSADA
+}
+
+enum StatusPartida {
+  AGENDADA
+  AO_VIVO
+  ENCERRADA
+  ADIADA
+}
+
+enum TipoEvento {
+  GOL
+  CARTAO_AMARELO
+  CARTAO_VERMELHO
+  SUBSTITUICAO
+  OUTRO
+}
+
+enum Posicao {
+  GOLEIRO
+  FIXO
+  ALA
+  PIVO
+  LINHA
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  passwordHash  String
+  role          Role     @default(TREINADOR)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  times         Time[]
+  solicitacoes  SolicitacaoTime[]
+  eventosLancados EventoPartida[] @relation("EventosLancadosPor")
+}
+
+model Campeonato {
+  id          String   @id @default(cuid())
+  nome        String
+  temporada   String
+  ativo       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  categorias  Categoria[]
+}
+
+model Categoria {
+  id            String   @id @default(cuid())
+  nome          String
+  campeonatoId  String
+  campeonato    Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+
+  times         Time[]
+  partidas      Partida[]
+
+  @@unique([campeonatoId, nome])
+}
+
+model Time {
+  id            String   @id @default(cuid())
+  nome          String
+  escudoUrl     String?
+  categoriaId   String
+  categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  treinadorId   String?
+  treinador     User?    @relation(fields: [treinadorId], references: [id])
+  createdAt     DateTime @default(now())
+
+  atletas       Atleta[]
+  partidasCasa  Partida[] @relation("TimeCasa")
+  partidasFora  Partida[] @relation("TimeFora")
+  eventos       EventoPartida[]
+  solicitacoes  SolicitacaoTime[]
+}
+
+model SolicitacaoTime {
+  id          String   @id @default(cuid())
+  nomeTime    String
+  treinadorId String
+  treinador   User     @relation(fields: [treinadorId], references: [id], onDelete: Cascade)
+  timeId      String?
+  time        Time?    @relation(fields: [timeId], references: [id])
+  categoriaId String?
+  status      StatusSolicitacao @default(PENDENTE)
+  mensagem    String?
+  createdAt   DateTime @default(now())
+}
+
+model Atleta {
+  id          String   @id @default(cuid())
+  nome        String
+  numero      Int
+  posicao     Posicao
+  fotoUrl     String?
+  timeId      String
+  time        Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  eventos     EventoPartida[]
+
+  @@unique([timeId, numero])
+}
+
+model Partida {
+  id            String   @id @default(cuid())
+  categoriaId   String
+  categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  timeCasaId    String
+  timeCasa      Time     @relation("TimeCasa", fields: [timeCasaId], references: [id])
+  timeForaId    String
+  timeFora      Time     @relation("TimeFora", fields: [timeForaId], references: [id])
+  rodada        Int?
+  dataHora      DateTime
+  local         String?
+  status        StatusPartida @default(AGENDADA)
+  placarCasa    Int      @default(0)
+  placarFora    Int      @default(0)
+  golsCasaDetalhe Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  eventos       EventoPartida[]
+}
+
+model EventoPartida {
+  id          String   @id @default(cuid())
+  partidaId   String
+  partida     Partida  @relation(fields: [partidaId], references: [id], onDelete: Cascade)
+  tipo        TipoEvento
+  minuto      Int
+  timeId      String
+  time        Time     @relation(fields: [timeId], references: [id])
+  atletaId    String?
+  atleta      Atleta?  @relation(fields: [atletaId], references: [id])
+  descricao   String?
+  lancadoPorId String?
+  lancadoPor  User?    @relation("EventosLancadosPor", fields: [lancadoPorId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model PushSubscription {
+  id            String   @id @default(cuid())
+  endpoint      String   @unique
+  p256dh        String
+  auth          String
+  categoriaId   String?
+  timeId        String?
+  lembreteMin   Int?     @default(30)
+  createdAt     DateTime @default(now())
+}

@@ -1,36 +1,65 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Citadino — Campeonato Municipal de Futsal
 
-## Getting Started
+Site mobile-first para gerenciar o Campeonato Citadino: times, atletas, partidas,
+súmulas ao vivo, tabela de classificação automática e notificações push (PWA).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, Turbopack), React 19, TypeScript
+- Tailwind CSS v4
+- Prisma 7 + SQLite (via `@prisma/adapter-better-sqlite3`)
+- Auth.js (NextAuth v5, beta) com login por credenciais e papéis (ADMIN / TREINADOR)
+- Web Push (VAPID) + manifest PWA para notificações e instalação na tela inicial
+
+## Como rodar
 
 ```bash
+npm install
+npx prisma migrate dev   # já aplicado neste repo; roda de novo se apagar dev.db
+npm run db:seed          # popula dados de exemplo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Contas de exemplo (criadas pelo seed)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Papel      | E-mail                     | Senha         |
+|------------|-----------------------------|---------------|
+| Admin      | admin@citadino.local         | admin123      |
+| Treinador  | treinador@citadino.local     | treinador123  |
 
-## Learn More
+O treinador de exemplo já está vinculado ao time "Real Bairro FC" (Masculino Livre).
 
-To learn more about Next.js, take a look at the following resources:
+## Estrutura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/` — feed de partidas do dia, por categoria
+- `/partida/[id]` — detalhes da partida (placar, linha do tempo, escalações)
+- `/classificacao` — tabela de classificação por categoria
+- `/notificacoes` — ativar notificações push por categoria/time (sem login)
+- `/login`, `/cadastro` — login e cadastro self-service de treinador
+- `/admin/*` — painel administrativo (protegido, papel ADMIN)
+- `/treinador/*` — painel do treinador (protegido, papel TREINADOR ou ADMIN)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Notificações push
 
-## Deploy on Vercel
+As chaves VAPID de desenvolvimento já estão no `.env`. Para gerar novas:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npx web-push generate-vapid-keys
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Notificações push exigem HTTPS (ou `localhost`) e permissão do navegador. Para testar
+localmente com HTTPS: `npx next dev --experimental-https`.
+
+O lembrete de partida (X minutos antes) depende de um disparo periódico externo —
+veja `vercel.json` (`/api/cron/lembretes`, a cada minuto) ou configure outro agendador
+apontando para essa rota em produção.
+
+## Variáveis de ambiente (`.env`)
+
+- `DATABASE_URL` — caminho do SQLite (`file:./dev.db`)
+- `AUTH_SECRET` — chave de assinatura de sessão do Auth.js
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` — Web Push
+- `ADMIN_EMAIL` / `ADMIN_PASSWORD` — credenciais usadas pelo `db:seed`
+- `CRON_SECRET` (opcional) — protege `/api/cron/lembretes` com `Authorization: Bearer`
