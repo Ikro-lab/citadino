@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
@@ -15,7 +16,9 @@ function RosterColumn({
         {atletas.map((a) => (
           <li key={a.id} className="flex items-center gap-2 text-sm text-muted">
             <span className="font-mono font-semibold text-foreground">#{a.numero}</span>
-            {a.nome}
+            <Link href={`/atleta/${a.id}`} className="hover:text-accent hover:underline">
+              {a.nome}
+            </Link>
           </li>
         ))}
         {atletas.length === 0 && (

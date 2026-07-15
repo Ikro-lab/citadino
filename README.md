@@ -1,7 +1,10 @@
 # Citadino — Campeonato Municipal de Futsal
 
 Site mobile-first para gerenciar o Campeonato Citadino: times, atletas, partidas,
-súmulas ao vivo, tabela de classificação automática e notificações push (PWA).
+súmulas ao vivo, classificação automática (pontos corridos ou grupos + mata-mata),
+artilharia com controle de pendurados/suspensos, auto-inscrição de atletas via
+convite, perfil público do atleta, enquete "Melhor da Rodada", regulamento em PDF
+e notificações push (PWA).
 
 ## Stack
 
@@ -35,11 +38,33 @@ O treinador de exemplo já está vinculado ao time "Real Bairro FC" (Masculino L
 
 - `/` — feed de partidas do dia, por categoria
 - `/partida/[id]` — detalhes da partida (placar, linha do tempo, escalações)
-- `/classificacao` — tabela de classificação por categoria
+- `/classificacao` — tabela de classificação por categoria (ou grupos + chaveamento
+  de mata-mata, conforme o formato configurado)
+- `/artilharia` — ranking de gols/cartões e indicação de pendurados/suspensos
+- `/atleta/[id]` — perfil público do atleta (stats, idade, Instagram opcional)
+- `/enquete` — votação "Melhor Jogador da Rodada" (1 voto por dispositivo)
+- `/convite/[token]` — auto-inscrição de atleta em um time via link/QR code
 - `/notificacoes` — ativar notificações push por categoria/time (sem login)
 - `/login`, `/cadastro` — login e cadastro self-service de treinador
 - `/admin/*` — painel administrativo (protegido, papel ADMIN)
 - `/treinador/*` — painel do treinador (protegido, papel TREINADOR ou ADMIN)
+
+## Uploads (documentos de atletas e PDFs de regulamento)
+
+Os uploads (documento de identidade, comprovante de endereço na inscrição via
+convite, e regulamento em PDF) são salvos em `public/uploads` via
+`src/lib/storage.ts`. Isso só funciona com disco persistente (dev local) — a
+Vercel é serverless e não tem disco persistente entre requisições. **Antes de
+publicar em produção, troque a implementação de `saveUpload()` nesse arquivo por
+um provedor de object storage** (Vercel Blob, Cloudinary, S3/R2 etc.) — é a
+única função que precisa mudar, todo o resto do app já chama só essa função.
+
+Dados sensíveis (documento e comprovante de endereço) ficam acessíveis apenas
+pelo link direto — nunca aparecem em páginas públicas — e só devem ser
+consultados por admin/treinador do time durante a aprovação. Não há
+criptografia em repouso nem política de retenção/expurgo implementada; ambas
+são recomendadas antes de operar com dados reais de menores/pessoas físicas
+(LGPD).
 
 ## Notificações push
 
@@ -59,6 +84,23 @@ essa rota não faz mais o lembrete "X minutos antes" (que exigiria rodar a cada
 minuto). Para lembretes de proximidade real, chame essa mesma rota com mais
 frequência a partir de um agendador externo gratuito (ex: cron-job.org, GitHub
 Actions agendado) ou faça upgrade para o plano Pro da Vercel.
+
+## Limitações conhecidas
+
+- **Suspensão por cartões**: calculada de forma simplificada — cada N cartões
+  amarelos acumulados (configurável por categoria) marca o atleta como
+  suspenso e o remove da lista de seleção na súmula. Não há um registro de
+  "suspensão cumprida" por partida específica; o contador apenas reflete se o
+  total atual é múltiplo do limite. Suficiente para o aviso visual e o
+  bloqueio na súmula, mas não substitui uma auditoria manual em casos
+  extremos (ex: cartões corrigidos/removidos depois).
+- **Mata-mata**: os confrontos de cada fase (oitavas, quartas, semifinal...)
+  são criados manualmente pelo admin — não há avanço automático de
+  vencedores de uma fase para a próxima.
+- **Vídeo de gol**: não implementado nesta etapa (gravação/corte no navegador,
+  compressão no cliente e upload em segundo plano) — item do prompt mais
+  complexo e dependente de infraestrutura de vídeo, deixado para uma etapa
+  futura à parte.
 
 ## Variáveis de ambiente (`.env`)
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,16 @@ type Atleta = {
   numero: number;
   posicao: Posicao;
   fotoUrl: string | null;
+  instagram?: string | null;
+  dataNascimento?: Date | null;
 };
 
 const posicoes: Posicao[] = ["GOLEIRO", "FIXO", "ALA", "PIVO", "LINHA"];
+
+function toDateInputValue(date?: Date | null) {
+  if (!date) return "";
+  return new Date(date).toISOString().slice(0, 10);
+}
 
 function AtletaRow({ atleta, timeId }: { atleta: Atleta; timeId: string }) {
   const [editando, setEditando] = useState(false);
@@ -54,6 +62,24 @@ function AtletaRow({ atleta, timeId }: { atleta: Atleta; timeId: string }) {
             ))}
           </Select>
         </div>
+        <div className="w-40">
+          <Label htmlFor={`nascimento-${atleta.id}`}>Nascimento</Label>
+          <Input
+            id={`nascimento-${atleta.id}`}
+            name="dataNascimento"
+            type="date"
+            defaultValue={toDateInputValue(atleta.dataNascimento)}
+          />
+        </div>
+        <div className="flex-1 min-w-[140px]">
+          <Label htmlFor={`instagram-${atleta.id}`}>Instagram</Label>
+          <Input
+            id={`instagram-${atleta.id}`}
+            name="instagram"
+            placeholder="@usuario"
+            defaultValue={atleta.instagram ?? ""}
+          />
+        </div>
         <Button type="submit" size="sm">
           Salvar
         </Button>
@@ -66,15 +92,15 @@ function AtletaRow({ atleta, timeId }: { atleta: Atleta; timeId: string }) {
 
   return (
     <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2">
-      <div className="flex items-center gap-3">
+      <Link href={`/atleta/${atleta.id}`} className="flex items-center gap-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface font-mono text-sm font-bold">
           {atleta.numero}
         </span>
         <div>
-          <p className="text-sm font-medium">{atleta.nome}</p>
+          <p className="text-sm font-medium hover:text-accent">{atleta.nome}</p>
           <p className="text-xs text-muted">{atleta.posicao}</p>
         </div>
-      </div>
+      </Link>
       <div className="flex items-center gap-1">
         <button
           type="button"
@@ -121,6 +147,14 @@ export function AtletaManager({
               </option>
             ))}
           </Select>
+        </div>
+        <div className="w-40">
+          <Label htmlFor="dataNascimento">Nascimento</Label>
+          <Input id="dataNascimento" name="dataNascimento" type="date" />
+        </div>
+        <div className="flex-1 min-w-[140px]">
+          <Label htmlFor="instagram">Instagram</Label>
+          <Input id="instagram" name="instagram" placeholder="@usuario" />
         </div>
         <Button type="submit" size="sm">
           Adicionar

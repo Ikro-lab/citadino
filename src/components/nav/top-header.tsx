@@ -31,6 +31,12 @@ export function TopHeader({
           <Link href="/classificacao" className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface">
             Classificação
           </Link>
+          <Link href="/artilharia" className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface">
+            Artilharia
+          </Link>
+          <Link href="/enquete" className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface">
+            Enquete
+          </Link>
           {primaryHref && (
             <Link href={primaryHref} className="rounded-lg px-3 py-2 text-sm font-medium text-foreground hover:bg-surface">
               {primaryLabel}

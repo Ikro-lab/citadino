@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
@@ -53,12 +55,25 @@ export default async function CategoriasPage() {
         {categorias.map((c) => (
           <Card key={c.id} className="flex items-center justify-between">
             <div>
-              <p className="font-medium">{c.nome}</p>
+              <p className="font-medium">
+                {c.nome}{" "}
+                {c.formato === "GRUPOS_MATA_MATA" && (
+                  <Badge variant="accent">Grupos + mata-mata</Badge>
+                )}
+              </p>
               <p className="text-xs text-muted">
                 {c.campeonato.nome} · {c._count.times} times · {c._count.partidas} partidas
               </p>
             </div>
-            <DeleteButton action={deleteCategoria.bind(null, c.id)} />
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/admin/categorias/${c.id}`}
+                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-orange-50"
+              >
+                Gerenciar
+              </Link>
+              <DeleteButton action={deleteCategoria.bind(null, c.id)} />
+            </div>
           </Card>
         ))}
         {categorias.length === 0 && (

@@ -43,3 +43,6 @@ next-env.d.ts
 # sqlite
 *.db
 *.db-journal
+
+# uploads simulados localmente (dev only — trocar por object storage em produção)
+/public/uploads

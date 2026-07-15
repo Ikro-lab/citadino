@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { SumulaForm } from "@/components/partidas/sumula-form";
+import { getAtletasSuspensosIds } from "@/lib/artilharia";
 import {
   iniciarPartida,
   encerrarPartida,
@@ -41,6 +42,19 @@ export default async function SumulaPage({
   });
 
   if (!partida) notFound();
+
+  const suspensos = await getAtletasSuspensosIds(partida.categoriaId);
+  const timeCasaDisponivel = {
+    ...partida.timeCasa,
+    atletas: partida.timeCasa.atletas.filter((a) => !suspensos.has(a.id)),
+  };
+  const timeForaDisponivel = {
+    ...partida.timeFora,
+    atletas: partida.timeFora.atletas.filter((a) => !suspensos.has(a.id)),
+  };
+  const suspensosNestaPartida = [...partida.timeCasa.atletas, ...partida.timeFora.atletas].filter(
+    (a) => suspensos.has(a.id)
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -93,7 +107,13 @@ export default async function SumulaPage({
       {(partida.status === "AO_VIVO" || partida.status === "AGENDADA") && (
         <Card>
           <h2 className="mb-3 font-semibold">Registrar evento</h2>
-          <SumulaForm partidaId={id} timeCasa={partida.timeCasa} timeFora={partida.timeFora} />
+          {suspensosNestaPartida.length > 0 && (
+            <p className="mb-3 text-xs text-muted">
+              Suspensos por cartões (não aparecem na lista): {" "}
+              {suspensosNestaPartida.map((a) => a.nome).join(", ")}
+            </p>
+          )}
+          <SumulaForm partidaId={id} timeCasa={timeCasaDisponivel} timeFora={timeForaDisponivel} />
         </Card>
       )}
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, LogIn, LayoutDashboard, Shield, LogOut } from "lucide-react";
+import { Home, Trophy, Target, LogIn, LayoutDashboard, Shield, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/lib/actions/auth";
 import type { Role } from "@prisma/client";
@@ -13,6 +13,7 @@ export function BottomNav({ role }: { role: Role | null }) {
   const items = [
     { href: "/", label: "Feed", icon: Home },
     { href: "/classificacao", label: "Tabela", icon: Trophy },
+    { href: "/artilharia", label: "Artilheiros", icon: Target },
     role === "ADMIN"
       ? { href: "/admin", label: "Painel", icon: LayoutDashboard }
       : role === "TREINADOR"

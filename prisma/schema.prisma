@@ -40,6 +40,20 @@ enum Posicao {
   LINHA
 }
 
+enum FormatoDisputa {
+  PONTOS_CORRIDOS
+  GRUPOS_MATA_MATA
+}
+
+enum FasePartida {
+  GRUPOS
+  OITAVAS
+  QUARTAS
+  SEMIFINAL
+  TERCEIRO_LUGAR
+  FINAL
+}
+
 model User {
   id            String   @id @default(cuid())
   name          String
@@ -55,27 +69,47 @@ model User {
 }
 
 model Campeonato {
-  id          String   @id @default(cuid())
-  nome        String
-  temporada   String
-  ativo       Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String   @id @default(cuid())
+  nome           String
+  temporada      String
+  ativo          Boolean  @default(true)
+  regulamentoUrl String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   categorias  Categoria[]
 }
 
 model Categoria {
-  id            String   @id @default(cuid())
-  nome          String
-  campeonatoId  String
-  campeonato    Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
+  id                    String   @id @default(cuid())
+  nome                  String
+  campeonatoId          String
+  campeonato            Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
+  formato               FormatoDisputa @default(PONTOS_CORRIDOS)
+  classificadosPorGrupo Int?
+  cartoesParaSuspensao  Int      @default(3)
+  jogosSuspensao        Int      @default(1)
+  regulamentoUrl        String?
+  createdAt             DateTime @default(now())
 
-  times         Time[]
-  partidas      Partida[]
+  times       Time[]
+  partidas    Partida[]
+  grupos      Grupo[]
+  enquetes    Enquete[]
 
   @@unique([campeonatoId, nome])
+}
+
+model Grupo {
+  id          String   @id @default(cuid())
+  nome        String
+  categoriaId String
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  times       Time[]
+
+  @@unique([categoriaId, nome])
 }
 
 model Time {
@@ -84,8 +118,11 @@ model Time {
   escudoUrl     String?
   categoriaId   String
   categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  grupoId       String?
+  grupo         Grupo?   @relation(fields: [grupoId], references: [id])
   treinadorId   String?
   treinador     User?    @relation(fields: [treinadorId], references: [id])
+  conviteToken  String   @unique @default(cuid())
   createdAt     DateTime @default(now())
 
   atletas       Atleta[]
@@ -93,6 +130,7 @@ model Time {
   partidasFora  Partida[] @relation("TimeFora")
   eventos       EventoPartida[]
   solicitacoes  SolicitacaoTime[]
+  inscricoes    InscricaoAtleta[]
 }
 
 model SolicitacaoTime {
@@ -109,18 +147,44 @@ model SolicitacaoTime {
 }
 
 model Atleta {
-  id          String   @id @default(cuid())
-  nome        String
-  numero      Int
-  posicao     Posicao
-  fotoUrl     String?
-  timeId      String
-  time        Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  nome          String
+  numero        Int
+  posicao       Posicao
+  fotoUrl       String?
+  dataNascimento DateTime?
+  instagram     String?
+  timeId        String
+  time          Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
 
-  eventos     EventoPartida[]
+  eventos       EventoPartida[]
+  inscricao     InscricaoAtleta?
+  votosRecebidos EnqueteOpcao[]
 
   @@unique([timeId, numero])
+}
+
+enum StatusInscricao {
+  PENDENTE
+  APROVADA
+  RECUSADA
+}
+
+model InscricaoAtleta {
+  id                      String   @id @default(cuid())
+  timeId                  String
+  time                    Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
+  nome                    String
+  dataNascimento          DateTime
+  instagram               String?
+  documentoUrl            String
+  comprovanteEnderecoUrl  String
+  status                  StatusInscricao @default(PENDENTE)
+  atletaId                String?  @unique
+  atleta                  Atleta?  @relation(fields: [atletaId], references: [id])
+  createdAt               DateTime @default(now())
+  revisadoEm              DateTime?
 }
 
 model Partida {
@@ -132,6 +196,7 @@ model Partida {
   timeForaId    String
   timeFora      Time     @relation("TimeFora", fields: [timeForaId], references: [id])
   rodada        Int?
+  fase          FasePartida @default(GRUPOS)
   dataHora      DateTime
   local         String?
   status        StatusPartida @default(AGENDADA)
@@ -158,6 +223,43 @@ model EventoPartida {
   lancadoPorId String?
   lancadoPor  User?    @relation("EventosLancadosPor", fields: [lancadoPorId], references: [id])
   createdAt   DateTime @default(now())
+}
+
+model Enquete {
+  id          String   @id @default(cuid())
+  categoriaId String
+  categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
+  rodada      Int
+  pergunta    String   @default("Melhor Jogador da Rodada")
+  ativa       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  opcoes      EnqueteOpcao[]
+  votos       EnqueteVoto[]
+}
+
+model EnqueteOpcao {
+  id        String   @id @default(cuid())
+  enqueteId String
+  enquete   Enquete  @relation(fields: [enqueteId], references: [id], onDelete: Cascade)
+  atletaId  String
+  atleta    Atleta   @relation(fields: [atletaId], references: [id])
+
+  votos     EnqueteVoto[]
+
+  @@unique([enqueteId, atletaId])
+}
+
+model EnqueteVoto {
+  id        String   @id @default(cuid())
+  enqueteId String
+  enquete   Enquete  @relation(fields: [enqueteId], references: [id], onDelete: Cascade)
+  opcaoId   String
+  opcao     EnqueteOpcao @relation(fields: [opcaoId], references: [id], onDelete: Cascade)
+  deviceId  String
+  createdAt DateTime @default(now())
+
+  @@unique([enqueteId, deviceId])
 }
 
 model PushSubscription {

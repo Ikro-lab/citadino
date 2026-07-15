@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SumulaFormTreinador } from "@/components/partidas/sumula-form-treinador";
+import { getAtletasSuspensosIds } from "@/lib/artilharia";
 
 const tipoLabel: Record<string, string> = {
   GOL: "Gol",
@@ -46,6 +47,10 @@ export default async function TreinadorSumulaPage({
 
   if (!meuTime) redirect("/treinador/partidas");
 
+  const suspensos = await getAtletasSuspensosIds(partida.categoriaId);
+  const atletasDisponiveis = meuTime.atletas.filter((a) => !suspensos.has(a.id));
+  const suspensosDoTime = meuTime.atletas.filter((a) => suspensos.has(a.id));
+
   return (
     <div className="flex flex-col gap-6">
       <Card>
@@ -72,7 +77,13 @@ export default async function TreinadorSumulaPage({
       {partida.status === "AO_VIVO" ? (
         <Card>
           <h2 className="mb-3 font-semibold">Registrar evento do {meuTime.nome}</h2>
-          <SumulaFormTreinador partidaId={id} timeId={meuTime.id} atletas={meuTime.atletas} />
+          {suspensosDoTime.length > 0 && (
+            <p className="mb-3 text-xs text-muted">
+              Suspensos por cartões (não aparecem na lista): {" "}
+              {suspensosDoTime.map((a) => a.nome).join(", ")}
+            </p>
+          )}
+          <SumulaFormTreinador partidaId={id} timeId={meuTime.id} atletas={atletasDisponiveis} />
         </Card>
       ) : (
         <p className="text-sm text-muted">

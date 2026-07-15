@@ -14,9 +14,12 @@ export type LinhaClassificacao = {
   saldoGols: number;
 };
 
-export async function getClassificacao(categoriaId: string) {
+export async function getClassificacao(
+  categoriaId: string,
+  opts?: { timeIds?: string[]; apenasFaseGrupos?: boolean }
+) {
   const times = await prisma.time.findMany({
-    where: { categoriaId },
+    where: { categoriaId, ...(opts?.timeIds ? { id: { in: opts.timeIds } } : {}) },
     select: { id: true, nome: true, escudoUrl: true },
   });
 
@@ -38,7 +41,11 @@ export async function getClassificacao(categoriaId: string) {
   }
 
   const partidas = await prisma.partida.findMany({
-    where: { categoriaId, status: "ENCERRADA" },
+    where: {
+      categoriaId,
+      status: "ENCERRADA",
+      ...(opts?.apenasFaseGrupos ? { fase: "GRUPOS" } : {}),
+    },
     select: {
       timeCasaId: true,
       timeForaId: true,

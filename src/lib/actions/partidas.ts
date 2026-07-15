@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
 import { auth } from "@/auth";
 import { notifyPartidaEvento } from "@/lib/push/notify";
-import type { TipoEvento } from "@prisma/client";
+import type { FasePartida, TipoEvento } from "@prisma/client";
 
 async function assertPodeLancarEvento(partidaId: string, timeId: string) {
   const session = await auth();
@@ -47,6 +47,7 @@ function parseForm(formData: FormData) {
     dataHora: String(formData.get("dataHora") || ""),
     local: String(formData.get("local") || "").trim() || null,
     rodada: formData.get("rodada") ? Number(formData.get("rodada")) : null,
+    fase: (String(formData.get("fase") || "GRUPOS")) as FasePartida,
   };
 }
 
@@ -71,6 +72,7 @@ export async function createPartida(formData: FormData) {
       dataHora: new Date(data.dataHora),
       local: data.local,
       rodada: data.rodada,
+      fase: data.fase,
     },
   });
   revalidatePath("/admin/partidas");
@@ -91,6 +93,7 @@ export async function updatePartida(id: string, formData: FormData) {
       dataHora: new Date(data.dataHora),
       local: data.local,
       rodada: data.rodada,
+      fase: data.fase,
     },
   });
   revalidatePath("/admin/partidas");

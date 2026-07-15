@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Goal, Square } from "lucide-react";
 import type { PartidaDetalhe } from "@/lib/partidas";
@@ -41,7 +42,13 @@ export function EventTimeline({ partida }: { partida: PartidaDetalhe }) {
               <Icon size={16} className={`mt-0.5 shrink-0 ${config.className}`} />
               <div>
                 <p className="font-medium">
-                  {evento.atleta ? evento.atleta.nome : config.label}
+                  {evento.atleta ? (
+                    <Link href={`/atleta/${evento.atleta.id}`} className="hover:text-accent hover:underline">
+                      {evento.atleta.nome}
+                    </Link>
+                  ) : (
+                    config.label
+                  )}
                   {evento.atleta && (
                     <span className="ml-1 text-muted">#{evento.atleta.numero}</span>
                   )}

@@ -8,6 +8,8 @@ const links = [
   { href: "/admin/times", label: "Times" },
   { href: "/admin/partidas", label: "Partidas" },
   { href: "/admin/solicitacoes", label: "Solicitações" },
+  { href: "/admin/inscricoes", label: "Inscrições" },
+  { href: "/admin/enquetes", label: "Enquetes" },
   { href: "/admin/notificacoes", label: "Notificações" },
 ];
 

@@ -31,9 +31,14 @@ export async function createAtleta(timeId: string, formData: FormData) {
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
   const fotoUrl = String(formData.get("fotoUrl") || "").trim() || null;
+  const instagram = String(formData.get("instagram") || "").trim() || null;
+  const dataNascimentoRaw = String(formData.get("dataNascimento") || "").trim();
+  const dataNascimento = dataNascimentoRaw ? new Date(dataNascimentoRaw) : null;
   if (!nome || !numero || Number.isNaN(numero)) return;
 
-  await prisma.atleta.create({ data: { nome, numero, posicao, fotoUrl, timeId } });
+  await prisma.atleta.create({
+    data: { nome, numero, posicao, fotoUrl, instagram, dataNascimento, timeId },
+  });
   revalidateTimeViews(timeId);
 }
 
@@ -48,11 +53,14 @@ export async function updateAtleta(
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
   const fotoUrl = String(formData.get("fotoUrl") || "").trim() || null;
+  const instagram = String(formData.get("instagram") || "").trim() || null;
+  const dataNascimentoRaw = String(formData.get("dataNascimento") || "").trim();
+  const dataNascimento = dataNascimentoRaw ? new Date(dataNascimentoRaw) : null;
   if (!nome || !numero || Number.isNaN(numero)) return;
 
   await prisma.atleta.update({
     where: { id: atletaId },
-    data: { nome, numero, posicao, fotoUrl },
+    data: { nome, numero, posicao, fotoUrl, instagram, dataNascimento },
   });
   revalidateTimeViews(timeId);
 }

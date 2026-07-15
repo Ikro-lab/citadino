@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AtletaManager } from "@/components/times/atleta-manager";
+import { InviteLink } from "@/components/times/invite-link";
+import { InscricoesPendentes } from "@/components/times/inscricoes-pendentes";
 
 export default async function TreinadorPage() {
   const session = await auth();
@@ -14,6 +16,10 @@ export default async function TreinadorPage() {
       include: {
         categoria: { select: { nome: true } },
         atletas: { orderBy: { numero: "asc" } },
+        inscricoes: {
+          where: { status: "PENDENTE" },
+          orderBy: { createdAt: "asc" },
+        },
       },
       orderBy: { createdAt: "asc" },
     }),
@@ -54,6 +60,8 @@ export default async function TreinadorPage() {
             <h2 className="text-lg font-bold">{time.nome}</h2>
             <Badge variant="accent">{time.categoria.nome}</Badge>
           </div>
+          <InviteLink conviteToken={time.conviteToken} />
+          <InscricoesPendentes inscricoes={time.inscricoes} />
           <AtletaManager timeId={time.id} atletas={time.atletas} />
         </div>
       ))}
