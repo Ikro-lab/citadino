@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
 
 function applyTheme(theme: "light" | "dark") {
@@ -13,16 +13,19 @@ function applyTheme(theme: "light" | "dark") {
 }
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(
-    () =>
-      typeof document !== "undefined" &&
-      document.documentElement.getAttribute("data-theme") === "dark"
-  );
+  // Sempre começa false (igual ao servidor, que não sabe o tema real) para
+  // não gerar mismatch de hidratação; o valor real é aplicado logo após o
+  // mount, quando o ícone ainda não foi pintado pelo usuário.
+  const [isDark, setIsDark] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsDark(document.documentElement.getAttribute("data-theme") === "dark");
+  }, []);
 
   return (
     <button
       type="button"
-      suppressHydrationWarning
       aria-label={isDark ? "Ativar tema claro" : "Ativar tema escuro"}
       onClick={() => {
         const next = isDark ? "light" : "dark";
