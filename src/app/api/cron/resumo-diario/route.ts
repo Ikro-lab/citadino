@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { notifyLembretesProximos } from "@/lib/push/notify";
+import { notifyResumoDiario } from "@/lib/push/notify";
 
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
@@ -10,6 +10,6 @@ export async function GET(req: Request) {
     }
   }
 
-  const result = await notifyLembretesProximos();
+  const result = await notifyResumoDiario();
   return NextResponse.json(result);
 }
