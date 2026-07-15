@@ -124,3 +124,30 @@ Actions agendado) ou faça upgrade para o plano Pro da Vercel.
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` — Web Push
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — credenciais usadas pelo `db:seed`
 - `CRON_SECRET` (opcional) — protege `/api/cron/resumo-diario` com `Authorization: Bearer`
+
+## Deploy no Vercel (prévia — não usar para dados reais)
+
+`prisma generate` roda automaticamente no `postinstall` (necessário a partir do
+Prisma 7, que não gera mais o client sozinho). Configure nas variáveis de
+ambiente do projeto na Vercel:
+
+- `DATABASE_URL=file:/tmp/dev.db`
+- `AUTH_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mesmos valores do `.env`, ou gere novos)
+
+**Isso só serve para visualizar a interface no ar.** Funções serverless da
+Vercel têm sistema de arquivos somente leitura, exceto `/tmp` — que não é
+compartilhado nem persistente entre instâncias/invocações. Para contornar
+isso e o deploy pelo menos funcionar visualmente, `src/lib/prisma.ts` copia um
+banco SQLite pré-populado (`prisma/seed-template.db`) para `/tmp/dev.db` na
+primeira consulta de cada instância fria. Na prática: dados que você grava
+(cadastros, resultados, votos) podem sumir a qualquer momento, e requisições
+diferentes podem ver estados diferentes do banco. Uploads (documentos de
+inscrição, PDFs de regulamento) também não funcionam nesse modo, pelo mesmo
+motivo de filesystem.
+
+Para produção de verdade, troque `DATABASE_URL` por um Postgres gerenciado
+(Neon, Vercel Postgres, Supabase) — exige adaptar `prisma/schema.prisma`
+(`provider = "postgresql"`) e trocar o adapter em `src/lib/prisma.ts` de
+`@prisma/adapter-better-sqlite3` para o adapter Postgres correspondente — e
+apontar `saveUpload()` em `src/lib/storage.ts` para um object storage (Vercel
+Blob, Cloudinary, S3/R2).

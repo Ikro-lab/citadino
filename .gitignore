@@ -43,6 +43,7 @@ next-env.d.ts
 # sqlite
 *.db
 *.db-journal
+!prisma/seed-template.db
 
 # uploads simulados localmente (dev only — trocar por object storage em produção)
 /public/uploads
