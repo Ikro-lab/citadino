@@ -2,11 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { MatchHeader } from "@/components/partidas/match-header";
-import { EventTimeline } from "@/components/partidas/event-timeline";
-import { Roster } from "@/components/partidas/roster";
+import { MatchTabs } from "@/components/partidas/match-tabs";
 import type { PartidaDetalhe } from "@/lib/partidas";
+import type { LinhaClassificacao } from "@/lib/classificacao";
 
-export function LiveMatchDetail({ initial }: { initial: PartidaDetalhe }) {
+export function LiveMatchDetail({
+  initial,
+  linhasClassificacao,
+}: {
+  initial: PartidaDetalhe;
+  linhasClassificacao: LinhaClassificacao[];
+}) {
   const [partida, setPartida] = useState(initial);
   const [prevInitial, setPrevInitial] = useState(initial);
 
@@ -35,8 +41,7 @@ export function LiveMatchDetail({ initial }: { initial: PartidaDetalhe }) {
   return (
     <div className="flex flex-col gap-4">
       <MatchHeader partida={partida} />
-      <EventTimeline partida={partida} />
-      <Roster partida={partida} />
+      <MatchTabs partida={partida} linhasClassificacao={linhasClassificacao} />
     </div>
   );
 }

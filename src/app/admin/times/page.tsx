@@ -80,7 +80,7 @@ export default async function TimesPage() {
             <div className="flex items-center gap-2">
               <Link
                 href={`/admin/times/${t.id}`}
-                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-orange-50"
+                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
               >
                 Gerenciar
               </Link>

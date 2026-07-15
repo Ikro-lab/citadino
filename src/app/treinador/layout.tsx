@@ -14,13 +14,13 @@ export default async function TreinadorLayout({
       <nav className="mb-6 flex gap-2">
         <Link
           href="/treinador"
-          className="rounded-full border border-border bg-white px-4 py-2 text-sm font-medium hover:bg-surface"
+          className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-border/60"
         >
           Elenco
         </Link>
         <Link
           href="/treinador/partidas"
-          className="rounded-full border border-border bg-white px-4 py-2 text-sm font-medium hover:bg-surface"
+          className="rounded-lg border border-border bg-surface px-4 py-2 text-sm font-medium hover:bg-border/60"
         >
           Partidas
         </Link>

@@ -1,10 +1,17 @@
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import type { LinhaClassificacao } from "@/lib/classificacao";
 
-export function StandingsTable({ linhas }: { linhas: LinhaClassificacao[] }) {
+export function StandingsTable({
+  linhas,
+  destaqueIds,
+}: {
+  linhas: LinhaClassificacao[];
+  destaqueIds?: string[];
+}) {
   if (linhas.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted">
+      <p className="rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted">
         Nenhum time cadastrado nesta categoria.
       </p>
     );
@@ -29,7 +36,13 @@ export function StandingsTable({ linhas }: { linhas: LinhaClassificacao[] }) {
         </thead>
         <tbody>
           {linhas.map((l, i) => (
-            <tr key={l.timeId} className="border-b border-border last:border-0">
+            <tr
+              key={l.timeId}
+              className={cn(
+                "border-b border-border last:border-0",
+                destaqueIds?.includes(l.timeId) && "bg-accent-soft"
+              )}
+            >
               <td className="px-3 py-3 font-semibold text-muted">{i + 1}</td>
               <td className="px-3 py-3 font-medium">{l.nome}</td>
               <td className="px-2 py-3 text-center font-bold text-accent">{l.pontos}</td>

@@ -105,7 +105,7 @@ function AtletaRow({ atleta, timeId }: { atleta: Atleta; timeId: string }) {
         <button
           type="button"
           onClick={() => setEditando(true)}
-          className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-orange-50"
+          className="rounded-lg px-2 py-1 text-xs font-medium text-accent hover:bg-accent-soft"
         >
           Editar
         </button>

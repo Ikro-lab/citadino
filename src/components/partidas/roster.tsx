@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
-function RosterColumn({
+export function RosterColumn({
   nome,
   atletas,
 }: {
@@ -29,17 +28,11 @@ function RosterColumn({
   );
 }
 
-export function Roster({ partida }: { partida: PartidaDetalhe }) {
+export function RosterPanel({ partida }: { partida: PartidaDetalhe }) {
   return (
-    <details className="group">
-      <summary className="flex cursor-pointer list-none items-center justify-between rounded-2xl border border-border bg-white p-4 text-sm font-semibold shadow-sm">
-        Escalações
-        <span className="text-muted transition-transform group-open:rotate-180">▾</span>
-      </summary>
-      <Card className="mt-2 grid grid-cols-2 gap-4 rounded-t-none border-t-0">
-        <RosterColumn nome={partida.timeCasa.nome} atletas={partida.timeCasa.atletas} />
-        <RosterColumn nome={partida.timeFora.nome} atletas={partida.timeFora.atletas} />
-      </Card>
-    </details>
+    <div className="grid grid-cols-2 gap-4">
+      <RosterColumn nome={partida.timeCasa.nome} atletas={partida.timeCasa.atletas} />
+      <RosterColumn nome={partida.timeFora.nome} atletas={partida.timeFora.atletas} />
+    </div>
   );
 }

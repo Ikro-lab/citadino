@@ -74,7 +74,7 @@ export function EnqueteCard({
             return (
               <div key={o.id} className="relative overflow-hidden rounded-xl border border-border p-3">
                 <div
-                  className="absolute inset-y-0 left-0 bg-orange-50"
+                  className="absolute inset-y-0 left-0 bg-accent-soft"
                   style={{ width: `${pct}%` }}
                 />
                 <div className="relative flex items-center justify-between text-sm">

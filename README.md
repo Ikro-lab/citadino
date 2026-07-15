@@ -6,6 +6,12 @@ artilharia com controle de pendurados/suspensos, auto-inscrição de atletas via
 convite, perfil público do atleta, enquete "Melhor da Rodada", regulamento em PDF
 e notificações push (PWA).
 
+Identidade visual inspirada no site da Prefeitura de Cidreira (laranja + verde-menta
++ azul-marinho, tipografia Nunito, formas orgânicas decorativas), com feed em estilo
+Sofascore (faixa de datas, filtro Todos/Ao vivo, minuto ao vivo em tempo real, forma
+recente dos times, agrupamento por categoria) e tema claro/escuro com alternância
+manual + preferência salva no dispositivo.
+
 ## Stack
 
 - Next.js 16 (App Router, Turbopack), React 19, TypeScript
@@ -36,8 +42,10 @@ O treinador de exemplo já está vinculado ao time "Real Bairro FC" (Masculino L
 
 ## Estrutura
 
-- `/` — feed de partidas do dia, por categoria
-- `/partida/[id]` — detalhes da partida (placar, linha do tempo, escalações)
+- `/` — feed de partidas do dia, agrupado por categoria (faixa de datas, filtro
+  Todos/Ao vivo, minuto ao vivo, forma recente, favoritos locais)
+- `/partida/[id]` — detalhes da partida em abas: Detalhes, Linha do Tempo,
+  Escalação, Classificação (com os dois times destacados)
 - `/classificacao` — tabela de classificação por categoria (ou grupos + chaveamento
   de mata-mata, conforme o formato configurado)
 - `/artilharia` — ranking de gols/cartões e indicação de pendurados/suspensos
@@ -101,6 +109,13 @@ Actions agendado) ou faça upgrade para o plano Pro da Vercel.
   compressão no cliente e upload em segundo plano) — item do prompt mais
   complexo e dependente de infraestrutura de vídeo, deixado para uma etapa
   futura à parte.
+- **Minuto ao vivo**: calculado como tempo decorrido desde o horário agendado
+  da partida (`dataHora`), sem noção de intervalo/pausa — é uma aproximação,
+  não um cronômetro operado pelo admin.
+- **Favoritos do feed**: a estrela em cada linha de jogo salva a preferência
+  só localmente no navegador (não sincroniza com as notificações push nem
+  entre dispositivos); para receber avisos de um time específico, use
+  `/notificacoes`.
 
 ## Variáveis de ambiente (`.env`)
 

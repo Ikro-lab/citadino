@@ -9,7 +9,7 @@ const variantClasses: Record<Variant, string> = {
   primary:
     "bg-accent text-accent-foreground hover:bg-accent-dark active:bg-accent-dark",
   secondary:
-    "bg-white text-foreground border border-border hover:bg-surface",
+    "bg-surface text-foreground border border-border hover:bg-border/60",
   ghost: "bg-transparent text-foreground hover:bg-surface",
   danger: "bg-danger text-white hover:opacity-90",
 };

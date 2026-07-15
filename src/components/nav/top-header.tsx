@@ -3,6 +3,7 @@ import { Trophy, Bell } from "lucide-react";
 import type { Role } from "@prisma/client";
 import { logout } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function TopHeader({
   role,
@@ -15,10 +16,10 @@ export function TopHeader({
   const primaryLabel = role === "ADMIN" ? "Painel Admin" : role === "TREINADOR" ? "Meu Time" : null;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-bold tracking-tight">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-white">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-accent-foreground">
             <Trophy size={16} />
           </span>
           Citadino
@@ -44,7 +45,9 @@ export function TopHeader({
           )}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+
           <Link
             href="/notificacoes"
             aria-label="Notificações"

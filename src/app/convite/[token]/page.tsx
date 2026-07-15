@@ -24,7 +24,7 @@ export default async function ConvitePage({
         {time.nome} · {time.categoria.nome}
       </p>
 
-      <Card className="mb-4 bg-orange-50">
+      <Card className="mb-4 bg-accent-soft">
         <p className="text-xs text-muted">
           Seus documentos são usados apenas para validar a inscrição junto ao
           treinador/administrador do campeonato e nunca aparecem publicamente.

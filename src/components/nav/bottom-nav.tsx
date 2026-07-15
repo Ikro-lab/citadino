@@ -25,7 +25,7 @@ export function BottomNav({ role }: { role: Role | null }) {
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">
       <div className="mx-auto flex max-w-lg items-stretch">
         {items.map(({ href, label, icon: Icon }) => (
           <Link

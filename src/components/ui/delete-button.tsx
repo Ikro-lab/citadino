@@ -18,7 +18,7 @@ export function DeleteButton({
     >
       <button
         type="submit"
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-danger hover:bg-red-50"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-danger hover:bg-danger/10"
         aria-label="Remover"
       >
         <Trash2 size={16} />

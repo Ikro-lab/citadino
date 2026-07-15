@@ -23,10 +23,10 @@ export function CategoriaTabs({
             key={c.id}
             href={`${basePath}?${params.toString()}`}
             className={cn(
-              "shrink-0 rounded-full border px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
+              "shrink-0 rounded-lg border px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
               c.id === categoriaId
-                ? "border-accent bg-accent text-white"
-                : "border-border bg-white text-foreground hover:bg-surface"
+                ? "border-accent bg-accent text-accent-foreground"
+                : "border-border bg-surface text-foreground hover:bg-border/60"
             )}
           >
             {c.label}
