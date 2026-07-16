@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { todayStr, shiftDateStr } from "@/lib/date-utils";
+import { todayStr, shiftDateStr, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
 
 export function DateStrip({ data, vivo }: { data: string; vivo: boolean }) {
   const router = useRouter();
@@ -23,9 +23,10 @@ export function DateStrip({ data, vivo }: { data: string; vivo: boolean }) {
     if (d === hoje) return "Hoje";
     if (d === shiftDateStr(hoje, -1)) return "Ontem";
     if (d === shiftDateStr(hoje, 1)) return "Amanhã";
-    return new Date(`${d}T00:00:00`).toLocaleDateString("pt-BR", {
+    return new Date(`${d}T00:00:00${BRT_OFFSET}`).toLocaleDateString("pt-BR", {
       weekday: "short",
       day: "2-digit",
+      timeZone: TIMEZONE,
     });
   }
 

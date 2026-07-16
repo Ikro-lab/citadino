@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { PartidaForm } from "@/components/partidas/partida-form";
 import { createPartida, deletePartida } from "@/lib/actions/partidas";
+import { TIMEZONE } from "@/lib/date-utils";
 
 const statusLabel: Record<string, { label: string; variant: "neutral" | "live" | "success" | "danger" }> = {
   AGENDADA: { label: "Agendada", variant: "neutral" },
@@ -55,6 +56,7 @@ export default async function AdminPartidasPage() {
                     month: "2-digit",
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: TIMEZONE,
                   })}
                 </p>
               </div>

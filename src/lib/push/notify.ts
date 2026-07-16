@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
+import { dayRange, todayStr, TIMEZONE } from "@/lib/date-utils";
 import type { Prisma, PushSubscription as StoredSubscription } from "@prisma/client";
 
 const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -130,10 +131,7 @@ export async function notifyResumoDiario() {
   const subs = await prisma.pushSubscription.findMany();
   if (subs.length === 0) return { enviados: 0 };
 
-  const inicioDia = new Date();
-  inicioDia.setHours(0, 0, 0, 0);
-  const fimDia = new Date();
-  fimDia.setHours(23, 59, 59, 999);
+  const { start: inicioDia, end: fimDia } = dayRange(todayStr());
 
   let enviados = 0;
 
@@ -167,7 +165,7 @@ export async function notifyResumoDiario() {
     const body = partidas
       .map(
         (p) =>
-          `${p.timeCasa.nome} x ${p.timeFora.nome} às ${p.dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+          `${p.timeCasa.nome} x ${p.timeFora.nome} às ${p.dataHora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: TIMEZONE })}`
       )
       .join(" · ");
 

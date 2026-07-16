@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TIMEZONE } from "@/lib/date-utils";
 
 export default async function AdminDashboard() {
   const [proximas, aoVivo, solicitacoesPendentes, totalTimes, totalAtletas] =
@@ -88,6 +89,7 @@ export default async function AdminDashboard() {
                       month: "2-digit",
                       hour: "2-digit",
                       minute: "2-digit",
+                      timeZone: TIMEZONE,
                     })}
                   </p>
                 </div>

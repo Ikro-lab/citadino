@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Radio } from "lucide-react";
+import { TIMEZONE } from "@/lib/date-utils";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
 const statusConfig = {
@@ -22,6 +23,7 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
     month: "short",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: TIMEZONE,
   });
 
   return (

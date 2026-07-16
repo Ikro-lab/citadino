@@ -2,6 +2,7 @@ import Link from "next/link";
 import { FormaRecente } from "@/components/partidas/forma-recente";
 import { LiveMinuto } from "@/components/partidas/live-minuto";
 import { FavoritoStar } from "@/components/partidas/favorito-star";
+import { TIMEZONE } from "@/lib/date-utils";
 import type { FeedPartida } from "@/lib/partidas";
 
 function Escudo({ nome }: { nome: string }) {
@@ -51,6 +52,7 @@ export function MatchRow({
   const horario = new Date(partida.dataHora).toLocaleTimeString("pt-BR", {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: TIMEZONE,
   });
 
   return (

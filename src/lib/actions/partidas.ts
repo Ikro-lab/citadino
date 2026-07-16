@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
 import { auth } from "@/auth";
 import { notifyPartidaEvento } from "@/lib/push/notify";
+import { parseDatetimeLocalAsBRT } from "@/lib/date-utils";
 import type { FasePartida, TipoEvento } from "@prisma/client";
 
 export async function assertPodeEditarEvento(eventoId: string) {
@@ -104,7 +105,7 @@ export async function createPartida(formData: FormData) {
       categoriaId: data.categoriaId,
       timeCasaId: data.timeCasaId,
       timeForaId: data.timeForaId,
-      dataHora: new Date(data.dataHora),
+      dataHora: parseDatetimeLocalAsBRT(data.dataHora),
       local: data.local,
       rodada: data.rodada,
       fase: data.fase,
@@ -125,7 +126,7 @@ export async function updatePartida(id: string, formData: FormData) {
       categoriaId: data.categoriaId,
       timeCasaId: data.timeCasaId,
       timeForaId: data.timeForaId,
-      dataHora: new Date(data.dataHora),
+      dataHora: parseDatetimeLocalAsBRT(data.dataHora),
       local: data.local,
       rodada: data.rodada,
       fase: data.fase,

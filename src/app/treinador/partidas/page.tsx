@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TIMEZONE } from "@/lib/date-utils";
 
 const statusConfig = {
   AGENDADA: { label: "Agendada", variant: "neutral" as const },
@@ -51,6 +52,7 @@ export default async function TreinadorPartidasPage() {
                     month: "2-digit",
                     hour: "2-digit",
                     minute: "2-digit",
+                    timeZone: TIMEZONE,
                   })}
                 </p>
               </div>
