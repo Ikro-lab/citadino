@@ -7,6 +7,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { createAtleta, updateAtleta, deleteAtleta } from "@/lib/actions/atletas";
+import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import type { Posicao } from "@prisma/client";
 
 type Atleta = {
@@ -93,11 +94,11 @@ function AtletaRow({ atleta, timeId }: { atleta: Atleta; timeId: string }) {
   return (
     <div className="flex items-center justify-between rounded-xl border border-border px-3 py-2">
       <Link href={`/atleta/${atleta.id}`} className="flex items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface font-mono text-sm font-bold">
-          {atleta.numero}
-        </span>
+        <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={32} />
         <div>
-          <p className="text-sm font-medium hover:text-accent">{atleta.nome}</p>
+          <p className="text-sm font-medium hover:text-accent">
+            #{atleta.numero} {atleta.nome}
+          </p>
           <p className="text-xs text-muted">{atleta.posicao}</p>
         </div>
       </Link>

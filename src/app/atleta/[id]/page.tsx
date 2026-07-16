@@ -1,9 +1,20 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AtSign } from "lucide-react";
+import { AtSign, Goal, Square } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { calcularIdade } from "@/lib/utils";
+import { TIMEZONE } from "@/lib/date-utils";
+
+const tipoConfig: Record<string, { label: string; icon: typeof Goal; className: string }> = {
+  GOL: { label: "Gol", icon: Goal, className: "text-accent" },
+  CARTAO_AMARELO: { label: "Cartão amarelo", icon: Square, className: "text-yellow-500" },
+  CARTAO_VERMELHO: { label: "Cartão vermelho", icon: Square, className: "text-danger" },
+  SUBSTITUICAO: { label: "Substituição", icon: Square, className: "text-muted" },
+  OUTRO: { label: "Lance", icon: Square, className: "text-muted" },
+};
 
 export default async function AtletaPage({
   params,
@@ -28,7 +39,7 @@ export default async function AtletaPage({
 
   if (!atleta) notFound();
 
-  const [gols, amarelos, vermelhos, jogosDoTime] = await Promise.all([
+  const [gols, amarelos, vermelhos, jogosDoTime, eventos] = await Promise.all([
     prisma.eventoPartida.count({ where: { atletaId: id, tipo: "GOL" } }),
     prisma.eventoPartida.count({ where: { atletaId: id, tipo: "CARTAO_AMARELO" } }),
     prisma.eventoPartida.count({ where: { atletaId: id, tipo: "CARTAO_VERMELHO" } }),
@@ -38,6 +49,28 @@ export default async function AtletaPage({
         OR: [{ timeCasaId: atleta.time.id }, { timeForaId: atleta.time.id }],
       },
     }),
+    prisma.eventoPartida.findMany({
+      where: { atletaId: id },
+      orderBy: { partida: { dataHora: "desc" } },
+      select: {
+        id: true,
+        tipo: true,
+        minuto: true,
+        videoUrl: true,
+        descricao: true,
+        timeId: true,
+        partida: {
+          select: {
+            id: true,
+            dataHora: true,
+            timeCasaId: true,
+            timeForaId: true,
+            timeCasa: { select: { nome: true } },
+            timeFora: { select: { nome: true } },
+          },
+        },
+      },
+    }),
   ]);
 
   const instagramHandle = atleta.instagram?.replace(/^@/, "").trim();
@@ -45,12 +78,12 @@ export default async function AtletaPage({
   return (
     <div className="mx-auto max-w-sm px-4 py-6">
       <Card className="text-center">
-        <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-surface text-2xl font-bold text-muted">
-          {atleta.numero}
+        <div className="mx-auto mb-3">
+          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={80} className="text-2xl" />
         </div>
         <h1 className="text-xl font-bold">{atleta.nome}</h1>
         <p className="text-sm text-muted">
-          {atleta.posicao} · {atleta.time.nome}
+          #{atleta.numero} · {atleta.posicao} · {atleta.time.nome}
         </p>
         <div className="mt-2 flex items-center justify-center gap-2">
           <Badge variant="accent">{atleta.time.categoria.nome}</Badge>
@@ -91,6 +124,59 @@ export default async function AtletaPage({
         <p className="text-sm text-muted">
           {atleta.time.nome} disputou {jogosDoTime} partida(s) encerrada(s) nesta temporada.
         </p>
+      </Card>
+
+      <Card className="mt-4">
+        <h2 className="mb-3 font-semibold">Gols e lances</h2>
+        {eventos.length === 0 ? (
+          <p className="text-sm text-muted">Nenhum gol ou lance registrado ainda.</p>
+        ) : (
+          <ol className="flex flex-col gap-4">
+            {eventos.map((e) => {
+              const config = tipoConfig[e.tipo] ?? tipoConfig.OUTRO;
+              const Icon = config.icon;
+              const adversario =
+                e.timeId === e.partida.timeCasaId
+                  ? e.partida.timeFora.nome
+                  : e.partida.timeCasa.nome;
+              const data = new Date(e.partida.dataHora).toLocaleDateString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                timeZone: TIMEZONE,
+              });
+
+              return (
+                <li key={e.id} className="flex flex-col gap-2 text-sm">
+                  <Link
+                    href={`/partida/${e.partida.id}`}
+                    className="flex items-start gap-3 hover:text-accent"
+                  >
+                    <Icon size={16} className={`mt-0.5 shrink-0 ${config.className}`} />
+                    <div>
+                      <p className="font-medium">
+                        {config.label} · {e.minuto}&apos;
+                      </p>
+                      <p className="text-xs text-muted">
+                        vs {adversario} · {data}
+                        {e.descricao ? ` · ${e.descricao}` : ""}
+                      </p>
+                    </div>
+                  </Link>
+                  {e.videoUrl && (
+                    // eslint-disable-next-line jsx-a11y/media-has-caption
+                    <video
+                      controls
+                      preload="metadata"
+                      src={e.videoUrl}
+                      className="max-h-64 w-full rounded-lg"
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </Card>
     </div>
   );
