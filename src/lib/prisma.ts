@@ -2,16 +2,16 @@ import { existsSync, mkdirSync, copyFileSync } from "fs";
 import path from "path";
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+const databaseAuthToken = process.env.DATABASE_AUTH_TOKEN;
+const isRemote = databaseUrl.startsWith("libsql:") || databaseUrl.startsWith("https:");
 
 /**
- * Se o arquivo SQLite de destino ainda não existe (ex: /tmp em runtime
- * serverless, que começa vazio a cada cold start), copia um template
- * pré-populado do repositório. Isso só existe para permitir uma prévia
- * funcional em ambientes sem disco persistente (ex: Vercel) — os dados não
- * persistem entre invocações/instâncias nesse cenário. Para uso real em
- * produção, troque por um banco gerenciado (Postgres) e remova este helper.
+ * Se o arquivo SQLite local ainda não existe, copia um template pré-populado
+ * do repositório. Só se aplica a `file:` (dev local) — em produção o banco é
+ * remoto (Turso/libSQL, ver DATABASE_URL/DATABASE_AUTH_TOKEN no README).
  */
 function ensureSqliteFile(url: string) {
   if (!url.startsWith("file:")) return;
@@ -37,13 +37,15 @@ function ensureSqliteFile(url: string) {
   }
 }
 
-ensureSqliteFile(databaseUrl);
-
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+if (!isRemote) ensureSqliteFile(databaseUrl);
+
+const adapter = isRemote
+  ? new PrismaLibSql({ url: databaseUrl, authToken: databaseAuthToken })
+  : new PrismaBetterSqlite3({ url: databaseUrl });
 
 export const prisma =
   globalForPrisma.prisma ??

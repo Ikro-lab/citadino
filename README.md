@@ -138,35 +138,57 @@ em **Advanced → Request headers** no cron-job.org.
 
 ## Variáveis de ambiente (`.env`)
 
-- `DATABASE_URL` — caminho do SQLite (`file:./dev.db`)
+- `DATABASE_URL` — `file:./dev.db` localmente, ou uma URL `libsql://...` (Turso) em produção
+- `DATABASE_AUTH_TOKEN` — token de autenticação do Turso (só necessário quando `DATABASE_URL` é `libsql:`/`https:`)
 - `AUTH_SECRET` — chave de assinatura de sessão do Auth.js
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` — Web Push
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — credenciais usadas pelo `db:seed`
-- `CRON_SECRET` (opcional) — protege `/api/cron/resumo-diario` com `Authorization: Bearer`
+- `CRON_SECRET` (opcional) — protege as rotas `/api/cron/*` com `Authorization: Bearer`
 
-## Deploy no Vercel (prévia — não usar para dados reais)
+## Deploy no Vercel
 
 `prisma generate` roda automaticamente no `postinstall` (necessário a partir do
-Prisma 7, que não gera mais o client sozinho). Configure nas variáveis de
-ambiente do projeto na Vercel:
+Prisma 7, que não gera mais o client sozinho).
 
-- `DATABASE_URL=file:/tmp/dev.db`
-- `AUTH_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mesmos valores do `.env`, ou gere novos)
+Funções serverless da Vercel têm sistema de arquivos somente leitura (exceto
+`/tmp`, que não é compartilhado nem persistente entre instâncias/invocações) —
+por isso produção usa um banco SQLite remoto no [Turso](https://turso.tech)
+em vez de um arquivo local. `src/lib/prisma.ts` e `prisma/seed.ts` detectam
+automaticamente: se `DATABASE_URL` começa com `libsql:`/`https:`, usam o
+adapter `@prisma/adapter-libsql`; caso contrário (`file:...`), usam
+`@prisma/adapter-better-sqlite3` normalmente (fluxo local, sem depender de rede).
 
-**Isso só serve para visualizar a interface no ar.** Funções serverless da
-Vercel têm sistema de arquivos somente leitura, exceto `/tmp` — que não é
-compartilhado nem persistente entre instâncias/invocações. Para contornar
-isso e o deploy pelo menos funcionar visualmente, `src/lib/prisma.ts` copia um
-banco SQLite pré-populado (`prisma/seed-template.db`) para `/tmp/dev.db` na
-primeira consulta de cada instância fria. Na prática: dados que você grava
-(cadastros, resultados, votos) podem sumir a qualquer momento, e requisições
-diferentes podem ver estados diferentes do banco. Uploads (documentos de
-inscrição, PDFs de regulamento) também não funcionam nesse modo, pelo mesmo
-motivo de filesystem.
+### Passo a passo: banco no Turso (gratuito)
 
-Para produção de verdade, troque `DATABASE_URL` por um Postgres gerenciado
-(Neon, Vercel Postgres, Supabase) — exige adaptar `prisma/schema.prisma`
-(`provider = "postgresql"`) e trocar o adapter em `src/lib/prisma.ts` de
-`@prisma/adapter-better-sqlite3` para o adapter Postgres correspondente — e
-apontar `saveUpload()` em `src/lib/storage.ts` para um object storage (Vercel
-Blob, Cloudinary, S3/R2).
+1. Crie uma conta em https://turso.tech (grátis, tier generoso o suficiente
+   para este projeto).
+2. Instale a CLI e autentique:
+   ```bash
+   curl -sSfL https://get.tur.so/install.sh | bash
+   turso auth login
+   ```
+3. Crie o banco:
+   ```bash
+   turso db create citadino
+   ```
+4. Pegue a URL e gere um token:
+   ```bash
+   turso db show citadino --url
+   turso db tokens create citadino
+   ```
+5. Configure na Vercel (Settings → Environment Variables, ambiente Production):
+   - `DATABASE_URL` = a URL `libsql://...` do passo 4
+   - `DATABASE_AUTH_TOKEN` = o token do passo 4
+   - `AUTH_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mesmos valores do `.env`, ou gere novos)
+6. Aplique o schema no banco remoto (rode localmente, apontando para o Turso):
+   ```bash
+   DATABASE_URL="libsql://..." DATABASE_AUTH_TOKEN="..." npx prisma migrate deploy
+   DATABASE_URL="libsql://..." DATABASE_AUTH_TOKEN="..." npm run db:seed   # opcional, dados de exemplo
+   ```
+7. Redeploy o projeto na Vercel para o build pegar as novas variáveis.
+
+**Uploads continuam sem funcionar em produção** (documentos de inscrição,
+PDFs de regulamento) pelo mesmo motivo de filesystem somente-leitura — o Turso
+resolve só a persistência do banco, não arquivos. Para isso, aponte
+`saveUpload()` em `src/lib/storage.ts` para um object storage (Vercel Blob,
+Cloudinary, S3/R2).

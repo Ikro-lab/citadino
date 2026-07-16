@@ -2,10 +2,13 @@ import "dotenv/config";
 import bcrypt from "bcryptjs";
 import { PrismaClient, type Posicao } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
 
-const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL ?? "file:./dev.db",
-});
+const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+const isRemote = databaseUrl.startsWith("libsql:") || databaseUrl.startsWith("https:");
+const adapter = isRemote
+  ? new PrismaLibSql({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN })
+  : new PrismaBetterSqlite3({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
 const NOMES_TIMES_MASC = ["Real Bairro FC", "Unidos da Vila", "Furacão FC", "Atlético Central"];
