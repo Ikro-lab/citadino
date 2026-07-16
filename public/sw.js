@@ -7,6 +7,7 @@ self.addEventListener("push", function (event) {
     icon: data.icon || "/icon-192.png",
     badge: "/icon-192.png",
     vibrate: [100, 50, 100],
+    silent: false,
     data: { url: data.url || "/" },
   };
 
