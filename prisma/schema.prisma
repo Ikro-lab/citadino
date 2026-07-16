@@ -178,6 +178,7 @@ model InscricaoAtleta {
   nome                    String
   dataNascimento          DateTime
   instagram               String?
+  fotoUrl                 String
   documentoUrl            String
   comprovanteEnderecoUrl  String
   status                  StatusInscricao @default(PENDENTE)
@@ -203,6 +204,7 @@ model Partida {
   placarCasa    Int      @default(0)
   placarFora    Int      @default(0)
   golsCasaDetalhe Int?
+  linkTransmissaoUrl String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -220,6 +222,7 @@ model EventoPartida {
   atletaId    String?
   atleta      Atleta?  @relation(fields: [atletaId], references: [id])
   descricao   String?
+  videoUrl    String?
   lancadoPorId String?
   lancadoPor  User?    @relation("EventosLancadosPor", fields: [lancadoPorId], references: [id])
   createdAt   DateTime @default(now())

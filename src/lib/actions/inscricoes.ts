@@ -34,8 +34,12 @@ export async function criarInscricao(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
+  const foto = formData.get("foto");
   const documento = formData.get("documento");
   const comprovante = formData.get("comprovanteEndereco");
+  if (!(foto instanceof File) || foto.size === 0) {
+    return { error: "Envie uma foto do atleta." };
+  }
   if (!(documento instanceof File) || documento.size === 0) {
     return { error: "Envie a foto do documento de identificação." };
   }
@@ -43,9 +47,11 @@ export async function criarInscricao(
     return { error: "Envie o comprovante de endereço." };
   }
 
+  let fotoUrl: string;
   let documentoUrl: string;
   let comprovanteEnderecoUrl: string;
   try {
+    fotoUrl = await saveUpload(foto, `inscricoes/${time.id}`);
     documentoUrl = await saveUpload(documento, `inscricoes/${time.id}`);
     comprovanteEnderecoUrl = await saveUpload(comprovante, `inscricoes/${time.id}`);
   } catch (e) {
@@ -58,6 +64,7 @@ export async function criarInscricao(
       nome: parsed.data.nome,
       dataNascimento: new Date(parsed.data.dataNascimento),
       instagram: parsed.data.instagram || null,
+      fotoUrl,
       documentoUrl,
       comprovanteEnderecoUrl,
     },
@@ -98,6 +105,7 @@ export async function aprovarInscricao(id: string, formData: FormData) {
         posicao,
         dataNascimento: inscricao.dataNascimento,
         instagram: inscricao.instagram,
+        fotoUrl: inscricao.fotoUrl,
         timeId: inscricao.timeId,
       },
     });

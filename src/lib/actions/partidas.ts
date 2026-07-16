@@ -7,6 +7,41 @@ import { auth } from "@/auth";
 import { notifyPartidaEvento } from "@/lib/push/notify";
 import type { FasePartida, TipoEvento } from "@prisma/client";
 
+export async function assertPodeEditarEvento(eventoId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autenticado.");
+
+  const evento = await prisma.eventoPartida.findUnique({
+    where: { id: eventoId },
+    select: {
+      partidaId: true,
+      timeId: true,
+      partida: {
+        select: {
+          timeCasaId: true,
+          timeForaId: true,
+          timeCasa: { select: { treinadorId: true } },
+          timeFora: { select: { treinadorId: true } },
+        },
+      },
+    },
+  });
+  if (!evento) throw new Error("Evento não encontrado.");
+  if (session.user.role === "ADMIN") return evento;
+
+  const timeDoTreinador =
+    evento.partida.timeCasa.treinadorId === session.user.id
+      ? evento.partida.timeCasaId
+      : evento.partida.timeFora.treinadorId === session.user.id
+        ? evento.partida.timeForaId
+        : null;
+
+  if (!timeDoTreinador || timeDoTreinador !== evento.timeId) {
+    throw new Error("Você só pode editar eventos do seu próprio time.");
+  }
+  return evento;
+}
+
 async function assertPodeLancarEvento(partidaId: string, timeId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
@@ -217,4 +252,31 @@ export async function deleteEvento(eventoId: string, partidaId: string) {
   revalidatePath(`/admin/partidas/${partidaId}/sumula`);
   revalidatePath(`/partida/${partidaId}`);
   revalidatePath("/");
+}
+
+export async function setEventoVideo(eventoId: string, videoUrl: string) {
+  const evento = await assertPodeEditarEvento(eventoId);
+  if (!videoUrl) return;
+
+  await prisma.eventoPartida.update({
+    where: { id: eventoId },
+    data: { videoUrl },
+  });
+
+  revalidatePath(`/admin/partidas/${evento.partidaId}/sumula`);
+  revalidatePath(`/treinador/partidas/${evento.partidaId}/sumula`);
+  revalidatePath(`/partida/${evento.partidaId}`);
+}
+
+export async function setLinkTransmissao(partidaId: string, formData: FormData) {
+  await requireAdmin();
+  const url = String(formData.get("linkTransmissaoUrl") || "").trim() || null;
+
+  await prisma.partida.update({
+    where: { id: partidaId },
+    data: { linkTransmissaoUrl: url },
+  });
+
+  revalidatePath(`/admin/partidas/${partidaId}/sumula`);
+  revalidatePath(`/partida/${partidaId}`);
 }

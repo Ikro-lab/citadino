@@ -5,12 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { SumulaForm } from "@/components/partidas/sumula-form";
+import { VideoUploadButton } from "@/components/partidas/video-upload-button";
+import { Input, Label } from "@/components/ui/input";
 import { getAtletasSuspensosIds } from "@/lib/artilharia";
 import {
   iniciarPartida,
   encerrarPartida,
   adiarPartida,
   deleteEvento,
+  setLinkTransmissao,
 } from "@/lib/actions/partidas";
 
 const tipoLabel: Record<string, string> = {
@@ -104,6 +107,28 @@ export default async function SumulaPage({
         </div>
       </Card>
 
+      <Card>
+        <h2 className="mb-3 font-semibold">Transmissão ao vivo</h2>
+        <form
+          action={setLinkTransmissao.bind(null, id)}
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+        >
+          <div className="flex-1">
+            <Label htmlFor="linkTransmissaoUrl">Link da live (YouTube)</Label>
+            <Input
+              id="linkTransmissaoUrl"
+              name="linkTransmissaoUrl"
+              type="url"
+              placeholder="https://youtube.com/watch?v=..."
+              defaultValue={partida.linkTransmissaoUrl ?? ""}
+            />
+          </div>
+          <Button type="submit" variant="secondary">
+            Salvar
+          </Button>
+        </form>
+      </Card>
+
       {(partida.status === "AO_VIVO" || partida.status === "AGENDADA") && (
         <Card>
           <h2 className="mb-3 font-semibold">Registrar evento</h2>
@@ -123,14 +148,17 @@ export default async function SumulaPage({
           {partida.eventos.map((e) => (
             <div
               key={e.id}
-              className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm"
+              className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2 text-sm"
             >
               <span>
                 <span className="mr-2 font-mono font-semibold text-muted">{e.minuto}&apos;</span>
                 {tipoLabel[e.tipo]} · {e.time.nome}
                 {e.atleta && ` · ${e.atleta.nome} (#${e.atleta.numero})`}
               </span>
-              <DeleteButton action={deleteEvento.bind(null, e.id, id)} />
+              <div className="flex items-center gap-3">
+                <VideoUploadButton eventoId={e.id} videoUrl={e.videoUrl} />
+                <DeleteButton action={deleteEvento.bind(null, e.id, id)} />
+              </div>
             </div>
           ))}
           {partida.eventos.length === 0 && (

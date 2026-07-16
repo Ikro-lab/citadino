@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Radio } from "lucide-react";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
 const statusConfig = {
@@ -66,6 +67,18 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
         {dataHora}
         {partida.local ? ` · ${partida.local}` : ""}
       </p>
+
+      {partida.linkTransmissaoUrl && (
+        <a
+          href={partida.linkTransmissaoUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 flex items-center justify-center gap-2 text-sm font-medium text-accent hover:underline"
+        >
+          <Radio size={16} />
+          Assistir ao vivo
+        </a>
+      )}
     </Card>
   );
 }

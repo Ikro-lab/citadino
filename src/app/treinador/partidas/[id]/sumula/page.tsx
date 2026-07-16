@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SumulaFormTreinador } from "@/components/partidas/sumula-form-treinador";
+import { VideoUploadButton } from "@/components/partidas/video-upload-button";
 import { getAtletasSuspensosIds } from "@/lib/artilharia";
 
 const tipoLabel: Record<string, string> = {
@@ -95,10 +96,18 @@ export default async function TreinadorSumulaPage({
         <h2 className="mb-3 font-semibold">Eventos registrados</h2>
         <div className="flex flex-col gap-2">
           {partida.eventos.map((e) => (
-            <div key={e.id} className="rounded-xl border border-border px-3 py-2 text-sm">
-              <span className="mr-2 font-mono font-semibold text-muted">{e.minuto}&apos;</span>
-              {tipoLabel[e.tipo]} · {e.time.nome}
-              {e.atleta && ` · ${e.atleta.nome} (#${e.atleta.numero})`}
+            <div
+              key={e.id}
+              className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2 text-sm"
+            >
+              <span>
+                <span className="mr-2 font-mono font-semibold text-muted">{e.minuto}&apos;</span>
+                {tipoLabel[e.tipo]} · {e.time.nome}
+                {e.atleta && ` · ${e.atleta.nome} (#${e.atleta.numero})`}
+              </span>
+              {e.timeId === meuTime.id && (
+                <VideoUploadButton eventoId={e.id} videoUrl={e.videoUrl} />
+              )}
             </div>
           ))}
           {partida.eventos.length === 0 && (

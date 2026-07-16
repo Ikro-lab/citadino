@@ -57,6 +57,14 @@ export function EventTimeline({ partida }: { partida: PartidaDetalhe }) {
                   {config.label} · {isCasa ? partida.timeCasa.nome : partida.timeFora.nome}
                   {evento.descricao ? ` · ${evento.descricao}` : ""}
                 </p>
+                {evento.videoUrl && (
+                  <video
+                    controls
+                    preload="metadata"
+                    src={evento.videoUrl}
+                    className="mt-2 max-h-64 w-full max-w-sm rounded-lg"
+                  />
+                )}
               </div>
             </li>
           );

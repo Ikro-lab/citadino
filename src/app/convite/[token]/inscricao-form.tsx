@@ -43,6 +43,11 @@ export default function InscricaoForm({ conviteToken }: { conviteToken: string }
         </div>
 
         <div>
+          <Label htmlFor="foto">Foto do atleta</Label>
+          <Input id="foto" name="foto" type="file" accept="image/*" required />
+        </div>
+
+        <div>
           <Label htmlFor="documento">Documento de identificação (foto)</Label>
           <Input id="documento" name="documento" type="file" accept="image/*" required />
         </div>

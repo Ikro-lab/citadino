@@ -31,6 +31,9 @@ export default async function AdminInscricoesPage() {
               {i.time.nome} · {i.time.categoria.nome}
             </p>
             <div className="mt-1 flex gap-3 text-xs">
+              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">
+                Foto
+              </a>
               <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">
                 Documento
               </a>
