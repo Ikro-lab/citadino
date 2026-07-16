@@ -70,10 +70,59 @@ export async function notifyBroadcast(payload: PushPayload) {
 }
 
 /**
- * Envia um resumo diário (1x/dia, disparado por cron externo) com os jogos de
- * hoje para cada inscrito, filtrado pela preferência de categoria/time.
- * Substitui o antigo lembrete "X min antes", que exigiria um cron de minuto
- * em minuto — indisponível no plano Hobby da Vercel (cron só 1x/dia).
+ * Envia o lembrete "faltam X min" para cada inscrito cuja preferência
+ * (lembreteMin, padrão 30) caia dentro da janela atual. Precisa rodar a cada
+ * minuto para não perder partidas — o cron nativo da Vercel (Hobby) só roda
+ * 1x/dia, então isso é disparado por um agendador externo (ver README).
+ */
+export async function notifyLembretesProximos() {
+  if (!vapidPublic || !vapidPrivate) return { enviados: 0 };
+
+  const subs = await prisma.pushSubscription.findMany();
+  if (subs.length === 0) return { enviados: 0 };
+
+  const now = new Date();
+  let enviados = 0;
+
+  for (const sub of subs) {
+    const minutos = sub.lembreteMin ?? 30;
+    const janelaInicio = new Date(now.getTime() + (minutos - 1) * 60_000);
+    const janelaFim = new Date(now.getTime() + (minutos + 1) * 60_000);
+
+    const where: Prisma.PartidaWhereInput = {
+      status: "AGENDADA",
+      dataHora: { gte: janelaInicio, lte: janelaFim },
+    };
+
+    if (sub.categoriaId) {
+      where.categoriaId = sub.categoriaId;
+    } else if (sub.timeId) {
+      where.OR = [{ timeCasaId: sub.timeId }, { timeForaId: sub.timeId }];
+    }
+    // sem categoria e sem time = inscrito em "todas as categorias".
+
+    const partidas = await prisma.partida.findMany({
+      where,
+      include: { timeCasa: true, timeFora: true },
+    });
+
+    for (const partida of partidas) {
+      await sendToSubscription(sub, {
+        title: `Em ${minutos} min: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
+        body: "Não perca o início da partida.",
+        url: `/partida/${partida.id}`,
+      });
+      enviados += 1;
+    }
+  }
+
+  return { enviados };
+}
+
+/**
+ * Envia um resumo diário (1x/dia, disparado pelo cron nativo da Vercel) com
+ * os jogos de hoje para cada inscrito, filtrado pela preferência de
+ * categoria/time.
  */
 export async function notifyResumoDiario() {
   if (!vapidPublic || !vapidPrivate) return { enviados: 0 };

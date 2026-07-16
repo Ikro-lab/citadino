@@ -87,11 +87,30 @@ localmente com HTTPS: `npx next dev --experimental-https`.
 
 Um resumo diário ("hoje tem jogo do seu time/categoria") é enviado 1x por dia via
 `/api/cron/resumo-diario`. O `vercel.json` já agenda esse cron às 22h UTC (19h em
-horário de Brasília) — o plano Hobby da Vercel só permite cron 1x/dia, por isso
-essa rota não faz mais o lembrete "X minutos antes" (que exigiria rodar a cada
-minuto). Para lembretes de proximidade real, chame essa mesma rota com mais
-frequência a partir de um agendador externo gratuito (ex: cron-job.org, GitHub
-Actions agendado) ou faça upgrade para o plano Pro da Vercel.
+horário de Brasília) — o plano Hobby da Vercel só permite cron 1x/dia.
+
+O lembrete "faltam X minutos" (`/api/cron/lembretes`, baseado na preferência
+`lembreteMin` de cada inscrito) precisa rodar a cada minuto para não perder
+partidas, o que o cron nativo da Vercel não cobre no plano Hobby. Chame essa
+rota a cada minuto a partir de um agendador externo gratuito (ex: cron-job.org)
+— veja o passo a passo abaixo — ou faça upgrade para o plano Pro da Vercel e
+adicione o schedule `* * * * *` no `vercel.json`.
+
+### Passo a passo: cron-job.org (gratuito, roda a cada minuto)
+
+1. Crie uma conta em https://cron-job.org (gratuito, sem cartão).
+2. No painel, clique em **"Create cronjob"**.
+3. Em **Title**, dê um nome (ex: "Citadino - lembretes").
+4. Em **Address**, informe `https://SEU-DOMINIO.vercel.app/api/cron/lembretes`.
+5. Em **Schedule**, escolha **"Every minute"** (ou configure manualmente
+   `* * * * *`).
+6. Salve. O painel do cron-job.org mostra o histórico de execuções e o status
+   HTTP de cada chamada — use isso para conferir se está retornando `200`.
+
+Sem `CRON_SECRET` configurado na Vercel, a rota fica pública (qualquer GET
+dispara o envio); se quiser restringir, defina `CRON_SECRET` nas env vars do
+projeto na Vercel e adicione o header `Authorization: Bearer SEU_CRON_SECRET`
+em **Advanced → Request headers** no cron-job.org.
 
 ## Limitações conhecidas
 
