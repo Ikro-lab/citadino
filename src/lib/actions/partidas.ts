@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
 import { auth } from "@/auth";
@@ -134,6 +135,7 @@ export async function updatePartida(id: string, formData: FormData) {
   });
   revalidatePath("/admin/partidas");
   revalidatePath(`/partida/${id}`);
+  redirect("/admin/partidas");
 }
 
 export async function deletePartida(id: string) {

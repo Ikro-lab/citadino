@@ -65,6 +65,12 @@ export default async function AdminPartidasPage() {
                   {status.label}
                 </Badge>
                 <Link
+                  href={`/admin/partidas/${p.id}/editar`}
+                  className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
+                >
+                  Editar
+                </Link>
+                <Link
                   href={`/admin/partidas/${p.id}/sumula`}
                   className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
                 >

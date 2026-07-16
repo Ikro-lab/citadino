@@ -32,3 +32,13 @@ export function parseDatetimeLocalAsBRT(value: string): Date {
   const withSeconds = value.length === 16 ? `${value}:00` : value;
   return new Date(`${withSeconds}${BRT_OFFSET}`);
 }
+
+/**
+ * Inverso de parseDatetimeLocalAsBRT: formata um Date pro valor esperado por
+ * um <input type="datetime-local"> (ex: "2026-07-16T19:00"), representando o
+ * horário em Brasília — pra preencher o defaultValue de um form de edição.
+ */
+export function formatDatetimeLocalBRT(date: Date): string {
+  const BRT_OFFSET_MS = 3 * 60 * 60 * 1000;
+  return new Date(date.getTime() - BRT_OFFSET_MS).toISOString().slice(0, 16);
+}
