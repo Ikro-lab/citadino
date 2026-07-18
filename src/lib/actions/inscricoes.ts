@@ -106,6 +106,8 @@ export async function aprovarInscricao(id: string, formData: FormData) {
         dataNascimento: inscricao.dataNascimento,
         instagram: inscricao.instagram,
         fotoUrl: inscricao.fotoUrl,
+        documentoUrl: inscricao.documentoUrl,
+        comprovanteEnderecoUrl: inscricao.comprovanteEnderecoUrl,
         timeId: inscricao.timeId,
       },
     });

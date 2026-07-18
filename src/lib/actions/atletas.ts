@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import { saveUpload } from "@/lib/storage";
 import type { Posicao } from "@prisma/client";
 
 async function assertCanManageTime(timeId: string) {
@@ -24,20 +25,61 @@ function revalidateTimeViews(timeId: string) {
   revalidatePath("/treinador");
 }
 
-export async function createAtleta(timeId: string, formData: FormData) {
+export type CreateAtletaState = { error?: string } | undefined;
+
+export async function createAtleta(
+  timeId: string,
+  _prevState: CreateAtletaState,
+  formData: FormData
+): Promise<CreateAtletaState> {
   await assertCanManageTime(timeId);
 
   const nome = String(formData.get("nome") || "").trim();
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
-  const fotoUrl = String(formData.get("fotoUrl") || "").trim() || null;
   const instagram = String(formData.get("instagram") || "").trim() || null;
   const dataNascimentoRaw = String(formData.get("dataNascimento") || "").trim();
   const dataNascimento = dataNascimentoRaw ? new Date(dataNascimentoRaw) : null;
-  if (!nome || !numero || Number.isNaN(numero)) return;
+  if (!nome || !numero || Number.isNaN(numero)) {
+    return { error: "Preencha o nome e o número corretamente." };
+  }
+
+  const foto = formData.get("foto");
+  const documento = formData.get("documento");
+  const comprovante = formData.get("comprovanteEndereco");
+  if (!(foto instanceof File) || foto.size === 0) {
+    return { error: "Envie uma foto do atleta." };
+  }
+  if (!(documento instanceof File) || documento.size === 0) {
+    return { error: "Envie a foto do documento de identificação." };
+  }
+  if (!(comprovante instanceof File) || comprovante.size === 0) {
+    return { error: "Envie o comprovante de endereço." };
+  }
+
+  let fotoUrl: string;
+  let documentoUrl: string;
+  let comprovanteEnderecoUrl: string;
+  try {
+    fotoUrl = await saveUpload(foto, `atletas/${timeId}`);
+    documentoUrl = await saveUpload(documento, `atletas/${timeId}`);
+    comprovanteEnderecoUrl = await saveUpload(comprovante, `atletas/${timeId}`);
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
+  }
 
   await prisma.atleta.create({
-    data: { nome, numero, posicao, fotoUrl, instagram, dataNascimento, timeId },
+    data: {
+      nome,
+      numero,
+      posicao,
+      instagram,
+      dataNascimento,
+      timeId,
+      fotoUrl,
+      documentoUrl,
+      comprovanteEnderecoUrl,
+    },
   });
   revalidateTimeViews(timeId);
 }

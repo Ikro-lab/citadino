@@ -152,6 +152,8 @@ model Atleta {
   numero        Int
   posicao       Posicao
   fotoUrl       String?
+  documentoUrl  String?
+  comprovanteEnderecoUrl String?
   dataNascimento DateTime?
   instagram     String?
   timeId        String

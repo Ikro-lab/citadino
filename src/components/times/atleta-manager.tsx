@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
@@ -123,12 +123,17 @@ export function AtletaManager({
   timeId: string;
   atletas: Atleta[];
 }) {
+  const [state, formAction, pending] = useActionState(
+    createAtleta.bind(null, timeId),
+    undefined
+  );
+
   return (
     <Card>
       <h2 className="mb-3 font-semibold">Elenco</h2>
 
       <form
-        action={createAtleta.bind(null, timeId)}
+        action={formAction}
         className="mb-4 flex flex-wrap items-end gap-2 rounded-xl bg-surface p-3"
       >
         <div className="w-16">
@@ -157,8 +162,34 @@ export function AtletaManager({
           <Label htmlFor="instagram">Instagram</Label>
           <Input id="instagram" name="instagram" placeholder="@usuario" />
         </div>
-        <Button type="submit" size="sm">
-          Adicionar
+
+        <div className="w-full min-w-[160px] flex-1">
+          <Label htmlFor="foto">Foto do atleta</Label>
+          <Input id="foto" name="foto" type="file" accept="image/*" required />
+        </div>
+        <div className="w-full min-w-[160px] flex-1">
+          <Label htmlFor="documento">Documento de identificação (foto)</Label>
+          <Input id="documento" name="documento" type="file" accept="image/*" required />
+        </div>
+        <div className="w-full min-w-[160px] flex-1">
+          <Label htmlFor="comprovanteEndereco">Comprovante de endereço</Label>
+          <Input
+            id="comprovanteEndereco"
+            name="comprovanteEndereco"
+            type="file"
+            accept="image/*,application/pdf"
+            required
+          />
+        </div>
+
+        {state?.error && (
+          <p className="w-full rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
+            {state.error}
+          </p>
+        )}
+
+        <Button type="submit" size="sm" disabled={pending}>
+          {pending ? "Adicionando..." : "Adicionar"}
         </Button>
       </form>
 
