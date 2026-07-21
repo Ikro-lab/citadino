@@ -2,9 +2,9 @@ import type { Patrocinador } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
 const ALTURA_POR_NIVEL: Record<Patrocinador["nivel"], number> = {
-  MASTER: 40,
-  OURO: 30,
-  PRATA: 24,
+  MASTER: 72,
+  OURO: 56,
+  PRATA: 44,
 };
 
 function SponsorLogo({ patrocinador }: { patrocinador: Patrocinador }) {
@@ -15,7 +15,7 @@ function SponsorLogo({ patrocinador }: { patrocinador: Patrocinador }) {
       src={patrocinador.logoUrl}
       alt={patrocinador.nome}
       style={{ height: altura, width: "auto" }}
-      className="shrink-0 object-contain grayscale transition hover:grayscale-0"
+      className="shrink-0 object-contain transition hover:scale-105"
     />
   );
 
