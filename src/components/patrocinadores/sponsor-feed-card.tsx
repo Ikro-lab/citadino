@@ -10,7 +10,7 @@ export function SponsorFeedCard({ patrocinador }: { patrocinador: Patrocinador }
       <img
         src={patrocinador.logoUrl}
         alt={patrocinador.nome}
-        style={{ height: 56, width: "auto" }}
+        style={{ height: 72, width: "auto" }}
         className="object-contain"
       />
     </div>

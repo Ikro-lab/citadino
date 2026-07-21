@@ -2,9 +2,9 @@ import type { Patrocinador } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
 const ALTURA_POR_NIVEL: Record<Patrocinador["nivel"], number> = {
-  MASTER: 72,
-  OURO: 56,
-  PRATA: 44,
+  MASTER: 112,
+  OURO: 88,
+  PRATA: 68,
 };
 
 function SponsorLogo({ patrocinador }: { patrocinador: Patrocinador }) {
