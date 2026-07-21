@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
-import { saveUpload } from "@/lib/storage";
+import { saveLogoUpload } from "@/lib/storage";
 import type { NivelPatrocinio } from "@prisma/client";
 
 export async function createPatrocinador(formData: FormData) {
@@ -18,7 +18,7 @@ export async function createPatrocinador(formData: FormData) {
 
   if (!nome || !campeonatoId || !(logo instanceof File) || logo.size === 0) return;
 
-  const logoUrl = await saveUpload(logo, "patrocinadores");
+  const logoUrl = await saveLogoUpload(logo, "patrocinadores");
 
   await prisma.patrocinador.create({
     data: { nome, campeonatoId, linkUrl, nivel, ordem, logoUrl },
@@ -38,7 +38,7 @@ export async function updatePatrocinador(id: string, formData: FormData) {
   if (!nome) return;
 
   const logo = formData.get("logo");
-  const logoUrl = logo instanceof File && logo.size > 0 ? await saveUpload(logo, "patrocinadores") : undefined;
+  const logoUrl = logo instanceof File && logo.size > 0 ? await saveLogoUpload(logo, "patrocinadores") : undefined;
 
   await prisma.patrocinador.update({
     where: { id },

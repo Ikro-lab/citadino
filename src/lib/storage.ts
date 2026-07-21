@@ -2,6 +2,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
 import { put } from "@vercel/blob";
+import sharp from "sharp";
 
 const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
@@ -13,23 +14,33 @@ const EXT_BY_MIME: Record<string, string> = {
   "application/pdf": ".pdf",
 };
 
-async function saveToBlob(file: File, subdir: string, filename: string): Promise<string> {
-  const blob = await put(`${subdir}/${filename}`, file, {
+async function saveBufferToBlob(
+  buffer: Buffer,
+  contentType: string,
+  subdir: string,
+  filename: string
+): Promise<string> {
+  const blob = await put(`${subdir}/${filename}`, buffer, {
     access: "public",
-    contentType: file.type || undefined,
+    contentType,
     addRandomSuffix: false,
   });
   return blob.url;
 }
 
-async function saveToLocalDisk(file: File, subdir: string, filename: string): Promise<string> {
+async function saveBufferToLocalDisk(buffer: Buffer, subdir: string, filename: string): Promise<string> {
   const dir = path.join(UPLOAD_ROOT, subdir);
   await mkdir(dir, { recursive: true });
 
-  const bytes = Buffer.from(await file.arrayBuffer());
-  await writeFile(path.join(dir, filename), bytes);
+  await writeFile(path.join(dir, filename), buffer);
 
   return `/uploads/${subdir}/${filename}`;
+}
+
+async function saveBuffer(buffer: Buffer, contentType: string, subdir: string, filename: string) {
+  return process.env.BLOB_READ_WRITE_TOKEN
+    ? saveBufferToBlob(buffer, contentType, subdir, filename)
+    : saveBufferToLocalDisk(buffer, subdir, filename);
 }
 
 /**
@@ -45,8 +56,31 @@ export async function saveUpload(file: File, subdir: string): Promise<string> {
 
   const ext = EXT_BY_MIME[file.type] || path.extname(file.name) || "";
   const filename = `${randomUUID()}${ext}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
 
-  return process.env.BLOB_READ_WRITE_TOKEN
-    ? saveToBlob(file, subdir, filename)
-    : saveToLocalDisk(file, subdir, filename);
+  return saveBuffer(buffer, file.type || "application/octet-stream", subdir, filename);
+}
+
+/**
+ * Salva um logo de patrocinador, recortando automaticamente a margem em
+ * branco/transparente ao redor (comum em logos exportados com padding),
+ * pra não sobrar espaço vazio quando exibido em tamanho fixo no site.
+ */
+export async function saveLogoUpload(file: File, subdir: string): Promise<string> {
+  if (file.size === 0) throw new Error("Arquivo vazio.");
+  if (file.size > MAX_BYTES) throw new Error("Arquivo maior que 10MB.");
+
+  const original = Buffer.from(await file.arrayBuffer());
+  const filename = `${randomUUID()}.png`;
+
+  let buffer = original;
+  try {
+    buffer = Buffer.from(await sharp(original).trim().png().toBuffer());
+  } catch {
+    // formato que o sharp não conseguiu processar (ex: SVG) — usa o original
+    const ext = EXT_BY_MIME[file.type] || path.extname(file.name) || ".png";
+    return saveBuffer(original, file.type || "image/png", subdir, `${randomUUID()}${ext}`);
+  }
+
+  return saveBuffer(buffer, "image/png", subdir, filename);
 }
