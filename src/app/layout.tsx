@@ -4,6 +4,9 @@ import "./globals.css";
 import { auth } from "@/auth";
 import { TopHeader } from "@/components/nav/top-header";
 import { BottomNav } from "@/components/nav/bottom-nav";
+import { SponsorFooter } from "@/components/patrocinadores/sponsor-footer";
+import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
+import { SponsorStrip } from "@/components/patrocinadores/sponsor-strip";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -42,6 +45,9 @@ export default async function RootLayout({
 }>) {
   const session = await auth();
   const role = session?.user?.role ?? null;
+  const patrocinadoresMaster = (await getPatrocinadoresAtivos()).filter(
+    (p) => p.nivel === "MASTER"
+  );
 
   return (
     <html
@@ -55,7 +61,14 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <TopHeader role={role} userName={session?.user?.name} />
+        {patrocinadoresMaster.length > 0 && (
+          <SponsorStrip
+            patrocinadores={patrocinadoresMaster}
+            className="justify-center border-b border-border bg-surface/50"
+          />
+        )}
         <main className="flex-1 pb-20 md:pb-8">{children}</main>
+        <SponsorFooter />
         <BottomNav role={role} />
       </body>
     </html>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Target, Vote } from "lucide-react";
 import { getFeedAgrupado, getFormaRecenteEmLote, todayStr } from "@/lib/partidas";
+import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
 import { DateStrip } from "@/components/partidas/date-strip";
 import { LiveFilterToggle } from "@/components/partidas/live-filter-toggle";
 import { FeedList } from "@/components/partidas/feed-list";
@@ -23,7 +24,11 @@ export default async function HomePage({
   }
 
   const timeIds = grupos.flatMap((g) => g.partidas.flatMap((p) => [p.timeCasaId, p.timeForaId]));
-  const forma = await getFormaRecenteEmLote(timeIds);
+  const [forma, patrocinadores] = await Promise.all([
+    getFormaRecenteEmLote(timeIds),
+    getPatrocinadoresAtivos(),
+  ]);
+  const patrocinadoresFeed = patrocinadores.filter((p) => p.nivel !== "MASTER");
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -51,7 +56,13 @@ export default async function HomePage({
       <div className="flex flex-col gap-3">
         <DateStrip data={data} vivo={vivo} />
         <LiveFilterToggle data={data} vivo={vivo} />
-        <FeedList initialGrupos={grupos} initialForma={forma} data={data} vivo={vivo} />
+        <FeedList
+          initialGrupos={grupos}
+          initialForma={forma}
+          data={data}
+          vivo={vivo}
+          patrocinadores={patrocinadoresFeed}
+        />
       </div>
     </div>
   );

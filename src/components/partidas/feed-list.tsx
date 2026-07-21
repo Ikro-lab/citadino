@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { FeedGroup } from "@/components/partidas/feed-group";
 import { MatchRow } from "@/components/partidas/match-row";
+import { SponsorFeedCard } from "@/components/patrocinadores/sponsor-feed-card";
 import type { FeedGrupo } from "@/lib/partidas";
+import type { Patrocinador } from "@prisma/client";
 
 type Forma = Record<string, ("V" | "E" | "D")[]>;
 
@@ -12,11 +14,13 @@ export function FeedList({
   initialForma,
   data,
   vivo,
+  patrocinadores = [],
 }: {
   initialGrupos: FeedGrupo[];
   initialForma: Forma;
   data: string;
   vivo: boolean;
+  patrocinadores?: Patrocinador[];
 }) {
   const [grupos, setGrupos] = useState(initialGrupos);
   const [forma, setForma] = useState(initialForma);
@@ -61,12 +65,17 @@ export function FeedList({
 
   return (
     <div className="flex flex-col gap-3">
-      {grupos.map((g) => (
-        <FeedGroup key={g.categoriaId} categoriaNome={g.categoriaNome}>
-          {g.partidas.map((partida) => (
-            <MatchRow key={partida.id} partida={partida} forma={forma} />
-          ))}
-        </FeedGroup>
+      {grupos.map((g, i) => (
+        <Fragment key={g.categoriaId}>
+          <FeedGroup categoriaNome={g.categoriaNome}>
+            {g.partidas.map((partida) => (
+              <MatchRow key={partida.id} partida={partida} forma={forma} />
+            ))}
+          </FeedGroup>
+          {i === 0 && patrocinadores.length > 0 && (
+            <SponsorFeedCard patrocinador={patrocinadores[i % patrocinadores.length]} />
+          )}
+        </Fragment>
       ))}
     </div>
   );

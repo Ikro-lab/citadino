@@ -77,7 +77,27 @@ model Campeonato {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  categorias  Categoria[]
+  categorias      Categoria[]
+  patrocinadores  Patrocinador[]
+}
+
+enum NivelPatrocinio {
+  MASTER
+  OURO
+  PRATA
+}
+
+model Patrocinador {
+  id           String          @id @default(cuid())
+  nome         String
+  logoUrl      String
+  linkUrl      String?
+  nivel        NivelPatrocinio @default(PRATA)
+  ativo        Boolean         @default(true)
+  ordem        Int             @default(0)
+  campeonatoId String
+  campeonato   Campeonato      @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
+  createdAt    DateTime        @default(now())
 }
 
 model Categoria {
