@@ -43,15 +43,16 @@ export function SponsorStrip({
   if (patrocinadores.length === 0) return null;
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-5 overflow-x-auto px-4 py-2 [scrollbar-width:none]",
-        className
-      )}
-    >
-      {patrocinadores.map((p) => (
-        <SponsorLogo key={p.id} patrocinador={p} />
-      ))}
+    <div className={cn("overflow-hidden py-2", className)}>
+      <div className="flex w-max animate-marquee items-center gap-10">
+        {[0, 1].map((copia) => (
+          <div key={copia} className="flex shrink-0 items-center gap-10" aria-hidden={copia === 1}>
+            {patrocinadores.map((p) => (
+              <SponsorLogo key={p.id} patrocinador={p} />
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
