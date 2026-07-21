@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Goal, Square } from "lucide-react";
 import type { PartidaDetalhe } from "@/lib/partidas";
+import { EventoVideo } from "./evento-video";
 
 const tipoConfig: Record<
   string,
@@ -58,10 +59,8 @@ export function EventTimeline({ partida }: { partida: PartidaDetalhe }) {
                   {evento.descricao ? ` · ${evento.descricao}` : ""}
                 </p>
                 {evento.videoUrl && (
-                  <video
-                    controls
-                    preload="metadata"
-                    src={evento.videoUrl}
+                  <EventoVideo
+                    url={evento.videoUrl}
                     className="mt-2 max-h-64 w-full max-w-sm rounded-lg"
                   />
                 )}

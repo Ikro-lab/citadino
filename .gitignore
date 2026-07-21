@@ -47,3 +47,6 @@ next-env.d.ts
 
 # uploads simulados localmente (dev only — trocar por object storage em produção)
 /public/uploads
+
+.vercel
+.env*

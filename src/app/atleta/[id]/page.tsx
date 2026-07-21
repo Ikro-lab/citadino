@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
+import { EventoVideo } from "@/components/partidas/evento-video";
 import { calcularIdade } from "@/lib/utils";
 import { TIMEZONE } from "@/lib/date-utils";
 
@@ -164,13 +165,7 @@ export default async function AtletaPage({
                     </div>
                   </Link>
                   {e.videoUrl && (
-                    // eslint-disable-next-line jsx-a11y/media-has-caption
-                    <video
-                      controls
-                      preload="metadata"
-                      src={e.videoUrl}
-                      className="max-h-64 w-full rounded-lg"
-                    />
+                    <EventoVideo url={e.videoUrl} className="max-h-64 w-full rounded-lg" />
                   )}
                 </li>
               );
