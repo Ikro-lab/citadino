@@ -56,12 +56,14 @@ enum FasePartida {
 }
 
 model Tenant {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  nome      String
-  ativo     Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  nome          String
+  corPrimaria   String   @default("#f5821f")
+  corSecundaria String   @default("#2fbf8f")
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   users          User[]
   campeonatos    Campeonato[]

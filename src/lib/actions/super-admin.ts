@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { requireSuperAdmin } from "@/lib/require-role";
 import { isValidTenantSlug } from "@/lib/tenant";
+import { isValidHexColor } from "@/lib/color";
 
 export type CreateTenantState = { error?: string; success?: boolean } | undefined;
 
@@ -16,6 +17,8 @@ export async function createTenantComAdmin(
 
   const slug = String(formData.get("slug") || "").trim().toLowerCase();
   const nome = String(formData.get("nome") || "").trim();
+  const corPrimaria = String(formData.get("corPrimaria") || "").trim() || "#f5821f";
+  const corSecundaria = String(formData.get("corSecundaria") || "").trim() || "#2fbf8f";
   const adminName = String(formData.get("adminName") || "").trim();
   const adminEmail = String(formData.get("adminEmail") || "").trim();
   const adminPassword = String(formData.get("adminPassword") || "");
@@ -26,6 +29,9 @@ export async function createTenantComAdmin(
   if (!isValidTenantSlug(slug)) {
     return { error: "Slug inválido. Use apenas letras minúsculas, números e hífen." };
   }
+  if (!isValidHexColor(corPrimaria) || !isValidHexColor(corSecundaria)) {
+    return { error: "Cor inválida. Use o seletor de cores ou um hex no formato #rrggbb." };
+  }
 
   const existingTenant = await prisma.tenant.findUnique({ where: { slug } });
   if (existingTenant) {
@@ -35,7 +41,7 @@ export async function createTenantComAdmin(
   const passwordHash = await bcrypt.hash(adminPassword, 10);
 
   await prisma.$transaction(async (tx) => {
-    const tenant = await tx.tenant.create({ data: { slug, nome, ativo: true } });
+    const tenant = await tx.tenant.create({ data: { slug, nome, corPrimaria, corSecundaria, ativo: true } });
     await tx.user.create({
       data: {
         name: adminName,

@@ -24,13 +24,42 @@ export default function NovoTenantPage() {
     <Card>
       <h2 className="mb-3 font-semibold">Novo cliente</h2>
       <form action={formAction} className="grid gap-3 sm:grid-cols-2">
-        <div>
+        <div className="sm:col-span-2">
           <Label htmlFor="nome">Nome do cliente</Label>
           <Input id="nome" name="nome" placeholder="Liga Municipal de Futsal" required />
+          <p className="mt-1 text-xs text-muted">
+            Aparece como o nome do sistema no cabeçalho e no título da aba do site do tenant.
+          </p>
         </div>
         <div>
           <Label htmlFor="slug">Slug (URL)</Label>
           <Input id="slug" name="slug" placeholder="liga-municipal" pattern="[a-z0-9-]+" required />
+        </div>
+        <div>
+          <Label htmlFor="corPrimaria">Cor primária</Label>
+          <div className="flex items-center gap-2">
+            <input
+              id="corPrimaria"
+              name="corPrimaria"
+              type="color"
+              defaultValue="#f5821f"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background p-1"
+            />
+            <span className="text-xs text-muted">Cor de destaque (botões, links, badges)</span>
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="corSecundaria">Cor secundária</Label>
+          <div className="flex items-center gap-2">
+            <input
+              id="corSecundaria"
+              name="corSecundaria"
+              type="color"
+              defaultValue="#2fbf8f"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background p-1"
+            />
+            <span className="text-xs text-muted">Cor de apoio (indicadores de sucesso, tags)</span>
+          </div>
         </div>
         <div>
           <Label htmlFor="adminName">Nome do administrador</Label>

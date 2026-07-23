@@ -10,10 +10,12 @@ export function TopHeader({
   role,
   userName,
   tenantSlug,
+  nomeSistema,
 }: {
   role: Role | null;
   userName?: string | null;
   tenantSlug: string;
+  nomeSistema: string;
 }) {
   const primaryHref =
     role === "ADMIN"
@@ -30,7 +32,7 @@ export function TopHeader({
           <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent text-accent-foreground">
             <Trophy size={16} />
           </span>
-          Citadino
+          {nomeSistema}
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
