@@ -13,12 +13,14 @@ export function EnqueteCard({
   rodada,
   opcoesIniciais,
   jaVotouOpcaoId,
+  tenantSlug,
 }: {
   enqueteId: string;
   pergunta: string;
   rodada: number;
   opcoesIniciais: Opcao[];
   jaVotouOpcaoId: string | null;
+  tenantSlug: string;
 }) {
   const [opcoes, setOpcoes] = useState(opcoesIniciais);
   const [votadaEm, setVotadaEm] = useState(jaVotouOpcaoId);
@@ -28,7 +30,7 @@ export function EnqueteCard({
   useEffect(() => {
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/enquetes/${enqueteId}`, { cache: "no-store" });
+        const res = await fetch(`/api/${tenantSlug}/enquetes/${enqueteId}`, { cache: "no-store" });
         if (res.ok) {
           const data = await res.json();
           setOpcoes(data.opcoes);
@@ -38,7 +40,7 @@ export function EnqueteCard({
       }
     }, 6000);
     return () => clearInterval(interval);
-  }, [enqueteId]);
+  }, [enqueteId, tenantSlug]);
 
   const total = opcoes.reduce((acc, o) => acc + o.votos, 0);
 

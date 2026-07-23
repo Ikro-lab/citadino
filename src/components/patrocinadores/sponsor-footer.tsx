@@ -1,8 +1,8 @@
 import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
 import { SponsorStrip } from "./sponsor-strip";
 
-export async function SponsorFooter() {
-  const patrocinadores = await getPatrocinadoresAtivos();
+export async function SponsorFooter({ tenantId }: { tenantId: string }) {
+  const patrocinadores = await getPatrocinadoresAtivos(tenantId);
   if (patrocinadores.length === 0) return null;
 
   return (

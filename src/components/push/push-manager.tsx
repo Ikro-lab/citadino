@@ -20,9 +20,11 @@ function urlBase64ToUint8Array(base64String: string) {
 export function PushManager({
   categorias,
   times,
+  tenantId,
 }: {
   categorias: { id: string; nome: string }[];
   times: { id: string; nome: string; categoriaId: string }[];
+  tenantId: string;
 }) {
   const [isSupported, setIsSupported] = useState(false);
   const [subscription, setSubscription] = useState<PushSubscription | null>(null);
@@ -56,10 +58,14 @@ export function PushManager({
         ),
       });
       setSubscription(sub);
-      await subscribeUser(JSON.parse(JSON.stringify(sub)), {
-        categoriaId: categoriaId || null,
-        timeId: timeId || null,
-      });
+      await subscribeUser(
+        JSON.parse(JSON.stringify(sub)),
+        {
+          categoriaId: categoriaId || null,
+          timeId: timeId || null,
+        },
+        tenantId
+      );
       setMessage("Notificações ativadas.");
     } catch {
       setMessage("Não foi possível ativar as notificações neste navegador.");

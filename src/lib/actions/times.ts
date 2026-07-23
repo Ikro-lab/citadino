@@ -1,41 +1,45 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
+import { paths } from "@/lib/tenant-path";
 
 export async function createTime(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
   const nome = String(formData.get("nome") || "").trim();
   const categoriaId = String(formData.get("categoriaId") || "");
   const treinadorId = String(formData.get("treinadorId") || "") || null;
   const escudoUrl = String(formData.get("escudoUrl") || "").trim() || null;
   if (!nome || !categoriaId) return;
 
-  await prisma.time.create({
-    data: { nome, categoriaId, treinadorId, escudoUrl },
+  await db.time.create({
+    data: { tenantId: session.user.tenantId!, nome, categoriaId, treinadorId, escudoUrl },
   });
-  revalidatePath("/admin/times");
+  revalidatePath(paths.admin.times(session.user.tenantSlug!));
 }
 
 export async function updateTime(id: string, formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
   const nome = String(formData.get("nome") || "").trim();
   const categoriaId = String(formData.get("categoriaId") || "");
   const treinadorId = String(formData.get("treinadorId") || "") || null;
   const escudoUrl = String(formData.get("escudoUrl") || "").trim() || null;
   if (!nome || !categoriaId) return;
 
-  await prisma.time.update({
+  await db.time.update({
     where: { id },
     data: { nome, categoriaId, treinadorId, escudoUrl },
   });
-  revalidatePath("/admin/times");
-  revalidatePath(`/admin/times/${id}`);
+  revalidatePath(paths.admin.times(session.user.tenantSlug!));
+  revalidatePath(paths.admin.time(session.user.tenantSlug!, id));
 }
 
 export async function deleteTime(id: string) {
-  await requireAdmin();
-  await prisma.time.delete({ where: { id } });
-  revalidatePath("/admin/times");
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.time.delete({ where: { id } });
+  revalidatePath(paths.admin.times(session.user.tenantSlug!));
 }

@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
 import { saveUpload } from "@/lib/storage";
+import { paths } from "@/lib/tenant-path";
 import type { Posicao } from "@prisma/client";
 
 const InscricaoSchema = z.object({
@@ -22,6 +24,8 @@ export async function criarInscricao(
   _prevState: InscricaoState,
   formData: FormData
 ): Promise<InscricaoState> {
+  // Rota pública (sem sessão) — o tenant é resolvido a partir do próprio
+  // conviteToken (cuid globalmente único), não de um argumento confiável do cliente.
   const time = await prisma.time.findUnique({ where: { conviteToken } });
   if (!time) return { error: "Link de convite inválido." };
 
@@ -58,8 +62,10 @@ export async function criarInscricao(
     return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
   }
 
-  await prisma.inscricaoAtleta.create({
+  const db = getTenantPrisma(time.tenantId);
+  await db.inscricaoAtleta.create({
     data: {
+      tenantId: time.tenantId,
       timeId: time.id,
       nome: parsed.data.nome,
       dataNascimento: new Date(parsed.data.dataNascimento),
@@ -76,19 +82,26 @@ export async function criarInscricao(
 async function assertPodeGerenciarTime(timeId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
-  if (session.user.role === "ADMIN") return;
+  const db = getTenantPrisma(session.user.tenantId!);
+  if (session.user.role === "ADMIN") return db;
 
-  const time = await prisma.time.findUnique({
+  const time = await db.time.findUnique({
     where: { id: timeId },
     select: { treinadorId: true },
   });
   if (!time || time.treinadorId !== session.user.id) {
     throw new Error("Você não tem permissão para gerenciar este time.");
   }
+  return db;
 }
 
 export async function aprovarInscricao(id: string, formData: FormData) {
-  const inscricao = await prisma.inscricaoAtleta.findUnique({ where: { id } });
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autenticado.");
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+
+  const inscricao = await db.inscricaoAtleta.findUnique({ where: { id } });
   if (!inscricao || inscricao.status !== "PENDENTE") return;
 
   await assertPodeGerenciarTime(inscricao.timeId);
@@ -97,9 +110,10 @@ export async function aprovarInscricao(id: string, formData: FormData) {
   const posicao = String(formData.get("posicao") || "") as Posicao;
   if (!numero || Number.isNaN(numero) || !posicao) return;
 
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     const atleta = await tx.atleta.create({
       data: {
+        tenantId: session.user.tenantId!,
         nome: inscricao.nome,
         numero,
         posicao,
@@ -118,33 +132,40 @@ export async function aprovarInscricao(id: string, formData: FormData) {
     });
   });
 
-  revalidatePath("/treinador");
-  revalidatePath("/admin/inscricoes");
+  revalidatePath(paths.treinador.root(tenantSlug));
+  revalidatePath(paths.admin.inscricoes(tenantSlug));
 }
 
 export async function recusarInscricao(id: string) {
-  const inscricao = await prisma.inscricaoAtleta.findUnique({ where: { id } });
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autenticado.");
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+
+  const inscricao = await db.inscricaoAtleta.findUnique({ where: { id } });
   if (!inscricao || inscricao.status !== "PENDENTE") return;
 
   await assertPodeGerenciarTime(inscricao.timeId);
 
-  await prisma.inscricaoAtleta.update({
+  await db.inscricaoAtleta.update({
     where: { id },
     data: { status: "RECUSADA", revisadoEm: new Date() },
   });
 
-  revalidatePath("/treinador");
-  revalidatePath("/admin/inscricoes");
+  revalidatePath(paths.treinador.root(tenantSlug));
+  revalidatePath(paths.admin.inscricoes(tenantSlug));
 }
 
 export async function revogarInscricao(id: string) {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") throw new Error("Apenas o administrador pode revogar.");
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
 
-  const inscricao = await prisma.inscricaoAtleta.findUnique({ where: { id } });
+  const inscricao = await db.inscricaoAtleta.findUnique({ where: { id } });
   if (!inscricao || inscricao.status !== "APROVADA") return;
 
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     if (inscricao.atletaId) {
       try {
         await tx.atleta.delete({ where: { id: inscricao.atletaId } });
@@ -159,6 +180,6 @@ export async function revogarInscricao(id: string) {
     });
   });
 
-  revalidatePath("/admin/inscricoes");
-  revalidatePath("/admin/times");
+  revalidatePath(paths.admin.inscricoes(tenantSlug));
+  revalidatePath(paths.admin.times(tenantSlug));
 }

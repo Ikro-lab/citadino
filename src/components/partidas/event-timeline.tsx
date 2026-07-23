@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Goal, Square } from "lucide-react";
 import type { PartidaDetalhe } from "@/lib/partidas";
 import { EventoVideo } from "./evento-video";
+import { paths } from "@/lib/tenant-path";
 
 const tipoConfig: Record<
   string,
@@ -15,7 +16,7 @@ const tipoConfig: Record<
   OUTRO: { label: "Evento", icon: Square, className: "text-muted" },
 };
 
-export function EventTimeline({ partida }: { partida: PartidaDetalhe }) {
+export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe; tenantSlug: string }) {
   if (partida.eventos.length === 0) {
     return (
       <Card>
@@ -44,7 +45,7 @@ export function EventTimeline({ partida }: { partida: PartidaDetalhe }) {
               <div>
                 <p className="font-medium">
                   {evento.atleta ? (
-                    <Link href={`/atleta/${evento.atleta.id}`} className="hover:text-accent hover:underline">
+                    <Link href={paths.atleta(tenantSlug, evento.atleta.id)} className="hover:text-accent hover:underline">
                       {evento.atleta.nome}
                     </Link>
                   ) : (

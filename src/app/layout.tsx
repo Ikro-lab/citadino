@@ -1,12 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Nunito, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { auth } from "@/auth";
-import { TopHeader } from "@/components/nav/top-header";
-import { BottomNav } from "@/components/nav/bottom-nav";
-import { SponsorFooter } from "@/components/patrocinadores/sponsor-footer";
-import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
-import { SponsorStrip } from "@/components/patrocinadores/sponsor-strip";
 
 const nunito = Nunito({
   variable: "--font-nunito",
@@ -19,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Citadino — Campeonato Municipal de Futsal",
+  title: "Citadino — Plataforma de Campeonatos",
   description:
-    "Acompanhe o Campeonato Citadino: feed de partidas ao vivo, resultados e tabela de classificação.",
+    "Acompanhe campeonatos de futsal: feed de partidas ao vivo, resultados e tabela de classificação.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
@@ -38,17 +32,11 @@ export const viewport: Viewport = {
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem("theme");if(!t){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const role = session?.user?.role ?? null;
-  const patrocinadoresMaster = (await getPatrocinadoresAtivos()).filter(
-    (p) => p.nivel === "MASTER"
-  );
-
   return (
     <html
       lang="pt-BR"
@@ -60,16 +48,7 @@ export default async function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
-        <TopHeader role={role} userName={session?.user?.name} />
-        {patrocinadoresMaster.length > 0 && (
-          <SponsorStrip
-            patrocinadores={patrocinadoresMaster}
-            className="justify-center border-b border-border bg-surface/50"
-          />
-        )}
-        <main className="flex-1 pb-20 md:pb-8">{children}</main>
-        <SponsorFooter />
-        <BottomNav role={role} />
+        {children}
       </body>
     </html>
   );

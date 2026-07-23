@@ -5,6 +5,8 @@ import * as z from "zod";
 import bcrypt from "bcryptjs";
 import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { getTenantBySlug } from "@/lib/tenant";
+import { paths } from "@/lib/tenant-path";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -14,12 +16,18 @@ export async function login(
 ): Promise<LoginState> {
   const email = formData.get("email");
   const password = formData.get("password");
-  const callbackUrl = (formData.get("callbackUrl") as string) || "/";
+  const tenantSlug = String(formData.get("tenantSlug") || "");
+  const callbackUrl = (formData.get("callbackUrl") as string) || paths.home(tenantSlug);
+
+  if (!tenantSlug) {
+    return { error: "Tenant não informado." };
+  }
 
   try {
     await signIn("credentials", {
       email,
       password,
+      tenantSlug,
       redirectTo: callbackUrl,
     });
   } catch (error) {
@@ -57,6 +65,11 @@ export async function cadastroTreinador(
   _prevState: CadastroState,
   formData: FormData
 ): Promise<CadastroState> {
+  const tenantSlug = String(formData.get("tenantSlug") || "");
+  if (!tenantSlug) {
+    return { error: "Tenant não informado." };
+  }
+
   const parsed = CadastroSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -72,7 +85,11 @@ export async function cadastroTreinador(
 
   const { name, email, password, nomeTime, categoriaId } = parsed.data;
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const tenant = await getTenantBySlug(tenantSlug);
+
+  const existing = await prisma.user.findUnique({
+    where: { tenantId_email: { tenantId: tenant.id, email } },
+  });
   if (existing) {
     return { error: "Já existe uma conta com este e-mail." };
   }
@@ -80,12 +97,13 @@ export async function cadastroTreinador(
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, role: "TREINADOR" },
+    data: { name, email, passwordHash, role: "TREINADOR", tenantId: tenant.id },
   });
 
   if (nomeTime) {
     await prisma.solicitacaoTime.create({
       data: {
+        tenantId: tenant.id,
         nomeTime,
         treinadorId: user.id,
         categoriaId: categoriaId || null,
@@ -98,7 +116,8 @@ export async function cadastroTreinador(
     await signIn("credentials", {
       email,
       password,
-      redirectTo: "/treinador",
+      tenantSlug,
+      redirectTo: paths.treinador.root(tenantSlug),
     });
   } catch (error) {
     if (error instanceof AuthError) {
@@ -111,4 +130,30 @@ export async function cadastroTreinador(
 export async function logout() {
   const { signOut } = await import("@/auth");
   await signOut({ redirectTo: "/" });
+}
+
+export async function loginSuperAdmin(
+  _prevState: LoginState,
+  formData: FormData
+): Promise<LoginState> {
+  const email = formData.get("email");
+  const password = formData.get("password");
+
+  try {
+    await signIn("super-admin-credentials", {
+      email,
+      password,
+      redirectTo: "/super-admin",
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case "CredentialsSignin":
+          return { error: "E-mail ou senha inválidos." };
+        default:
+          return { error: "Não foi possível entrar. Tente novamente." };
+      }
+    }
+    throw error;
+  }
 }

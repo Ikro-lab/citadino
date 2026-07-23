@@ -1,20 +1,23 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
+import { paths } from "@/lib/tenant-path";
 
 export async function aprovarSolicitacao(id: string, formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
   const categoriaId = String(formData.get("categoriaId") || "");
   if (!categoriaId) return;
 
-  const solicitacao = await prisma.solicitacaoTime.findUnique({ where: { id } });
+  const solicitacao = await db.solicitacaoTime.findUnique({ where: { id } });
   if (!solicitacao || solicitacao.status !== "PENDENTE") return;
 
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     const time = await tx.time.create({
       data: {
+        tenantId: session.user.tenantId!,
         nome: solicitacao.nomeTime,
         categoriaId,
         treinadorId: solicitacao.treinadorId,
@@ -27,15 +30,16 @@ export async function aprovarSolicitacao(id: string, formData: FormData) {
     });
   });
 
-  revalidatePath("/admin/solicitacoes");
-  revalidatePath("/admin/times");
+  revalidatePath(paths.admin.solicitacoes(session.user.tenantSlug!));
+  revalidatePath(paths.admin.times(session.user.tenantSlug!));
 }
 
 export async function recusarSolicitacao(id: string) {
-  await requireAdmin();
-  await prisma.solicitacaoTime.update({
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.solicitacaoTime.update({
     where: { id },
     data: { status: "RECUSADA" },
   });
-  revalidatePath("/admin/solicitacoes");
+  revalidatePath(paths.admin.solicitacoes(session.user.tenantSlug!));
 }

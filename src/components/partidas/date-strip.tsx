@@ -6,8 +6,9 @@ import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { todayStr, shiftDateStr, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
+import { paths } from "@/lib/tenant-path";
 
-export function DateStrip({ data, vivo }: { data: string; vivo: boolean }) {
+export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: boolean; tenantSlug: string }) {
   const router = useRouter();
   const hoje = todayStr();
   const selectedRef = useRef<HTMLAnchorElement>(null);
@@ -33,7 +34,7 @@ export function DateStrip({ data, vivo }: { data: string; vivo: boolean }) {
   function hrefFor(d: string) {
     const params = new URLSearchParams({ data: d });
     if (vivo) params.set("vivo", "1");
-    return `/?${params.toString()}`;
+    return `${paths.home(tenantSlug)}?${params.toString()}`;
   }
 
   return (

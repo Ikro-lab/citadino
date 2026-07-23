@@ -1,12 +1,13 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { dayRange } from "@/lib/date-utils";
 
 export { dayRange, todayStr, shiftDateStr } from "@/lib/date-utils";
 
-export async function getFeed(categoriaId: string, dateStr: string) {
+export async function getFeed(tenantId: string, categoriaId: string, dateStr: string) {
   const { start, end } = dayRange(dateStr);
+  const db = getTenantPrisma(tenantId);
 
-  return prisma.partida.findMany({
+  return db.partida.findMany({
     where: {
       categoriaId,
       dataHora: { gte: start, lte: end },
@@ -20,10 +21,11 @@ export async function getFeed(categoriaId: string, dateStr: string) {
   });
 }
 
-export async function getFeedAgrupado(dateStr: string) {
+export async function getFeedAgrupado(tenantId: string, dateStr: string) {
   const { start, end } = dayRange(dateStr);
+  const db = getTenantPrisma(tenantId);
 
-  const partidas = await prisma.partida.findMany({
+  const partidas = await db.partida.findMany({
     where: {
       dataHora: { gte: start, lte: end },
       categoria: { campeonato: { ativo: true } },
@@ -56,8 +58,9 @@ export async function getFeedAgrupado(dateStr: string) {
 
 const RESULTADOS_FORMA = 5;
 
-export async function getFormaRecente(timeId: string) {
-  const partidas = await prisma.partida.findMany({
+export async function getFormaRecente(tenantId: string, timeId: string) {
+  const db = getTenantPrisma(tenantId);
+  const partidas = await db.partida.findMany({
     where: {
       status: "ENCERRADA",
       OR: [{ timeCasaId: timeId }, { timeForaId: timeId }],
@@ -79,16 +82,17 @@ export async function getFormaRecente(timeId: string) {
     .reverse();
 }
 
-export async function getFormaRecenteEmLote(timeIds: string[]) {
+export async function getFormaRecenteEmLote(tenantId: string, timeIds: string[]) {
   const unicos = Array.from(new Set(timeIds));
   const entradas = await Promise.all(
-    unicos.map(async (id) => [id, await getFormaRecente(id)] as const)
+    unicos.map(async (id) => [id, await getFormaRecente(tenantId, id)] as const)
   );
   return Object.fromEntries(entradas) as Record<string, ("V" | "E" | "D")[]>;
 }
 
-export async function getPartidaDetalhe(id: string) {
-  return prisma.partida.findUnique({
+export async function getPartidaDetalhe(tenantId: string, id: string) {
+  const db = getTenantPrisma(tenantId);
+  return db.partida.findUnique({
     where: { id },
     include: {
       timeCasa: {

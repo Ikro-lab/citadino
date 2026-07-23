@@ -15,12 +15,14 @@ export function FeedList({
   data,
   vivo,
   patrocinadores = [],
+  tenantSlug,
 }: {
   initialGrupos: FeedGrupo[];
   initialForma: Forma;
   data: string;
   vivo: boolean;
   patrocinadores?: Patrocinador[];
+  tenantSlug: string;
 }) {
   const [grupos, setGrupos] = useState(initialGrupos);
   const [forma, setForma] = useState(initialForma);
@@ -41,7 +43,7 @@ export function FeedList({
       try {
         const params = new URLSearchParams({ data });
         if (vivo) params.set("vivo", "1");
-        const res = await fetch(`/api/feed?${params.toString()}`, { cache: "no-store" });
+        const res = await fetch(`/api/${tenantSlug}/feed?${params.toString()}`, { cache: "no-store" });
         if (res.ok) {
           const json = await res.json();
           setGrupos(json.grupos);
@@ -53,7 +55,7 @@ export function FeedList({
     }, 8000);
 
     return () => clearInterval(interval);
-  }, [temAoVivo, data, vivo]);
+  }, [temAoVivo, data, vivo, tenantSlug]);
 
   if (grupos.length === 0) {
     return (
@@ -69,7 +71,7 @@ export function FeedList({
         <Fragment key={g.categoriaId}>
           <FeedGroup categoriaNome={g.categoriaNome}>
             {g.partidas.map((partida) => (
-              <MatchRow key={partida.id} partida={partida} forma={forma} />
+              <MatchRow key={partida.id} partida={partida} forma={forma} tenantSlug={tenantSlug} />
             ))}
           </FeedGroup>
           {i === 0 && patrocinadores.length > 0 && (

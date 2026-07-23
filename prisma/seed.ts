@@ -11,6 +11,9 @@ const adapter = isRemote
   : new PrismaBetterSqlite3({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
 
+const TENANT_SLUG = "citadino";
+const TENANT_NOME = "Campeonato Citadino";
+
 const NOMES_TIMES_MASC = ["Real Bairro FC", "Unidos da Vila", "Furacão FC", "Atlético Central"];
 const NOMES_TIMES_FEM = ["Estrela FC", "Guerreiras do Norte", "Fênix Futsal", "Águias FC"];
 
@@ -21,12 +24,13 @@ const NOMES_JOGADORES = [
 
 const POSICOES: Posicao[] = ["GOLEIRO", "FIXO", "ALA", "ALA", "PIVO"];
 
-async function criarElenco(timeId: string) {
+async function criarElenco(tenantId: string, timeId: string) {
   const atletas = [];
   for (let numero = 1; numero <= 8; numero++) {
     const nome = `${NOMES_JOGADORES[(numero * 3) % NOMES_JOGADORES.length]} ${numero}`;
     const atleta = await prisma.atleta.create({
       data: {
+        tenantId,
         nome,
         numero,
         posicao: POSICOES[numero % POSICOES.length],
@@ -39,41 +43,69 @@ async function criarElenco(timeId: string) {
 }
 
 async function main() {
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@citadino.local";
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
+  const superAdminEmail = process.env.ADMIN_EMAIL || "admin@citadino.local";
+  const superAdminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
+  // SUPER_ADMIN: dono da plataforma, sem tenant (gerencia todos os clientes via /super-admin).
+  // tenantId é NULL para SUPER_ADMIN, então a unicidade de email é garantida
+  // aqui em código (findFirst antes de criar), não pelo índice composto do banco.
+  const existingSuperAdmin = await prisma.user.findFirst({
+    where: { role: "SUPER_ADMIN", email: superAdminEmail },
+  });
+  if (!existingSuperAdmin) {
+    await prisma.user.create({
+      data: {
+        name: "Super Admin",
+        email: superAdminEmail,
+        passwordHash: await bcrypt.hash(superAdminPassword, 10),
+        role: "SUPER_ADMIN",
+        tenantId: null,
+      },
+    });
+  }
+
+  const tenant = await prisma.tenant.upsert({
+    where: { slug: TENANT_SLUG },
+    update: {},
+    create: { slug: TENANT_SLUG, nome: TENANT_NOME, ativo: true },
+  });
+
+  const tenantAdminEmail = "organizador@citadino.local";
   await prisma.user.upsert({
-    where: { email: adminEmail },
+    where: { tenantId_email: { tenantId: tenant.id, email: tenantAdminEmail } },
     update: {},
     create: {
-      name: "Administrador",
-      email: adminEmail,
-      passwordHash: await bcrypt.hash(adminPassword, 10),
+      name: "Administrador " + TENANT_NOME,
+      email: tenantAdminEmail,
+      passwordHash: await bcrypt.hash("admin123", 10),
       role: "ADMIN",
+      tenantId: tenant.id,
     },
   });
 
   const treinadorEmail = "treinador@citadino.local";
   const treinador = await prisma.user.upsert({
-    where: { email: treinadorEmail },
+    where: { tenantId_email: { tenantId: tenant.id, email: treinadorEmail } },
     update: {},
     create: {
       name: "Carlos Treinador",
       email: treinadorEmail,
       passwordHash: await bcrypt.hash("treinador123", 10),
       role: "TREINADOR",
+      tenantId: tenant.id,
     },
   });
 
   const campeonato = await prisma.campeonato.create({
-    data: { nome: "Campeonato Citadino", temporada: "2026", ativo: true },
+    data: { tenantId: tenant.id, nome: "Campeonato Citadino", temporada: "2026", ativo: true },
   });
 
   const categoriaMasc = await prisma.categoria.create({
-    data: { nome: "Masculino Livre", campeonatoId: campeonato.id, cartoesParaSuspensao: 3 },
+    data: { tenantId: tenant.id, nome: "Masculino Livre", campeonatoId: campeonato.id, cartoesParaSuspensao: 3 },
   });
   const categoriaFem = await prisma.categoria.create({
     data: {
+      tenantId: tenant.id,
       nome: "Feminino",
       campeonatoId: campeonato.id,
       formato: "GRUPOS_MATA_MATA",
@@ -85,9 +117,9 @@ async function main() {
   const elencosMasc: Record<string, Awaited<ReturnType<typeof criarElenco>>> = {};
   for (const nome of NOMES_TIMES_MASC) {
     const time = await prisma.time.create({
-      data: { nome, categoriaId: categoriaMasc.id },
+      data: { tenantId: tenant.id, nome, categoriaId: categoriaMasc.id },
     });
-    elencosMasc[time.id] = await criarElenco(time.id);
+    elencosMasc[time.id] = await criarElenco(tenant.id, time.id);
     timesMasc.push(time);
   }
   // link the demo treinador to the first men's team
@@ -107,15 +139,15 @@ async function main() {
   const elencosFem: Record<string, Awaited<ReturnType<typeof criarElenco>>> = {};
   for (const nome of NOMES_TIMES_FEM) {
     const time = await prisma.time.create({
-      data: { nome, categoriaId: categoriaFem.id },
+      data: { tenantId: tenant.id, nome, categoriaId: categoriaFem.id },
     });
-    elencosFem[time.id] = await criarElenco(time.id);
+    elencosFem[time.id] = await criarElenco(tenant.id, time.id);
     timesFem.push(time);
   }
 
   // grupos da categoria feminina (fase de grupos + mata-mata)
-  const grupoA = await prisma.grupo.create({ data: { nome: "Grupo A", categoriaId: categoriaFem.id } });
-  const grupoB = await prisma.grupo.create({ data: { nome: "Grupo B", categoriaId: categoriaFem.id } });
+  const grupoA = await prisma.grupo.create({ data: { tenantId: tenant.id, nome: "Grupo A", categoriaId: categoriaFem.id } });
+  const grupoB = await prisma.grupo.create({ data: { tenantId: tenant.id, nome: "Grupo B", categoriaId: categoriaFem.id } });
   await prisma.time.update({ where: { id: timesFem[0].id }, data: { grupoId: grupoA.id } });
   await prisma.time.update({ where: { id: timesFem[1].id }, data: { grupoId: grupoA.id } });
   await prisma.time.update({ where: { id: timesFem[2].id }, data: { grupoId: grupoB.id } });
@@ -143,6 +175,7 @@ async function main() {
   // Encerrada — alimenta a classificação
   const encerrada1 = await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaMasc.id,
       timeCasaId: timesMasc[0].id,
       timeForaId: timesMasc[1].id,
@@ -156,16 +189,17 @@ async function main() {
   });
   await prisma.eventoPartida.createMany({
     data: [
-      { partidaId: encerrada1.id, tipo: "GOL", minuto: 5, timeId: timesMasc[0].id, atletaId: artilheiro.id },
-      { partidaId: encerrada1.id, tipo: "GOL", minuto: 18, timeId: timesMasc[1].id },
-      { partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 22, timeId: timesMasc[1].id },
-      { partidaId: encerrada1.id, tipo: "GOL", minuto: 30, timeId: timesMasc[0].id, atletaId: artilheiro.id },
-      { partidaId: encerrada1.id, tipo: "GOL", minuto: 39, timeId: timesMasc[0].id, atletaId: artilheiro.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "GOL", minuto: 5, timeId: timesMasc[0].id, atletaId: artilheiro.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "GOL", minuto: 18, timeId: timesMasc[1].id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 22, timeId: timesMasc[1].id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "GOL", minuto: 30, timeId: timesMasc[0].id, atletaId: artilheiro.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "GOL", minuto: 39, timeId: timesMasc[0].id, atletaId: artilheiro.id },
     ],
   });
 
   const encerrada2 = await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaMasc.id,
       timeCasaId: timesMasc[2].id,
       timeForaId: timesMasc[3].id,
@@ -181,28 +215,29 @@ async function main() {
   const zagueiroSuspenso = elencosMasc[timesMasc[3].id][2];
   await prisma.eventoPartida.createMany({
     data: [
-      { partidaId: encerrada2.id, tipo: "GOL", minuto: 10, timeId: timesMasc[2].id },
-      { partidaId: encerrada2.id, tipo: "GOL", minuto: 20, timeId: timesMasc[3].id },
-      { partidaId: encerrada2.id, tipo: "GOL", minuto: 25, timeId: timesMasc[2].id },
-      { partidaId: encerrada2.id, tipo: "CARTAO_VERMELHO", minuto: 35, timeId: timesMasc[3].id },
-      { partidaId: encerrada2.id, tipo: "GOL", minuto: 40, timeId: timesMasc[3].id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "GOL", minuto: 10, timeId: timesMasc[2].id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "GOL", minuto: 20, timeId: timesMasc[3].id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "GOL", minuto: 25, timeId: timesMasc[2].id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "CARTAO_VERMELHO", minuto: 35, timeId: timesMasc[3].id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "GOL", minuto: 40, timeId: timesMasc[3].id },
       // 2 amarelos pro zagueiro "pendurado" (fica a 1 do limite de 3)
-      { partidaId: encerrada2.id, tipo: "CARTAO_AMARELO", minuto: 12, timeId: timesMasc[3].id, atletaId: zagueiroPendurado.id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "CARTAO_AMARELO", minuto: 12, timeId: timesMasc[3].id, atletaId: zagueiroPendurado.id },
       // 3 amarelos pro zagueiro "suspenso" (bate o limite de 3)
-      { partidaId: encerrada2.id, tipo: "CARTAO_AMARELO", minuto: 15, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
+      { tenantId: tenant.id, partidaId: encerrada2.id, tipo: "CARTAO_AMARELO", minuto: 15, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
     ],
   });
   await prisma.eventoPartida.createMany({
     data: [
-      { partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 8, timeId: timesMasc[3].id, atletaId: zagueiroPendurado.id },
-      { partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 44, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
-      { partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 50, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 8, timeId: timesMasc[3].id, atletaId: zagueiroPendurado.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 44, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
+      { tenantId: tenant.id, partidaId: encerrada1.id, tipo: "CARTAO_AMARELO", minuto: 50, timeId: timesMasc[3].id, atletaId: zagueiroSuspenso.id },
     ],
   });
 
   // Ao vivo agora — demonstra feed/detalhe/súmula em tempo real
   const aoVivo = await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaMasc.id,
       timeCasaId: timesMasc[0].id,
       timeForaId: timesMasc[2].id,
@@ -215,12 +250,13 @@ async function main() {
     },
   });
   await prisma.eventoPartida.create({
-    data: { partidaId: aoVivo.id, tipo: "GOL", minuto: 12, timeId: timesMasc[0].id, atletaId: artilheiro.id },
+    data: { tenantId: tenant.id, partidaId: aoVivo.id, tipo: "GOL", minuto: 12, timeId: timesMasc[0].id, atletaId: artilheiro.id },
   });
 
   // Agendada — hoje mais tarde
   await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaMasc.id,
       timeCasaId: timesMasc[1].id,
       timeForaId: timesMasc[3].id,
@@ -234,6 +270,7 @@ async function main() {
   // Feminino — fase de grupos (encerrada) + mata-mata
   await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaFem.id,
       timeCasaId: timesFem[0].id,
       timeForaId: timesFem[1].id,
@@ -248,6 +285,7 @@ async function main() {
   });
   await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaFem.id,
       timeCasaId: timesFem[2].id,
       timeForaId: timesFem[3].id,
@@ -263,6 +301,7 @@ async function main() {
   // semifinal: vencedores dos grupos (Estrela FC x Águias FC)
   await prisma.partida.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaFem.id,
       timeCasaId: timesFem[0].id,
       timeForaId: timesFem[3].id,
@@ -276,6 +315,7 @@ async function main() {
   // enquete "Melhor da Rodada" pra categoria masculina, rodada 1
   const enquete = await prisma.enquete.create({
     data: {
+      tenantId: tenant.id,
       categoriaId: categoriaMasc.id,
       rodada: 1,
       pergunta: "Melhor Jogador da Rodada",
@@ -284,14 +324,16 @@ async function main() {
   });
   await prisma.enqueteOpcao.createMany({
     data: [
-      { enqueteId: enquete.id, atletaId: artilheiro.id },
-      { enqueteId: enquete.id, atletaId: elencosMasc[timesMasc[2].id][0].id },
-      { enqueteId: enquete.id, atletaId: elencosMasc[timesMasc[3].id][0].id },
+      { tenantId: tenant.id, enqueteId: enquete.id, atletaId: artilheiro.id },
+      { tenantId: tenant.id, enqueteId: enquete.id, atletaId: elencosMasc[timesMasc[2].id][0].id },
+      { tenantId: tenant.id, enqueteId: enquete.id, atletaId: elencosMasc[timesMasc[3].id][0].id },
     ],
   });
 
   console.log("Seed concluído.");
-  console.log(`Admin: ${adminEmail} / ${adminPassword}`);
+  console.log(`Tenant: ${tenant.slug} (${tenant.id})`);
+  console.log(`Super admin (plataforma): ${superAdminEmail} / ${superAdminPassword}`);
+  console.log(`Admin do tenant "${TENANT_SLUG}": ${tenantAdminEmail} / admin123`);
   console.log(`Treinador demo: ${treinadorEmail} / treinador123`);
 }
 

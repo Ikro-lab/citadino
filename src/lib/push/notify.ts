@@ -1,6 +1,8 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { dayRange, todayStr, TIMEZONE } from "@/lib/date-utils";
+import { paths } from "@/lib/tenant-path";
 import type { Prisma, PushSubscription as StoredSubscription } from "@prisma/client";
 
 const vapidPublic = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
@@ -36,16 +38,17 @@ async function sendToSubscription(sub: StoredSubscription, payload: PushPayload)
   }
 }
 
-export async function notifyPartidaEvento(partidaId: string, payload: PushPayload) {
+export async function notifyPartidaEvento(tenantId: string, partidaId: string, payload: PushPayload) {
   if (!vapidPublic || !vapidPrivate) return;
+  const db = getTenantPrisma(tenantId);
 
-  const partida = await prisma.partida.findUnique({
+  const partida = await db.partida.findUnique({
     where: { id: partidaId },
-    select: { categoriaId: true, timeCasaId: true, timeForaId: true },
+    select: { categoriaId: true, timeCasaId: true, timeForaId: true, tenant: { select: { slug: true } } },
   });
   if (!partida) return;
 
-  const subs = await prisma.pushSubscription.findMany({
+  const subs = await db.pushSubscription.findMany({
     where: {
       OR: [
         { categoriaId: partida.categoriaId },
@@ -58,15 +61,16 @@ export async function notifyPartidaEvento(partidaId: string, payload: PushPayloa
 
   await Promise.all(
     subs.map((sub) =>
-      sendToSubscription(sub, { ...payload, url: `/partida/${partidaId}` })
+      sendToSubscription(sub, { ...payload, url: paths.partida(partida.tenant.slug, partidaId) })
     )
   );
 }
 
-export async function notifyBroadcast(payload: PushPayload) {
+export async function notifyBroadcast(tenantId: string, payload: PushPayload) {
   if (!vapidPublic || !vapidPrivate) return;
+  const db = getTenantPrisma(tenantId);
 
-  const subs = await prisma.pushSubscription.findMany();
+  const subs = await db.pushSubscription.findMany();
   await Promise.all(subs.map((sub) => sendToSubscription(sub, payload)));
 }
 
@@ -75,6 +79,9 @@ export async function notifyBroadcast(payload: PushPayload) {
  * (lembreteMin, padrão 30) caia dentro da janela atual. Precisa rodar a cada
  * minuto para não perder partidas — o cron nativo da Vercel (Hobby) só roda
  * 1x/dia, então isso é disparado por um agendador externo (ver README).
+ *
+ * Roda globalmente (todos os tenants) — cada subscription só enxerga
+ * partidas do PRÓPRIO tenant (where.tenantId), nunca de outro.
  */
 export async function notifyLembretesProximos() {
   if (!vapidPublic || !vapidPrivate) return { enviados: 0 };
@@ -91,6 +98,7 @@ export async function notifyLembretesProximos() {
     const janelaFim = new Date(now.getTime() + (minutos + 1) * 60_000);
 
     const where: Prisma.PartidaWhereInput = {
+      tenantId: sub.tenantId,
       status: "AGENDADA",
       dataHora: { gte: janelaInicio, lte: janelaFim },
     };
@@ -100,18 +108,18 @@ export async function notifyLembretesProximos() {
     } else if (sub.timeId) {
       where.OR = [{ timeCasaId: sub.timeId }, { timeForaId: sub.timeId }];
     }
-    // sem categoria e sem time = inscrito em "todas as categorias".
+    // sem categoria e sem time = inscrito em "todas as categorias" DO SEU TENANT.
 
     const partidas = await prisma.partida.findMany({
       where,
-      include: { timeCasa: true, timeFora: true },
+      include: { timeCasa: true, timeFora: true, tenant: { select: { slug: true } } },
     });
 
     for (const partida of partidas) {
       await sendToSubscription(sub, {
         title: `Em ${minutos} min: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
         body: "Não perca o início da partida.",
-        url: `/partida/${partida.id}`,
+        url: paths.partida(partida.tenant.slug, partida.id),
       });
       enviados += 1;
     }
@@ -123,7 +131,8 @@ export async function notifyLembretesProximos() {
 /**
  * Envia um resumo diário (1x/dia, disparado pelo cron nativo da Vercel) com
  * os jogos de hoje para cada inscrito, filtrado pela preferência de
- * categoria/time.
+ * categoria/time. Roda globalmente — cada subscription só enxerga partidas
+ * do próprio tenant (where.tenantId), nunca de outro.
  */
 export async function notifyResumoDiario() {
   if (!vapidPublic || !vapidPrivate) return { enviados: 0 };
@@ -137,6 +146,7 @@ export async function notifyResumoDiario() {
 
   for (const sub of subs) {
     const where: Prisma.PartidaWhereInput = {
+      tenantId: sub.tenantId,
       dataHora: { gte: inicioDia, lte: fimDia },
       status: { in: ["AGENDADA", "AO_VIVO"] },
     };
@@ -146,13 +156,13 @@ export async function notifyResumoDiario() {
     } else if (sub.timeId) {
       where.OR = [{ timeCasaId: sub.timeId }, { timeForaId: sub.timeId }];
     }
-    // sem categoria e sem time = inscrito em "todas as categorias": recebe o
-    // resumo completo do dia, sem filtro adicional.
+    // sem categoria e sem time = inscrito em "todas as categorias" DO SEU TENANT:
+    // recebe o resumo completo do dia (só do seu tenant), sem filtro adicional.
 
     const partidas = await prisma.partida.findMany({
       where,
       orderBy: { dataHora: "asc" },
-      include: { timeCasa: true, timeFora: true },
+      include: { timeCasa: true, timeFora: true, tenant: { select: { slug: true } } },
     });
 
     if (partidas.length === 0) continue;
@@ -172,7 +182,7 @@ export async function notifyResumoDiario() {
     await sendToSubscription(sub, {
       title,
       body,
-      url: partidas.length === 1 ? `/partida/${primeira.id}` : "/",
+      url: partidas.length === 1 ? paths.partida(primeira.tenant.slug, primeira.id) : paths.home(primeira.tenant.slug),
     });
     enviados += 1;
   }

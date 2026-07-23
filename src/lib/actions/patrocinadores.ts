@@ -1,13 +1,15 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/require-role";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { saveLogoUpload } from "@/lib/storage";
+import { paths } from "@/lib/tenant-path";
 import type { NivelPatrocinio } from "@prisma/client";
 
 export async function createPatrocinador(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
 
   const nome = String(formData.get("nome") || "").trim();
   const campeonatoId = String(formData.get("campeonatoId") || "");
@@ -20,16 +22,17 @@ export async function createPatrocinador(formData: FormData) {
 
   const logoUrl = await saveLogoUpload(logo, "patrocinadores");
 
-  await prisma.patrocinador.create({
-    data: { nome, campeonatoId, linkUrl, nivel, ordem, logoUrl },
+  await db.patrocinador.create({
+    data: { tenantId: session.user.tenantId!, nome, campeonatoId, linkUrl, nivel, ordem, logoUrl },
   });
 
-  revalidatePath("/admin/patrocinadores");
-  revalidatePath("/");
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
 }
 
 export async function updatePatrocinador(id: string, formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
 
   const nome = String(formData.get("nome") || "").trim();
   const linkUrl = String(formData.get("linkUrl") || "").trim() || null;
@@ -40,25 +43,27 @@ export async function updatePatrocinador(id: string, formData: FormData) {
   const logo = formData.get("logo");
   const logoUrl = logo instanceof File && logo.size > 0 ? await saveLogoUpload(logo, "patrocinadores") : undefined;
 
-  await prisma.patrocinador.update({
+  await db.patrocinador.update({
     where: { id },
     data: { nome, linkUrl, nivel, ordem, ...(logoUrl ? { logoUrl } : {}) },
   });
 
-  revalidatePath("/admin/patrocinadores");
-  revalidatePath("/");
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
 }
 
 export async function toggleAtivoPatrocinador(id: string, ativo: boolean) {
-  await requireAdmin();
-  await prisma.patrocinador.update({ where: { id }, data: { ativo } });
-  revalidatePath("/admin/patrocinadores");
-  revalidatePath("/");
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.patrocinador.update({ where: { id }, data: { ativo } });
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
 }
 
 export async function deletePatrocinador(id: string) {
-  await requireAdmin();
-  await prisma.patrocinador.delete({ where: { id } });
-  revalidatePath("/admin/patrocinadores");
-  revalidatePath("/");
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.patrocinador.delete({ where: { id } });
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
 }

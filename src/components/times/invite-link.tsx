@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { Copy, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { paths } from "@/lib/tenant-path";
 
-export function InviteLink({ conviteToken }: { conviteToken: string }) {
+export function InviteLink({ conviteToken, tenantSlug }: { conviteToken: string; tenantSlug: string }) {
   const [copiado, setCopiado] = useState(false);
-  const caminho = `/convite/${conviteToken}`;
+  const caminho = paths.convite(tenantSlug, conviteToken);
 
   return (
     <Card className="bg-surface">

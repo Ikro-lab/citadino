@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 
 export type LinhaClassificacao = {
   timeId: string;
@@ -15,10 +15,12 @@ export type LinhaClassificacao = {
 };
 
 export async function getClassificacao(
+  tenantId: string,
   categoriaId: string,
   opts?: { timeIds?: string[]; apenasFaseGrupos?: boolean }
 ) {
-  const times = await prisma.time.findMany({
+  const db = getTenantPrisma(tenantId);
+  const times = await db.time.findMany({
     where: { categoriaId, ...(opts?.timeIds ? { id: { in: opts.timeIds } } : {}) },
     select: { id: true, nome: true, escudoUrl: true },
   });
@@ -40,7 +42,7 @@ export async function getClassificacao(
     });
   }
 
-  const partidas = await prisma.partida.findMany({
+  const partidas = await db.partida.findMany({
     where: {
       categoriaId,
       status: "ENCERRADA",

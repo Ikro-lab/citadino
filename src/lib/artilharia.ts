@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 
 export type ArtilheiroLinha = {
   atletaId: string;
@@ -11,14 +11,15 @@ export type ArtilheiroLinha = {
   statusSuspensao: "ok" | "pendurado" | "suspenso";
 };
 
-export async function getArtilharia(categoriaId: string): Promise<ArtilheiroLinha[]> {
-  const categoria = await prisma.categoria.findUnique({
+export async function getArtilharia(tenantId: string, categoriaId: string): Promise<ArtilheiroLinha[]> {
+  const db = getTenantPrisma(tenantId);
+  const categoria = await db.categoria.findUnique({
     where: { id: categoriaId },
     select: { cartoesParaSuspensao: true },
   });
   const limite = categoria?.cartoesParaSuspensao ?? 3;
 
-  const eventos = await prisma.eventoPartida.findMany({
+  const eventos = await db.eventoPartida.findMany({
     where: {
       atletaId: { not: null },
       tipo: { in: ["GOL", "CARTAO_AMARELO", "CARTAO_VERMELHO"] },
@@ -71,7 +72,7 @@ function suspensaoStatus(amarelos: number, limite: number): ArtilheiroLinha["sta
  * assume que o atleta segue suspenso enquanto o total de amarelos estiver em
  * um múltiplo exato do limite.
  */
-export async function getAtletasSuspensosIds(categoriaId: string): Promise<Set<string>> {
-  const linhas = await getArtilharia(categoriaId);
+export async function getAtletasSuspensosIds(tenantId: string, categoriaId: string): Promise<Set<string>> {
+  const linhas = await getArtilharia(tenantId, categoriaId);
   return new Set(linhas.filter((l) => l.statusSuspensao === "suspenso").map((l) => l.atletaId));
 }

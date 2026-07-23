@@ -10,11 +10,12 @@ import { RosterPanel } from "@/components/partidas/roster";
 import { StandingsTable } from "@/components/partidas/standings-table";
 import type { PartidaDetalhe } from "@/lib/partidas";
 import type { LinhaClassificacao } from "@/lib/classificacao";
+import { paths } from "@/lib/tenant-path";
 
 const tabs = ["Detalhes", "Linha do Tempo", "Escalação", "Classificação"] as const;
 type Tab = (typeof tabs)[number];
 
-function MomentosPrincipais({ partida }: { partida: PartidaDetalhe }) {
+function MomentosPrincipais({ partida, tenantSlug }: { partida: PartidaDetalhe; tenantSlug: string }) {
   const gols = partida.eventos.filter((e) => e.tipo === "GOL");
 
   if (gols.length === 0) {
@@ -30,7 +31,7 @@ function MomentosPrincipais({ partida }: { partida: PartidaDetalhe }) {
             <Goal size={14} className="shrink-0 text-accent" />
             <span className="font-mono font-semibold text-muted">{g.minuto}&apos;</span>
             {g.atleta ? (
-              <Link href={`/atleta/${g.atleta.id}`} className="font-medium hover:text-accent hover:underline">
+              <Link href={paths.atleta(tenantSlug, g.atleta.id)} className="font-medium hover:text-accent hover:underline">
                 {g.atleta.nome}
               </Link>
             ) : (
@@ -47,9 +48,11 @@ function MomentosPrincipais({ partida }: { partida: PartidaDetalhe }) {
 export function MatchTabs({
   partida,
   linhasClassificacao,
+  tenantSlug,
 }: {
   partida: PartidaDetalhe;
   linhasClassificacao: LinhaClassificacao[];
+  tenantSlug: string;
 }) {
   const [tab, setTab] = useState<Tab>("Detalhes");
 
@@ -74,15 +77,15 @@ export function MatchTabs({
       {tab === "Detalhes" && (
         <Card>
           <h2 className="mb-3 font-semibold">Principais momentos</h2>
-          <MomentosPrincipais partida={partida} />
+          <MomentosPrincipais partida={partida} tenantSlug={tenantSlug} />
         </Card>
       )}
 
-      {tab === "Linha do Tempo" && <EventTimeline partida={partida} />}
+      {tab === "Linha do Tempo" && <EventTimeline partida={partida} tenantSlug={tenantSlug} />}
 
       {tab === "Escalação" && (
         <Card>
-          <RosterPanel partida={partida} />
+          <RosterPanel partida={partida} tenantSlug={tenantSlug} />
         </Card>
       )}
 

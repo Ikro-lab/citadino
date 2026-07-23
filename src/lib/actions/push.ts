@@ -9,11 +9,13 @@ type SubscriptionJSON = {
 
 export async function subscribeUser(
   sub: SubscriptionJSON,
-  prefs: { categoriaId?: string | null; timeId?: string | null; lembreteMin?: number }
+  prefs: { categoriaId?: string | null; timeId?: string | null; lembreteMin?: number },
+  tenantId: string
 ) {
   await prisma.pushSubscription.upsert({
     where: { endpoint: sub.endpoint },
     update: {
+      tenantId,
       p256dh: sub.keys.p256dh,
       auth: sub.keys.auth,
       categoriaId: prefs.categoriaId || null,
@@ -21,6 +23,7 @@ export async function subscribeUser(
       lembreteMin: prefs.lembreteMin ?? 30,
     },
     create: {
+      tenantId,
       endpoint: sub.endpoint,
       p256dh: sub.keys.p256dh,
       auth: sub.keys.auth,

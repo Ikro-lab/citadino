@@ -1,28 +1,31 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
 import { saveUpload } from "@/lib/storage";
+import { paths } from "@/lib/tenant-path";
 import type { Posicao } from "@prisma/client";
 
 async function assertCanManageTime(timeId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
-  if (session.user.role === "ADMIN") return;
+  const db = getTenantPrisma(session.user.tenantId!);
+  if (session.user.role === "ADMIN") return db;
 
-  const time = await prisma.time.findUnique({
+  const time = await db.time.findUnique({
     where: { id: timeId },
     select: { treinadorId: true },
   });
   if (!time || time.treinadorId !== session.user.id) {
     throw new Error("Você não tem permissão para gerenciar este time.");
   }
+  return db;
 }
 
-function revalidateTimeViews(timeId: string) {
-  revalidatePath(`/admin/times/${timeId}`);
-  revalidatePath("/treinador");
+function revalidateTimeViews(tenantSlug: string, timeId: string) {
+  revalidatePath(paths.admin.time(tenantSlug, timeId));
+  revalidatePath(paths.treinador.root(tenantSlug));
 }
 
 export type CreateAtletaState = { error?: string } | undefined;
@@ -32,7 +35,9 @@ export async function createAtleta(
   _prevState: CreateAtletaState,
   formData: FormData
 ): Promise<CreateAtletaState> {
-  await assertCanManageTime(timeId);
+  const db = await assertCanManageTime(timeId);
+  const session = await auth();
+  const tenantSlug = session!.user.tenantSlug!;
 
   const nome = String(formData.get("nome") || "").trim();
   const numero = Number(formData.get("numero"));
@@ -68,8 +73,9 @@ export async function createAtleta(
     return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
   }
 
-  await prisma.atleta.create({
+  await db.atleta.create({
     data: {
+      tenantId: session!.user.tenantId!,
       nome,
       numero,
       posicao,
@@ -81,7 +87,7 @@ export async function createAtleta(
       comprovanteEnderecoUrl,
     },
   });
-  revalidateTimeViews(timeId);
+  revalidateTimeViews(tenantSlug, timeId);
 }
 
 export async function updateAtleta(
@@ -89,7 +95,9 @@ export async function updateAtleta(
   timeId: string,
   formData: FormData
 ) {
-  await assertCanManageTime(timeId);
+  const db = await assertCanManageTime(timeId);
+  const session = await auth();
+  const tenantSlug = session!.user.tenantSlug!;
 
   const nome = String(formData.get("nome") || "").trim();
   const numero = Number(formData.get("numero"));
@@ -100,15 +108,17 @@ export async function updateAtleta(
   const dataNascimento = dataNascimentoRaw ? new Date(dataNascimentoRaw) : null;
   if (!nome || !numero || Number.isNaN(numero)) return;
 
-  await prisma.atleta.update({
+  await db.atleta.update({
     where: { id: atletaId },
     data: { nome, numero, posicao, fotoUrl, instagram, dataNascimento },
   });
-  revalidateTimeViews(timeId);
+  revalidateTimeViews(tenantSlug, timeId);
 }
 
 export async function deleteAtleta(atletaId: string, timeId: string) {
-  await assertCanManageTime(timeId);
-  await prisma.atleta.delete({ where: { id: atletaId } });
-  revalidateTimeViews(timeId);
+  const db = await assertCanManageTime(timeId);
+  const session = await auth();
+  const tenantSlug = session!.user.tenantSlug!;
+  await db.atleta.delete({ where: { id: atletaId } });
+  revalidateTimeViews(tenantSlug, timeId);
 }

@@ -4,6 +4,7 @@ import { LiveMinuto } from "@/components/partidas/live-minuto";
 import { FavoritoStar } from "@/components/partidas/favorito-star";
 import { TIMEZONE } from "@/lib/date-utils";
 import type { FeedPartida } from "@/lib/partidas";
+import { paths } from "@/lib/tenant-path";
 
 function Escudo({ nome }: { nome: string }) {
   return (
@@ -41,9 +42,11 @@ function LinhaTime({
 export function MatchRow({
   partida,
   forma,
+  tenantSlug,
 }: {
   partida: FeedPartida;
   forma: Record<string, ("V" | "E" | "D")[]>;
+  tenantSlug: string;
 }) {
   const showScore = partida.status !== "AGENDADA" && partida.status !== "ADIADA";
   const casaVence = partida.status === "ENCERRADA" && partida.placarCasa > partida.placarFora;
@@ -57,7 +60,7 @@ export function MatchRow({
 
   return (
     <div className="flex items-center gap-2 border-b border-border px-3 py-2 last:border-0 hover:bg-surface/60">
-      <Link href={`/partida/${partida.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+      <Link href={paths.partida(tenantSlug, partida.id)} className="flex min-w-0 flex-1 items-center gap-3">
         <div className="w-10 shrink-0 text-center">
           {partida.status === "AO_VIVO" ? (
             <LiveMinuto dataHora={partida.dataHora} />

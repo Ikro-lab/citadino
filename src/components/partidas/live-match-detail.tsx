@@ -9,9 +9,11 @@ import type { LinhaClassificacao } from "@/lib/classificacao";
 export function LiveMatchDetail({
   initial,
   linhasClassificacao,
+  tenantSlug,
 }: {
   initial: PartidaDetalhe;
   linhasClassificacao: LinhaClassificacao[];
+  tenantSlug: string;
 }) {
   const [partida, setPartida] = useState(initial);
   const [prevInitial, setPrevInitial] = useState(initial);
@@ -26,7 +28,7 @@ export function LiveMatchDetail({
 
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/partidas/${initial.id}`, { cache: "no-store" });
+        const res = await fetch(`/api/${tenantSlug}/partidas/${initial.id}`, { cache: "no-store" });
         if (res.ok) {
           setPartida(await res.json());
         }
@@ -36,12 +38,12 @@ export function LiveMatchDetail({
     }, 6000);
 
     return () => clearInterval(interval);
-  }, [partida.status, initial.id]);
+  }, [partida.status, initial.id, tenantSlug]);
 
   return (
     <div className="flex flex-col gap-4">
       <MatchHeader partida={partida} />
-      <MatchTabs partida={partida} linhasClassificacao={linhasClassificacao} />
+      <MatchTabs partida={partida} linhasClassificacao={linhasClassificacao} tenantSlug={tenantSlug} />
     </div>
   );
 }

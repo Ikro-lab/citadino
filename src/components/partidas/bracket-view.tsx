@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { paths } from "@/lib/tenant-path";
 
 type PartidaChave = {
   id: string;
@@ -22,7 +23,7 @@ const faseLabel: Record<string, string> = {
 
 const ordemFase = ["OITAVAS", "QUARTAS", "SEMIFINAL", "TERCEIRO_LUGAR", "FINAL"];
 
-export function BracketView({ partidas }: { partidas: PartidaChave[] }) {
+export function BracketView({ partidas, tenantSlug }: { partidas: PartidaChave[]; tenantSlug: string }) {
   if (partidas.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-border py-8 text-center text-sm text-muted">
@@ -45,7 +46,7 @@ export function BracketView({ partidas }: { partidas: PartidaChave[] }) {
             </p>
             <div className="flex flex-col gap-3">
               {jogos.map((p) => (
-                <Link key={p.id} href={`/partida/${p.id}`}>
+                <Link key={p.id} href={paths.partida(tenantSlug, p.id)}>
                   <Card className="p-3 hover:shadow-md">
                     <div className="flex items-center justify-between text-sm">
                       <span className="truncate">{p.timeCasa.nome}</span>

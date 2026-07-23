@@ -2,9 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { requireAdmin } from "@/lib/require-role";
 import { auth } from "@/auth";
+import { paths } from "@/lib/tenant-path";
 import { notifyPartidaEvento } from "@/lib/push/notify";
 import { parseDatetimeLocalAsBRT } from "@/lib/date-utils";
 import type { FasePartida, TipoEvento } from "@prisma/client";
@@ -12,8 +13,9 @@ import type { FasePartida, TipoEvento } from "@prisma/client";
 export async function assertPodeEditarEvento(eventoId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
+  const db = getTenantPrisma(session.user.tenantId!);
 
-  const evento = await prisma.eventoPartida.findUnique({
+  const evento = await db.eventoPartida.findUnique({
     where: { id: eventoId },
     select: {
       partidaId: true,
@@ -47,9 +49,10 @@ export async function assertPodeEditarEvento(eventoId: string) {
 async function assertPodeLancarEvento(partidaId: string, timeId: string) {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
+  const db = getTenantPrisma(session.user.tenantId!);
   if (session.user.role === "ADMIN") return;
 
-  const partida = await prisma.partida.findUnique({
+  const partida = await db.partida.findUnique({
     where: { id: partidaId },
     select: {
       status: true,
@@ -89,7 +92,9 @@ function parseForm(formData: FormData) {
 }
 
 export async function createPartida(formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
   const data = parseForm(formData);
   if (
     !data.categoriaId ||
@@ -101,8 +106,9 @@ export async function createPartida(formData: FormData) {
     return;
   }
 
-  await prisma.partida.create({
+  await db.partida.create({
     data: {
+      tenantId: session.user.tenantId!,
       categoriaId: data.categoriaId,
       timeCasaId: data.timeCasaId,
       timeForaId: data.timeForaId,
@@ -112,16 +118,18 @@ export async function createPartida(formData: FormData) {
       fase: data.fase,
     },
   });
-  revalidatePath("/admin/partidas");
-  revalidatePath("/");
+  revalidatePath(paths.admin.partidas(tenantSlug));
+  revalidatePath(paths.home(tenantSlug));
 }
 
 export async function updatePartida(id: string, formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
   const data = parseForm(formData);
   if (!data.categoriaId || !data.timeCasaId || !data.timeForaId || !data.dataHora) return;
 
-  await prisma.partida.update({
+  await db.partida.update({
     where: { id },
     data: {
       categoriaId: data.categoriaId,
@@ -133,53 +141,60 @@ export async function updatePartida(id: string, formData: FormData) {
       fase: data.fase,
     },
   });
-  revalidatePath("/admin/partidas");
-  revalidatePath(`/partida/${id}`);
-  redirect("/admin/partidas");
+  revalidatePath(paths.admin.partidas(tenantSlug));
+  revalidatePath(paths.partida(tenantSlug, id));
+  redirect(paths.admin.partidas(tenantSlug));
 }
 
 export async function deletePartida(id: string) {
-  await requireAdmin();
-  await prisma.partida.delete({ where: { id } });
-  revalidatePath("/admin/partidas");
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.partida.delete({ where: { id } });
+  revalidatePath(paths.admin.partidas(session.user.tenantSlug!));
 }
 
 export async function iniciarPartida(id: string) {
-  await requireAdmin();
-  const partida = await prisma.partida.update({
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  const partida = await db.partida.update({
     where: { id },
     data: { status: "AO_VIVO" },
     include: { timeCasa: true, timeFora: true },
   });
-  revalidatePath(`/admin/partidas/${id}/sumula`);
-  revalidatePath("/");
-  await notifyPartidaEvento(partida.id, {
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, id));
+  revalidatePath(paths.home(tenantSlug));
+  await notifyPartidaEvento(session.user.tenantId!, partida.id, {
     title: `Começou! ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
     body: "A partida está ao vivo.",
   });
 }
 
 export async function encerrarPartida(id: string) {
-  await requireAdmin();
-  const partida = await prisma.partida.update({
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  const partida = await db.partida.update({
     where: { id },
     data: { status: "ENCERRADA" },
     include: { timeCasa: true, timeFora: true },
   });
-  revalidatePath(`/admin/partidas/${id}/sumula`);
-  revalidatePath("/");
-  revalidatePath("/classificacao");
-  await notifyPartidaEvento(partida.id, {
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, id));
+  revalidatePath(paths.home(tenantSlug));
+  revalidatePath(paths.classificacao(tenantSlug));
+  await notifyPartidaEvento(session.user.tenantId!, partida.id, {
     title: `Fim de jogo: ${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`,
     body: "Confira os detalhes da partida.",
   });
 }
 
 export async function adiarPartida(id: string) {
-  await requireAdmin();
-  await prisma.partida.update({ where: { id }, data: { status: "ADIADA" } });
-  revalidatePath("/admin/partidas");
-  revalidatePath("/");
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  await db.partida.update({ where: { id }, data: { status: "ADIADA" } });
+  revalidatePath(paths.admin.partidas(tenantSlug));
+  revalidatePath(paths.home(tenantSlug));
 }
 
 export async function addEvento(partidaId: string, formData: FormData) {
@@ -193,9 +208,14 @@ export async function addEvento(partidaId: string, formData: FormData) {
 
   await assertPodeLancarEvento(partidaId, timeId);
 
-  const partida = await prisma.$transaction(async (tx) => {
+  const session = await auth();
+  const tenantId = session!.user.tenantId!;
+  const tenantSlug = session!.user.tenantSlug!;
+  const db = getTenantPrisma(tenantId);
+
+  const partida = await db.$transaction(async (tx) => {
     await tx.eventoPartida.create({
-      data: { partidaId, tipo, timeId, atletaId, minuto, descricao },
+      data: { tenantId, partidaId, tipo, timeId, atletaId, minuto, descricao },
     });
 
     if (tipo === "GOL") {
@@ -216,18 +236,18 @@ export async function addEvento(partidaId: string, formData: FormData) {
     });
   });
 
-  revalidatePath(`/admin/partidas/${partidaId}/sumula`);
-  revalidatePath(`/partida/${partidaId}`);
-  revalidatePath("/");
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.partida(tenantSlug, partidaId));
+  revalidatePath(paths.home(tenantSlug));
 
   if (tipo === "GOL") {
     const timeNome = timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome;
-    await notifyPartidaEvento(partidaId, {
+    await notifyPartidaEvento(tenantId, partidaId, {
       title: `Gol de ${timeNome}!`,
       body: `${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`,
     });
   } else if (tipo === "CARTAO_VERMELHO") {
-    await notifyPartidaEvento(partidaId, {
+    await notifyPartidaEvento(tenantId, partidaId, {
       title: "Cartão vermelho!",
       body: `${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
     });
@@ -235,9 +255,11 @@ export async function addEvento(partidaId: string, formData: FormData) {
 }
 
 export async function deleteEvento(eventoId: string, partidaId: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
 
-  await prisma.$transaction(async (tx) => {
+  await db.$transaction(async (tx) => {
     const evento = await tx.eventoPartida.delete({ where: { id: eventoId } });
 
     if (evento.tipo === "GOL") {
@@ -252,34 +274,40 @@ export async function deleteEvento(eventoId: string, partidaId: string) {
     }
   });
 
-  revalidatePath(`/admin/partidas/${partidaId}/sumula`);
-  revalidatePath(`/partida/${partidaId}`);
-  revalidatePath("/");
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.partida(tenantSlug, partidaId));
+  revalidatePath(paths.home(tenantSlug));
 }
 
 export async function setEventoVideo(eventoId: string, videoUrl: string) {
   const evento = await assertPodeEditarEvento(eventoId);
   if (!videoUrl) return;
 
-  await prisma.eventoPartida.update({
+  const session = await auth();
+  const tenantSlug = session!.user.tenantSlug!;
+  const db = getTenantPrisma(session!.user.tenantId!);
+
+  await db.eventoPartida.update({
     where: { id: eventoId },
     data: { videoUrl },
   });
 
-  revalidatePath(`/admin/partidas/${evento.partidaId}/sumula`);
-  revalidatePath(`/treinador/partidas/${evento.partidaId}/sumula`);
-  revalidatePath(`/partida/${evento.partidaId}`);
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, evento.partidaId));
+  revalidatePath(paths.treinador.partidaSumula(tenantSlug, evento.partidaId));
+  revalidatePath(paths.partida(tenantSlug, evento.partidaId));
 }
 
 export async function setLinkTransmissao(partidaId: string, formData: FormData) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
   const url = String(formData.get("linkTransmissaoUrl") || "").trim() || null;
 
-  await prisma.partida.update({
+  await db.partida.update({
     where: { id: partidaId },
     data: { linkTransmissaoUrl: url },
   });
 
-  revalidatePath(`/admin/partidas/${partidaId}/sumula`);
-  revalidatePath(`/partida/${partidaId}`);
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.partida(tenantSlug, partidaId));
 }

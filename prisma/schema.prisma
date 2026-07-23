@@ -7,6 +7,7 @@ datasource db {
 }
 
 enum Role {
+  SUPER_ADMIN
   ADMIN
   TREINADOR
 }
@@ -54,22 +55,54 @@ enum FasePartida {
   FINAL
 }
 
+model Tenant {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  nome      String
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users          User[]
+  campeonatos    Campeonato[]
+  categorias     Categoria[]
+  grupos         Grupo[]
+  times          Time[]
+  solicitacoes   SolicitacaoTime[]
+  atletas        Atleta[]
+  inscricoes     InscricaoAtleta[]
+  partidas       Partida[]
+  eventos        EventoPartida[]
+  enquetes       Enquete[]
+  enqueteOpcoes  EnqueteOpcao[]
+  enqueteVotos   EnqueteVoto[]
+  patrocinadores Patrocinador[]
+  pushSubs       PushSubscription[]
+}
+
 model User {
   id            String   @id @default(cuid())
   name          String
-  email         String   @unique
+  email         String
   passwordHash  String
   role          Role     @default(TREINADOR)
+  tenantId      String?
+  tenant        Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   times         Time[]
   solicitacoes  SolicitacaoTime[]
   eventosLancados EventoPartida[] @relation("EventosLancadosPor")
+
+  @@unique([tenantId, email])
+  @@index([tenantId])
 }
 
 model Campeonato {
   id             String   @id @default(cuid())
+  tenantId       String
+  tenant         Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome           String
   temporada      String
   ativo          Boolean  @default(true)
@@ -79,6 +112,8 @@ model Campeonato {
 
   categorias      Categoria[]
   patrocinadores  Patrocinador[]
+
+  @@index([tenantId])
 }
 
 enum NivelPatrocinio {
@@ -89,6 +124,8 @@ enum NivelPatrocinio {
 
 model Patrocinador {
   id           String          @id @default(cuid())
+  tenantId     String
+  tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome         String
   logoUrl      String
   linkUrl      String?
@@ -98,10 +135,14 @@ model Patrocinador {
   campeonatoId String
   campeonato   Campeonato      @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
   createdAt    DateTime        @default(now())
+
+  @@index([tenantId])
 }
 
 model Categoria {
   id                    String   @id @default(cuid())
+  tenantId              String
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome                  String
   campeonatoId          String
   campeonato            Campeonato @relation(fields: [campeonatoId], references: [id], onDelete: Cascade)
@@ -118,10 +159,13 @@ model Categoria {
   enquetes    Enquete[]
 
   @@unique([campeonatoId, nome])
+  @@index([tenantId, campeonatoId])
 }
 
 model Grupo {
   id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome        String
   categoriaId String
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
@@ -130,10 +174,13 @@ model Grupo {
   times       Time[]
 
   @@unique([categoriaId, nome])
+  @@index([tenantId])
 }
 
 model Time {
   id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome          String
   escudoUrl     String?
   categoriaId   String
@@ -151,10 +198,14 @@ model Time {
   eventos       EventoPartida[]
   solicitacoes  SolicitacaoTime[]
   inscricoes    InscricaoAtleta[]
+
+  @@index([tenantId])
 }
 
 model SolicitacaoTime {
   id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nomeTime    String
   treinadorId String
   treinador   User     @relation(fields: [treinadorId], references: [id], onDelete: Cascade)
@@ -164,10 +215,14 @@ model SolicitacaoTime {
   status      StatusSolicitacao @default(PENDENTE)
   mensagem    String?
   createdAt   DateTime @default(now())
+
+  @@index([tenantId])
 }
 
 model Atleta {
   id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome          String
   numero        Int
   posicao       Posicao
@@ -185,6 +240,7 @@ model Atleta {
   votosRecebidos EnqueteOpcao[]
 
   @@unique([timeId, numero])
+  @@index([tenantId])
 }
 
 enum StatusInscricao {
@@ -195,6 +251,8 @@ enum StatusInscricao {
 
 model InscricaoAtleta {
   id                      String   @id @default(cuid())
+  tenantId                String
+  tenant                  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   timeId                  String
   time                    Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
   nome                    String
@@ -208,10 +266,14 @@ model InscricaoAtleta {
   atleta                  Atleta?  @relation(fields: [atletaId], references: [id])
   createdAt               DateTime @default(now())
   revisadoEm              DateTime?
+
+  @@index([tenantId])
 }
 
 model Partida {
   id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   categoriaId   String
   categoria     Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
   timeCasaId    String
@@ -231,10 +293,14 @@ model Partida {
   updatedAt     DateTime @updatedAt
 
   eventos       EventoPartida[]
+
+  @@index([tenantId, categoriaId])
 }
 
 model EventoPartida {
   id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   partidaId   String
   partida     Partida  @relation(fields: [partidaId], references: [id], onDelete: Cascade)
   tipo        TipoEvento
@@ -248,10 +314,14 @@ model EventoPartida {
   lancadoPorId String?
   lancadoPor  User?    @relation("EventosLancadosPor", fields: [lancadoPorId], references: [id])
   createdAt   DateTime @default(now())
+
+  @@index([tenantId])
 }
 
 model Enquete {
   id          String   @id @default(cuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   categoriaId String
   categoria   Categoria @relation(fields: [categoriaId], references: [id], onDelete: Cascade)
   rodada      Int
@@ -261,10 +331,14 @@ model Enquete {
 
   opcoes      EnqueteOpcao[]
   votos       EnqueteVoto[]
+
+  @@index([tenantId])
 }
 
 model EnqueteOpcao {
   id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   enqueteId String
   enquete   Enquete  @relation(fields: [enqueteId], references: [id], onDelete: Cascade)
   atletaId  String
@@ -273,10 +347,13 @@ model EnqueteOpcao {
   votos     EnqueteVoto[]
 
   @@unique([enqueteId, atletaId])
+  @@index([tenantId])
 }
 
 model EnqueteVoto {
   id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   enqueteId String
   enquete   Enquete  @relation(fields: [enqueteId], references: [id], onDelete: Cascade)
   opcaoId   String
@@ -285,10 +362,13 @@ model EnqueteVoto {
   createdAt DateTime @default(now())
 
   @@unique([enqueteId, deviceId])
+  @@index([tenantId])
 }
 
 model PushSubscription {
   id            String   @id @default(cuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   endpoint      String   @unique
   p256dh        String
   auth          String
@@ -296,4 +376,6 @@ model PushSubscription {
   timeId        String?
   lembreteMin   Int?     @default(30)
   createdAt     DateTime @default(now())
+
+  @@index([tenantId])
 }

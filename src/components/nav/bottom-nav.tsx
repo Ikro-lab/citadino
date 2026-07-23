@@ -5,24 +5,26 @@ import { usePathname } from "next/navigation";
 import { Home, Trophy, Target, LogIn, LayoutDashboard, Shield, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { logout } from "@/lib/actions/auth";
+import { paths } from "@/lib/tenant-path";
 import type { Role } from "@prisma/client";
 
-export function BottomNav({ role }: { role: Role | null }) {
+export function BottomNav({ role, tenantSlug }: { role: Role | null; tenantSlug: string }) {
   const pathname = usePathname();
+  const home = paths.home(tenantSlug);
 
   const items = [
-    { href: "/", label: "Feed", icon: Home },
-    { href: "/classificacao", label: "Tabela", icon: Trophy },
-    { href: "/artilharia", label: "Artilheiros", icon: Target },
+    { href: home, label: "Feed", icon: Home },
+    { href: paths.classificacao(tenantSlug), label: "Tabela", icon: Trophy },
+    { href: paths.artilharia(tenantSlug), label: "Artilheiros", icon: Target },
     role === "ADMIN"
-      ? { href: "/admin", label: "Painel", icon: LayoutDashboard }
+      ? { href: paths.admin.root(tenantSlug), label: "Painel", icon: LayoutDashboard }
       : role === "TREINADOR"
-        ? { href: "/treinador", label: "Meu Time", icon: Shield }
-        : { href: "/login", label: "Entrar", icon: LogIn },
+        ? { href: paths.treinador.root(tenantSlug), label: "Meu Time", icon: Shield }
+        : { href: paths.login(tenantSlug), label: "Entrar", icon: LogIn },
   ];
 
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === home ? pathname === home : pathname.startsWith(href);
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 md:hidden">

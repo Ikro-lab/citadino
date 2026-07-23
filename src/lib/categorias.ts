@@ -1,7 +1,8 @@
-import { prisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 
-export async function listCategoriasAtivas() {
-  const categorias = await prisma.categoria.findMany({
+export async function listCategoriasAtivas(tenantId: string) {
+  const db = getTenantPrisma(tenantId);
+  const categorias = await db.categoria.findMany({
     where: { campeonato: { ativo: true } },
     include: { campeonato: { select: { nome: true } } },
     orderBy: [{ campeonatoId: "asc" }, { nome: "asc" }],
@@ -17,8 +18,8 @@ export async function listCategoriasAtivas() {
   }));
 }
 
-export async function resolveCategoriaId(preferido?: string) {
-  const categorias = await listCategoriasAtivas();
+export async function resolveCategoriaId(tenantId: string, preferido?: string) {
+  const categorias = await listCategoriasAtivas(tenantId);
   if (preferido && categorias.some((c) => c.id === preferido)) {
     return { categoriaId: preferido, categorias };
   }
