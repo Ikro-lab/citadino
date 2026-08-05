@@ -1,7 +1,16 @@
+import type { Tenant } from "@prisma/client";
 import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
 import { SponsorStrip } from "./sponsor-strip";
 
-export async function SponsorFooter({ tenantId }: { tenantId: string }) {
+export async function SponsorFooter({
+  tenantId,
+  animado = true,
+  tamanho = "MEDIO",
+}: {
+  tenantId: string;
+  animado?: boolean;
+  tamanho?: Tenant["patrocinadoresTamanho"];
+}) {
   const patrocinadores = await getPatrocinadoresAtivos(tenantId);
   if (patrocinadores.length === 0) return null;
 
@@ -11,7 +20,12 @@ export async function SponsorFooter({ tenantId }: { tenantId: string }) {
         <p className="px-4 pt-3 text-center text-[11px] font-semibold tracking-wide text-muted uppercase">
           Patrocinadores
         </p>
-        <SponsorStrip patrocinadores={patrocinadores} className="justify-center" />
+        <SponsorStrip
+          patrocinadores={patrocinadores}
+          className="justify-center"
+          animado={animado}
+          tamanho={tamanho}
+        />
       </div>
     </footer>
   );

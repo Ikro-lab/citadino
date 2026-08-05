@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
+import { prisma } from "@/lib/prisma";
 import { saveLogoUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
-import type { NivelPatrocinio } from "@prisma/client";
+import type { NivelPatrocinio, TamanhoPatrocinadores } from "@prisma/client";
 
 export async function createPatrocinador(formData: FormData) {
   const session = await requireAdmin();
@@ -56,6 +57,26 @@ export async function toggleAtivoPatrocinador(id: string, ativo: boolean) {
   const session = await requireAdmin();
   const db = getTenantPrisma(session.user.tenantId!);
   await db.patrocinador.update({ where: { id }, data: { ativo } });
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
+}
+
+export async function updatePatrocinadoresAnimados(animado: boolean) {
+  const session = await requireAdmin();
+  await prisma.tenant.update({
+    where: { id: session.user.tenantId! },
+    data: { patrocinadoresAnimados: animado },
+  });
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
+}
+
+export async function updatePatrocinadoresTamanho(tamanho: TamanhoPatrocinadores) {
+  const session = await requireAdmin();
+  await prisma.tenant.update({
+    where: { id: session.user.tenantId! },
+    data: { patrocinadoresTamanho: tamanho },
+  });
   revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
   revalidatePath(paths.home(session.user.tenantSlug!));
 }

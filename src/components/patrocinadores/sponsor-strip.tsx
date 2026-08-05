@@ -1,4 +1,4 @@
-import type { Patrocinador } from "@prisma/client";
+import type { Patrocinador, Tenant } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
 const ALTURA_POR_NIVEL: Record<Patrocinador["nivel"], number> = {
@@ -7,8 +7,20 @@ const ALTURA_POR_NIVEL: Record<Patrocinador["nivel"], number> = {
   PRATA: 68,
 };
 
-function SponsorLogo({ patrocinador }: { patrocinador: Patrocinador }) {
-  const altura = ALTURA_POR_NIVEL[patrocinador.nivel];
+const ESCALA_POR_TAMANHO: Record<Tenant["patrocinadoresTamanho"], number> = {
+  PEQUENO: 0.7,
+  MEDIO: 1,
+  GRANDE: 1.4,
+};
+
+function SponsorLogo({
+  patrocinador,
+  escala,
+}: {
+  patrocinador: Patrocinador;
+  escala: number;
+}) {
+  const altura = ALTURA_POR_NIVEL[patrocinador.nivel] * escala;
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
@@ -36,11 +48,29 @@ function SponsorLogo({ patrocinador }: { patrocinador: Patrocinador }) {
 export function SponsorStrip({
   patrocinadores,
   className,
+  animado = true,
+  tamanho = "MEDIO",
 }: {
   patrocinadores: Patrocinador[];
   className?: string;
+  animado?: boolean;
+  tamanho?: Tenant["patrocinadoresTamanho"];
 }) {
   if (patrocinadores.length === 0) return null;
+
+  const escala = ESCALA_POR_TAMANHO[tamanho];
+
+  if (!animado) {
+    return (
+      <div className={cn("overflow-hidden py-2", className)}>
+        <div className="flex flex-wrap items-center justify-center gap-10">
+          {patrocinadores.map((p) => (
+            <SponsorLogo key={p.id} patrocinador={p} escala={escala} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("overflow-hidden py-2", className)}>
@@ -48,7 +78,7 @@ export function SponsorStrip({
         {[0, 1].map((copia) => (
           <div key={copia} className="flex shrink-0 items-center gap-10" aria-hidden={copia === 1}>
             {patrocinadores.map((p) => (
-              <SponsorLogo key={p.id} patrocinador={p} />
+              <SponsorLogo key={p.id} patrocinador={p} escala={escala} />
             ))}
           </div>
         ))}

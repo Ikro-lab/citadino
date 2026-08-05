@@ -70,10 +70,16 @@ export default async function TenantLayout({
         <SponsorStrip
           patrocinadores={patrocinadoresMaster}
           className="justify-center border-b border-border bg-surface/50"
+          animado={tenant.patrocinadoresAnimados}
+          tamanho={tenant.patrocinadoresTamanho}
         />
       )}
       <main className="flex-1 pb-20 md:pb-8">{children}</main>
-      <SponsorFooter tenantId={tenant.id} />
+      <SponsorFooter
+        tenantId={tenant.id}
+        animado={tenant.patrocinadoresAnimados}
+        tamanho={tenant.patrocinadoresTamanho}
+      />
       <BottomNav role={role} tenantSlug={tenantSlug} />
     </>
   );

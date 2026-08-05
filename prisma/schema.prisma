@@ -62,6 +62,8 @@ model Tenant {
   corPrimaria   String   @default("#f5821f")
   corSecundaria String   @default("#2fbf8f")
   ativo         Boolean  @default(true)
+  patrocinadoresAnimados Boolean @default(true)
+  patrocinadoresTamanho  TamanhoPatrocinadores @default(MEDIO)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -122,6 +124,12 @@ enum NivelPatrocinio {
   MASTER
   OURO
   PRATA
+}
+
+enum TamanhoPatrocinadores {
+  PEQUENO
+  MEDIO
+  GRANDE
 }
 
 model Patrocinador {

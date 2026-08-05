@@ -9,6 +9,8 @@ import {
   createPatrocinador,
   deletePatrocinador,
   toggleAtivoPatrocinador,
+  updatePatrocinadoresAnimados,
+  updatePatrocinadoresTamanho,
 } from "@/lib/actions/patrocinadores";
 
 const nivelVariant = {
@@ -16,6 +18,12 @@ const nivelVariant = {
   OURO: "secondary",
   PRATA: "neutral",
 } as const;
+
+const TAMANHOS = [
+  { value: "PEQUENO", label: "Pequena" },
+  { value: "MEDIO", label: "Média" },
+  { value: "GRANDE", label: "Grande" },
+] as const;
 
 export default async function PatrocinadoresPage({
   params,
@@ -36,6 +44,41 @@ export default async function PatrocinadoresPage({
 
   return (
     <div className="flex flex-col gap-6">
+      <Card className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">Movimento dos patrocinadores</h2>
+          <p className="text-sm text-muted">
+            Controla se a faixa de logos passa em movimento (carrossel) ou fica parada no site.
+          </p>
+        </div>
+        <form action={updatePatrocinadoresAnimados.bind(null, !tenant.patrocinadoresAnimados)}>
+          <Button type="submit" variant="secondary" size="sm">
+            {tenant.patrocinadoresAnimados ? "Desativar movimento" : "Ativar movimento"}
+          </Button>
+        </form>
+      </Card>
+
+      <Card className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">Tamanho da faixa de patrocinadores</h2>
+          <p className="text-sm text-muted">Controla o tamanho dos logos exibidos no site.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          {TAMANHOS.map((t) => (
+            <form key={t.value} action={updatePatrocinadoresTamanho.bind(null, t.value)}>
+              <Button
+                type="submit"
+                variant={tenant.patrocinadoresTamanho === t.value ? "primary" : "secondary"}
+                size="sm"
+                disabled={tenant.patrocinadoresTamanho === t.value}
+              >
+                {t.label}
+              </Button>
+            </form>
+          ))}
+        </div>
+      </Card>
+
       <Card>
         <h2 className="mb-3 font-semibold">Novo patrocinador</h2>
         {campeonatos.length === 0 ? (
