@@ -64,6 +64,7 @@ model Tenant {
   ativo         Boolean  @default(true)
   patrocinadoresAnimados Boolean @default(true)
   patrocinadoresTamanho  TamanhoPatrocinadores @default(MEDIO)
+  patrocinadoresPosicao  PosicaoPatrocinadores @default(AMBOS)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -130,6 +131,12 @@ enum TamanhoPatrocinadores {
   PEQUENO
   MEDIO
   GRANDE
+}
+
+enum PosicaoPatrocinadores {
+  AMBOS
+  TOPO
+  RODAPE
 }
 
 model Patrocinador {

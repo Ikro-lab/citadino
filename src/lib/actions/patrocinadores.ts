@@ -6,7 +6,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { prisma } from "@/lib/prisma";
 import { saveLogoUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
-import type { NivelPatrocinio, TamanhoPatrocinadores } from "@prisma/client";
+import type { NivelPatrocinio, TamanhoPatrocinadores, PosicaoPatrocinadores } from "@prisma/client";
 
 export async function createPatrocinador(formData: FormData) {
   const session = await requireAdmin();
@@ -76,6 +76,16 @@ export async function updatePatrocinadoresTamanho(tamanho: TamanhoPatrocinadores
   await prisma.tenant.update({
     where: { id: session.user.tenantId! },
     data: { patrocinadoresTamanho: tamanho },
+  });
+  revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
+  revalidatePath(paths.home(session.user.tenantSlug!));
+}
+
+export async function updatePatrocinadoresPosicao(posicao: PosicaoPatrocinadores) {
+  const session = await requireAdmin();
+  await prisma.tenant.update({
+    where: { id: session.user.tenantId! },
+    data: { patrocinadoresPosicao: posicao },
   });
   revalidatePath(paths.admin.patrocinadores(session.user.tenantSlug!));
   revalidatePath(paths.home(session.user.tenantSlug!));

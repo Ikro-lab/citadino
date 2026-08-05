@@ -11,6 +11,7 @@ import {
   toggleAtivoPatrocinador,
   updatePatrocinadoresAnimados,
   updatePatrocinadoresTamanho,
+  updatePatrocinadoresPosicao,
 } from "@/lib/actions/patrocinadores";
 
 const nivelVariant = {
@@ -23,6 +24,12 @@ const TAMANHOS = [
   { value: "PEQUENO", label: "Pequena" },
   { value: "MEDIO", label: "Média" },
   { value: "GRANDE", label: "Grande" },
+] as const;
+
+const POSICOES = [
+  { value: "AMBOS", label: "Topo e rodapé" },
+  { value: "TOPO", label: "Somente topo" },
+  { value: "RODAPE", label: "Somente rodapé" },
 ] as const;
 
 export default async function PatrocinadoresPage({
@@ -73,6 +80,29 @@ export default async function PatrocinadoresPage({
                 disabled={tenant.patrocinadoresTamanho === t.value}
               >
                 {t.label}
+              </Button>
+            </form>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="flex items-center justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">Onde exibir os patrocinadores</h2>
+          <p className="text-sm text-muted">
+            Topo mostra só os patrocinadores Master; rodapé mostra todos os níveis ativos.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {POSICOES.map((p) => (
+            <form key={p.value} action={updatePatrocinadoresPosicao.bind(null, p.value)}>
+              <Button
+                type="submit"
+                variant={tenant.patrocinadoresPosicao === p.value ? "primary" : "secondary"}
+                size="sm"
+                disabled={tenant.patrocinadoresPosicao === p.value}
+              >
+                {p.label}
               </Button>
             </form>
           ))}

@@ -66,7 +66,7 @@ export default async function TenantLayout({
     <>
       <style dangerouslySetInnerHTML={{ __html: paletteCss }} />
       <TopHeader role={role} userName={userName} tenantSlug={tenantSlug} nomeSistema={tenant.nome} />
-      {patrocinadoresMaster.length > 0 && (
+      {tenant.patrocinadoresPosicao !== "RODAPE" && patrocinadoresMaster.length > 0 && (
         <SponsorStrip
           patrocinadores={patrocinadoresMaster}
           className="justify-center border-b border-border bg-surface/50"
@@ -75,11 +75,13 @@ export default async function TenantLayout({
         />
       )}
       <main className="flex-1 pb-20 md:pb-8">{children}</main>
-      <SponsorFooter
-        tenantId={tenant.id}
-        animado={tenant.patrocinadoresAnimados}
-        tamanho={tenant.patrocinadoresTamanho}
-      />
+      {tenant.patrocinadoresPosicao !== "TOPO" && (
+        <SponsorFooter
+          tenantId={tenant.id}
+          animado={tenant.patrocinadoresAnimados}
+          tamanho={tenant.patrocinadoresTamanho}
+        />
+      )}
       <BottomNav role={role} tenantSlug={tenantSlug} />
     </>
   );
