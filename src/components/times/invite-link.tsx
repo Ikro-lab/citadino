@@ -16,7 +16,7 @@ export function InviteLink({ conviteToken, tenantSlug }: { conviteToken: string;
         <input
           readOnly
           value={caminho}
-          className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-background px-3 text-base text-muted md:text-xs"
+          className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-field px-3 text-base text-muted md:text-xs"
           onFocus={(e) => e.target.select()}
         />
         <button
@@ -27,7 +27,7 @@ export function InviteLink({ conviteToken, tenantSlug }: { conviteToken: string;
             setCopiado(true);
             setTimeout(() => setCopiado(false), 1500);
           }}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-border/60"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-field hover:bg-border/60"
           aria-label="Copiar link"
         >
           {copiado ? <Check size={16} className="text-success" /> : <Copy size={16} />}

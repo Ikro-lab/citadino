@@ -18,9 +18,9 @@ export function LiveMinuto({ dataHora }: { dataHora: string | Date }) {
   return (
     <span
       suppressHydrationWarning
-      className="flex flex-col items-center gap-0.5 text-xs font-bold text-danger tabular-nums"
+      className="flex flex-col items-center gap-1 text-xs font-semibold text-live tabular-nums"
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-danger animate-pulse-live" />
+      <span className="h-1.5 w-1.5 rounded-full bg-live animate-pulse-live" />
       {minuto <= 120 ? `${minuto}'` : "Ao vivo"}
     </span>
   );

@@ -43,7 +43,7 @@ export default function NovoTenantPage() {
               name="corPrimaria"
               type="color"
               defaultValue="#f5821f"
-              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background p-1"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-field p-1"
             />
             <span className="text-xs text-muted">Cor de destaque (botões, links, badges)</span>
           </div>
@@ -56,7 +56,7 @@ export default function NovoTenantPage() {
               name="corSecundaria"
               type="color"
               defaultValue="#2fbf8f"
-              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-background p-1"
+              className="h-11 w-14 shrink-0 cursor-pointer rounded-lg border border-border bg-field p-1"
             />
             <span className="text-xs text-muted">Cor de apoio (indicadores de sucesso, tags)</span>
           </div>

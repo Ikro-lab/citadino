@@ -25,7 +25,7 @@ export function PartidaListItem({
   const temPlacar = partida.status === "AO_VIVO" || partida.status === "ENCERRADA";
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-2xl bg-surface p-4 dark:border dark:border-border sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="font-medium">
           {partida.timeCasa.nome}{" "}
@@ -49,4 +49,4 @@ export function PartidaListItem({
 
 /** Ação secundária em formato de link/botão de texto, com área de toque de 44px. */
 export const acaoLinkClass =
-  "inline-flex h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-background";
+  "inline-flex h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-field";

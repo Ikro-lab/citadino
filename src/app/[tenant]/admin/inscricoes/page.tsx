@@ -47,13 +47,13 @@ export default async function AdminInscricoesPage({
               {i.time.nome} · {i.time.categoria.nome}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
+              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-field">
                 Foto
               </a>
-              <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
+              <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-field">
                 Documento
               </a>
-              <a href={i.comprovanteEnderecoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
+              <a href={i.comprovanteEnderecoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-field">
                 Comprovante
               </a>
             </div>

@@ -19,7 +19,6 @@ export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe
 
   return (
     <Card>
-      <h2 className="mb-3 font-semibold">Linha do tempo</h2>
       <ol className="flex flex-col gap-3">
         {partida.eventos.map((evento) => {
           const label = tipoEventoLabel[evento.tipo as TipoEvento] ?? tipoEventoLabel.OUTRO;

@@ -23,12 +23,12 @@ export default async function LandingPage() {
       {tenants.length > 0 ? (
         <div className="flex w-full flex-col">
           <h2 className="mb-2 text-sm font-semibold text-muted">Escolha o seu campeonato</h2>
-          <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+          <ul className="divide-y divide-border overflow-hidden rounded-2xl bg-surface dark:border dark:border-border">
             {tenants.map((t) => (
               <li key={t.slug}>
                 <Link
                   href={`/${t.slug}`}
-                  className="flex min-h-14 items-center justify-between gap-3 px-4 hover:bg-background"
+                  className="flex min-h-14 items-center justify-between gap-3 px-4 hover:bg-field"
                 >
                   <span className="flex min-w-0 items-center gap-3">
                     <Flamula nome={t.nome} size={20} />

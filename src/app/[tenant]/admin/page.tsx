@@ -50,7 +50,7 @@ export default async function AdminDashboard({
     <div className="flex flex-col gap-6">
       <Card className="grid grid-cols-2 divide-border p-0 sm:grid-cols-4 sm:divide-x">
         {numeros.map((n) => (
-          <Link key={n.label} href={n.href} className="px-4 py-3 hover:bg-background">
+          <Link key={n.label} href={n.href} className="px-4 py-3 hover:bg-field">
             <p className="font-display text-3xl font-bold leading-none tabular-nums">{n.valor}</p>
             <p className="mt-1 text-xs text-muted">{n.label}</p>
           </Link>

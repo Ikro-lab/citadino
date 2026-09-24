@@ -16,7 +16,7 @@ export default function Error({
 
   return (
     <div className="mx-auto flex max-w-sm flex-col items-center px-4 py-16 text-center">
-      <h1 className="mb-2 font-display text-3xl font-bold leading-none">Não foi possível carregar</h1>
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight">Não foi possível carregar</h1>
       <p className="mb-6 text-sm text-muted">
         Pode ser a conexão. Confira a internet do celular e tente de novo.
       </p>

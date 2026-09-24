@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { ChipRow, chipClass } from "@/components/ui/chips";
+import { tabClass } from "@/components/ui/chips";
 import { EventTimeline } from "@/components/partidas/event-timeline";
 import { EventoIcon } from "@/components/partidas/evento-icon";
 import { RosterPanel } from "@/components/partidas/roster";
@@ -73,23 +73,25 @@ export function MatchTabs({
 
   return (
     <div className="flex flex-col gap-4">
-      <ChipRow>
-        <div role="tablist" aria-label="Seções da partida" className="flex gap-2">
-          {abasPartida.map((a) => (
-            <button
-              key={a.id}
-              ref={aba === a.id ? abaAtivaRef : undefined}
-              type="button"
-              role="tab"
-              aria-selected={aba === a.id}
-              onClick={() => trocarAba(a.id)}
-              className={chipClass(aba === a.id)}
-            >
-              {a.label}
-            </button>
-          ))}
-        </div>
-      </ChipRow>
+      <div
+        role="tablist"
+        aria-label="Seções da partida"
+        className="-mx-4 flex overflow-x-auto border-b border-border px-2 [scrollbar-width:none]"
+      >
+        {abasPartida.map((a) => (
+          <button
+            key={a.id}
+            ref={aba === a.id ? abaAtivaRef : undefined}
+            type="button"
+            role="tab"
+            aria-selected={aba === a.id}
+            onClick={() => trocarAba(a.id)}
+            className={tabClass(aba === a.id)}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
 
       {aba === "detalhes" && (
         <Card>

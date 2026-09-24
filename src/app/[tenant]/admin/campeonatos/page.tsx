@@ -89,7 +89,7 @@ export default async function CampeonatosPage({
                   type="file"
                   accept="application/pdf"
                   required
-                  className="min-w-0 flex-1 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-medium"
+                  className="min-w-0 flex-1 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-field file:px-3 file:py-1.5 file:font-medium"
                 />
                 <Button type="submit" size="sm" variant="secondary">
                   Enviar PDF

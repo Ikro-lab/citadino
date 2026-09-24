@@ -8,9 +8,9 @@ import { Flamula } from "@/components/brand/flamula";
 import { NavLink } from "@/components/nav/nav-link";
 import { paths } from "@/lib/tenant-path";
 
-const navLinkClass = "rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-surface hover:text-foreground";
+const navLinkClass = "rounded-lg px-3 py-2 text-sm font-medium text-muted hover:bg-field hover:text-foreground";
 const navLinkActive = "text-foreground bg-surface";
-const iconButtonClass = "flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface";
+const iconButtonClass = "flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-field";
 
 export function TopHeader({
   role,
@@ -32,7 +32,7 @@ export function TopHeader({
   const primaryLabel = role === "ADMIN" ? "Painel" : role === "TREINADOR" ? "Meu time" : null;
 
   return (
-    <header className="sticky top-0 z-30 border-b border-border bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-background/80">
+    <header className="sticky top-0 z-30 border-b border-border bg-surface/95 pt-[env(safe-area-inset-top)] backdrop-blur supports-[backdrop-filter]:bg-surface/85">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-2 px-4">
         <Link href={paths.home(tenantSlug)} className="flex min-w-0 items-center gap-2">
           <Flamula nome={nomeSistema} size={24} />

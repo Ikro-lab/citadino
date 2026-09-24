@@ -17,7 +17,7 @@ type Inscricao = {
 };
 
 const docLinkClass =
-  "inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-surface";
+  "inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-field";
 
 export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] }) {
   if (inscricoes.length === 0) return null;
@@ -32,7 +32,7 @@ export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] })
           <form
             key={inscricao.id}
             action={aprovarInscricao.bind(null, inscricao.id)}
-            className="flex flex-col gap-3 rounded-xl border border-border bg-background p-3"
+            className="flex flex-col gap-3 rounded-xl border border-border bg-field p-3"
           >
             <div>
               <p className="font-medium">{inscricao.nome}</p>

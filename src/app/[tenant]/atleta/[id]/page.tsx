@@ -80,7 +80,7 @@ export default async function AtletaPage({
         <div className="mx-auto mb-3 w-fit">
           <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={88} className="text-2xl" />
         </div>
-        <h1 className="font-display text-3xl font-bold leading-tight">{atleta.nome}</h1>
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight">{atleta.nome}</h1>
         <p className="text-sm text-muted">
           <span className="tabular-nums">#{atleta.numero}</span>, {posicaoLabel[atleta.posicao as PosicaoAtleta]} do{" "}
           {atleta.time.nome}
@@ -97,7 +97,7 @@ export default async function AtletaPage({
             href={`https://instagram.com/${instagramHandle}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-medium hover:bg-background"
+            className="mt-4 inline-flex h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-medium hover:bg-field"
           >
             <AtSign size={16} />
             {instagramHandle}

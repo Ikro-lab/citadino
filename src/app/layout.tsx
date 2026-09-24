@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Nunito, Barlow_Condensed } from "next/font/google";
+import { Onest, Barlow_Condensed } from "next/font/google";
 import "./globals.css";
 
-const nunito = Nunito({
-  variable: "--font-nunito",
+const onest = Onest({
+  variable: "--font-onest",
   subsets: ["latin"],
 });
 
@@ -47,7 +47,7 @@ export default function RootLayout({
       lang="pt-BR"
       data-theme="light"
       suppressHydrationWarning
-      className={`${nunito.variable} ${barlowCondensed.variable} h-full antialiased`}
+      className={`${onest.variable} ${barlowCondensed.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />

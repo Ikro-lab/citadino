@@ -96,7 +96,7 @@ function AtletaRow({ atleta, timeId, tenantSlug }: { atleta: Atleta; timeId: str
           await updateAtleta(atleta.id, timeId, formData);
           setEditando(false);
         }}
-        className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-background p-3"
+        className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-field p-3"
       >
         <CamposAtleta prefixo={atleta.id} atleta={atleta} />
         <div className="grid grid-cols-2 gap-2 sm:flex">
@@ -162,7 +162,7 @@ export function AtletaManager({
       </div>
 
       {adicionando && (
-        <form action={formAction} className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-background p-3">
+        <form action={formAction} className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-field p-3">
           <CamposAtleta prefixo="novo" />
           <div>
             <Label htmlFor="foto">Foto do atleta</Label>

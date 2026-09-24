@@ -64,7 +64,7 @@ export default function CadastroForm({
         </label>
 
         {querTime && (
-          <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-3">
+          <div className="flex flex-col gap-4 rounded-xl border border-border bg-field p-3">
             <div>
               <Label htmlFor="nomeTime">Nome do time</Label>
               <Input id="nomeTime" name="nomeTime" placeholder="Ex: Real Bairro FC" />

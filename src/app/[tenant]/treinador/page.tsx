@@ -63,7 +63,7 @@ export default async function TreinadorPage({
       {times.map((time) => (
         <div key={time.id} className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-display text-2xl font-bold leading-none">{time.nome}</h2>
+            <h2 className="text-xl font-semibold tracking-tight">{time.nome}</h2>
             <Badge variant="accent">{time.categoria.nome}</Badge>
           </div>
           <InscricoesPendentes inscricoes={time.inscricoes} />

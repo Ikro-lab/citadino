@@ -20,7 +20,7 @@ export function LiveFilterToggle({
       <ChipLink href={`${home}?${new URLSearchParams({ data, vivo: "1" }).toString()}`} ativo={vivo}>
         <span
           aria-hidden
-          className={`h-2 w-2 rounded-full ${vivo ? "bg-accent-foreground" : "bg-danger"} animate-pulse-live`}
+          className="h-2 w-2 rounded-full bg-live animate-pulse-live"
         />
         Ao vivo
       </ChipLink>

@@ -71,7 +71,7 @@ export function FeedList({
     <div className="flex flex-col gap-3">
       {grupos.map((g, i) => (
         <Fragment key={g.categoriaId}>
-          <FeedGroup categoriaNome={g.categoriaNome}>
+          <FeedGroup categoriaNome={g.categoriaNome} total={g.partidas.length}>
             {g.partidas.map((partida) => (
               <MatchRow key={partida.id} partida={partida} forma={forma} tenantSlug={tenantSlug} />
             ))}

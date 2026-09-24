@@ -11,7 +11,7 @@ export function PageHeader({
 }) {
   return (
     <div className={cn("mb-4 flex items-center justify-between gap-3", className)}>
-      <h1 className="font-display text-3xl font-bold leading-none tracking-tight">{title}</h1>
+      <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
       {action}
     </div>
   );

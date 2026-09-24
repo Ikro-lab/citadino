@@ -17,7 +17,7 @@ export default function LoginForm({ tenantSlug }: { tenantSlug: string }) {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4 py-10">
-      <h1 className="mb-1 font-display text-3xl font-bold leading-none">Entrar</h1>
+      <h1 className="mb-1 text-2xl font-semibold tracking-tight">Entrar</h1>
       <p className="mb-6 text-sm text-muted">
         Acesso restrito para administradores e treinadores.
       </p>

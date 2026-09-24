@@ -3,7 +3,7 @@ import { ajustarClipeEvento } from "@/lib/actions/partidas";
 import { segundoDoLink } from "@/lib/youtube";
 
 const ajusteClass =
-  "inline-flex h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold tabular-nums hover:bg-background";
+  "inline-flex h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold tabular-nums hover:bg-field";
 
 /**
  * Clipe automático de um gol na súmula: abre o vídeo no ponto marcado e

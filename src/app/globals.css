@@ -3,11 +3,14 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 :root {
-  --background: #ffffff;
-  --surface: #f6f7f9;
-  --foreground: #1a1d26;
-  --muted: #6b7280;
-  --border: #e6e8ec;
+  /* Página em cinza frio; o conteúdo vive em folhas brancas (--surface). */
+  --background: #eef1f5;
+  --surface: #ffffff;
+  --field: #f4f6f9;
+  --foreground: #1c2230;
+  --muted: #6b7385;
+  --border: #e3e7ed;
+  --live: #e5383b;
 
   --accent: #f5821f;
   --accent-foreground: #ffffff;
@@ -27,11 +30,13 @@
 }
 
 [data-theme="dark"] {
-  --background: #12141c;
-  --surface: #1b1e29;
-  --foreground: #f5f6fa;
-  --muted: #9aa0ae;
-  --border: #2a2e3d;
+  --background: #0e1319;
+  --surface: #171e27;
+  --field: #1f2732;
+  --foreground: #eef2f7;
+  --muted: #8c96a6;
+  --border: #252e3a;
+  --live: #ff5a5c;
 
   --accent: #f5821f;
   --accent-foreground: #12141c;
@@ -53,6 +58,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
+  --color-field: var(--field);
+  --color-live: var(--live);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-border: var(--border);
@@ -73,7 +80,7 @@
   --color-danger: var(--danger);
   --color-warning: var(--warning);
 
-  --font-sans: var(--font-nunito);
+  --font-sans: var(--font-onest);
   --font-display: var(--font-barlow-condensed);
   --font-mono: var(--font-geist-mono);
 }

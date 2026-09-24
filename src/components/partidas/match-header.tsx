@@ -1,91 +1,91 @@
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Radio } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Escudo } from "@/components/times/escudo";
-import { TIMEZONE } from "@/lib/date-utils";
-import { statusPartida } from "@/lib/labels";
+import { LiveMinuto } from "@/components/partidas/live-minuto";
+import { TIMEZONE, formatHora } from "@/lib/date-utils";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
-function LadoTime({
-  nome,
-  escudoUrl,
-  vence,
-}: {
-  nome: string;
-  escudoUrl: string | null;
-  vence: boolean;
-}) {
+function LadoTime({ nome, escudoUrl, apagado }: { nome: string; escudoUrl: string | null; apagado: boolean }) {
   return (
     <div className="flex min-w-0 flex-col items-center gap-2">
       <Escudo nome={nome} escudoUrl={escudoUrl} size={56} />
-      <span className={`line-clamp-2 text-sm leading-tight ${vence ? "font-bold" : "font-medium"}`}>{nome}</span>
+      <span className={cn("line-clamp-2 text-sm leading-tight font-medium", apagado && "text-muted")}>{nome}</span>
     </div>
   );
 }
 
 export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
-  const status = statusPartida[partida.status];
   const aoVivo = partida.status === "AO_VIVO";
+  const encerrada = partida.status === "ENCERRADA";
   const showPlacar = partida.status !== "AGENDADA" && partida.status !== "ADIADA";
-  const casaVence = partida.status === "ENCERRADA" && partida.placarCasa > partida.placarFora;
-  const foraVence = partida.status === "ENCERRADA" && partida.placarFora > partida.placarCasa;
+  const casaPerde = encerrada && partida.placarCasa < partida.placarFora;
+  const foraPerde = encerrada && partida.placarFora < partida.placarCasa;
 
-  const dataHora = new Date(partida.dataHora).toLocaleString("pt-BR", {
+  const data = new Date(partida.dataHora).toLocaleDateString("pt-BR", {
     weekday: "short",
     day: "2-digit",
     month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
     timeZone: TIMEZONE,
   });
 
   return (
-    <Card>
-      <div className="mb-4 flex items-center justify-between gap-2">
-        <Badge variant="accent">{partida.categoria.nome}</Badge>
-        <Badge variant={status.variant} pulse={aoVivo}>
-          {status.label}
-        </Badge>
-      </div>
+    <section className="rounded-2xl bg-surface px-4 pt-4 pb-5 dark:border dark:border-border">
+      <p className="text-center text-xs text-muted first-letter:uppercase">
+        {partida.categoria.nome}, {data}
+        {partida.local ? `, ${partida.local}` : ""}
+      </p>
 
-      <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-3 text-center">
-        <LadoTime nome={partida.timeCasa.nome} escudoUrl={partida.timeCasa.escudoUrl} vence={casaVence} />
+      <div className="mt-4 grid grid-cols-[1fr_auto_1fr] items-start gap-2 text-center">
+        <LadoTime nome={partida.timeCasa.nome} escudoUrl={partida.timeCasa.escudoUrl} apagado={casaPerde} />
 
-        <div className="flex h-14 items-center">
+        <div className="flex min-w-24 flex-col items-center gap-1.5">
           {showPlacar ? (
-            <p className="font-display text-5xl font-extrabold leading-none tabular-nums">
-              {partida.placarCasa}
-              <span className="mx-1.5 text-muted">–</span>
-              {partida.placarFora}
+            <p
+              className={cn(
+                "flex h-14 items-center font-display text-5xl leading-none font-bold tabular-nums",
+                aoVivo && "text-live"
+              )}
+            >
+              <span className={cn(casaPerde && "text-muted")}>{partida.placarCasa}</span>
+              <span className="mx-2 text-3xl text-muted">-</span>
+              <span className={cn(foraPerde && "text-muted")}>{partida.placarFora}</span>
             </p>
           ) : (
-            <p className="font-display text-2xl font-bold text-muted">vs</p>
+            <p className="flex h-14 items-center font-display text-4xl leading-none font-bold tabular-nums">
+              {formatHora(partida.dataHora)}
+            </p>
           )}
+
+          <div className="text-xs">
+            {aoVivo ? (
+              <LiveMinuto dataHora={partida.dataHora} />
+            ) : encerrada ? (
+              <span className="text-muted">Encerrado</span>
+            ) : partida.status === "ADIADA" ? (
+              <span className="text-live">Adiado</span>
+            ) : (
+              <span className="text-muted">Não começou</span>
+            )}
+          </div>
         </div>
 
-        <LadoTime nome={partida.timeFora.nome} escudoUrl={partida.timeFora.escudoUrl} vence={foraVence} />
+        <LadoTime nome={partida.timeFora.nome} escudoUrl={partida.timeFora.escudoUrl} apagado={foraPerde} />
       </div>
-
-      <p className="mt-4 text-center text-sm text-muted first-letter:uppercase">
-        {dataHora}
-        {partida.local ? ` · ${partida.local}` : ""}
-      </p>
 
       {partida.linkTransmissaoUrl && (
         <a
           href={partida.linkTransmissaoUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className={
-            aoVivo
-              ? "mt-4 flex h-11 items-center justify-center gap-2 rounded-xl bg-accent text-sm font-semibold text-accent-foreground hover:bg-accent-dark"
-              : "mt-4 flex h-11 items-center justify-center gap-2 rounded-xl border border-border text-sm font-semibold hover:bg-background"
-          }
+          className={cn(
+            "mt-5 flex h-11 items-center justify-center gap-2 rounded-full text-sm font-semibold",
+            aoVivo ? "bg-live text-white hover:opacity-90" : "bg-field hover:bg-border"
+          )}
         >
           <Radio size={16} />
           {aoVivo ? "Assistir ao vivo" : "Ver transmissão"}
         </a>
       )}
-    </Card>
+    </section>
   );
 }

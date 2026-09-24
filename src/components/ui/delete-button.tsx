@@ -40,7 +40,7 @@ export function DeleteButton({
       <button
         type="button"
         onClick={() => setConfirmando(false)}
-        className="h-10 rounded-lg px-3 text-sm font-medium text-muted hover:bg-surface"
+        className="h-10 rounded-lg px-3 text-sm font-medium text-muted hover:bg-field"
       >
         Cancelar
       </button>
