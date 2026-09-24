@@ -144,6 +144,9 @@ em **Advanced → Request headers** no cron-job.org.
 - `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` — Web Push
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — credenciais usadas pelo `db:seed`
 - `CRON_SECRET` (opcional) — protege as rotas `/api/cron/*` com `Authorization: Bearer`
+- `YOUTUBE_API_KEY` (recomendado) — chave da YouTube Data API v3, usada para saber quando a live começou
+  e gerar o vídeo de cada gol. Sem ela o sistema tenta ler a página do YouTube, que costuma
+  bloquear servidores da Vercel.
 
 ## Deploy no Vercel
 
