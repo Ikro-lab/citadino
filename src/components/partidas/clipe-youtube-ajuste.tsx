@@ -11,7 +11,10 @@ const ajusteClass =
  */
 export function ClipeYoutubeAjuste({ eventoId, videoUrl }: { eventoId: string; videoUrl: string }) {
   const segundo = segundoDoLink(videoUrl) ?? 0;
-  const minutoVideo = `${Math.floor(segundo / 60)}:${String(segundo % 60).padStart(2, "0")}`;
+  const h = Math.floor(segundo / 3600);
+  const m = Math.floor((segundo % 3600) / 60);
+  const s = String(segundo % 60).padStart(2, "0");
+  const minutoVideo = h > 0 ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
 
   return (
     <>
