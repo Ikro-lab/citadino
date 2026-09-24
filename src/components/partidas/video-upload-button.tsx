@@ -64,7 +64,7 @@ export function VideoUploadButton({
   return (
     <div className="flex flex-wrap items-center gap-2">
       <label
-        className={`inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 text-sm font-semibold hover:bg-field ${pending ? "pointer-events-none opacity-60" : ""}`}
+        className={`inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full bg-field px-4 text-sm font-semibold hover:bg-border ${pending ? "pointer-events-none opacity-60" : ""}`}
       >
         <Video size={16} />
         {pending ? "Enviando..." : "Anexar vídeo"}

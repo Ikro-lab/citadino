@@ -68,7 +68,7 @@ export function EventoRegistrado({
           </span>
         </span>
       </div>
-      {children && <div className="flex shrink-0 items-center gap-2 pl-[3.25rem] sm:pl-0">{children}</div>}
+      {children && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{children}</div>}
     </div>
   );
 }

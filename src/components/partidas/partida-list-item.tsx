@@ -49,4 +49,4 @@ export function PartidaListItem({
 
 /** Ação secundária em formato de link/botão de texto, com área de toque de 44px. */
 export const acaoLinkClass =
-  "inline-flex h-10 items-center rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-field";
+  "inline-flex h-10 items-center rounded-full bg-field px-4 text-sm font-semibold text-foreground hover:bg-border";
