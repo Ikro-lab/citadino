@@ -4,6 +4,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
 import { Badge } from "@/components/ui/badge";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,8 +34,7 @@ export default async function CategoriasPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <h2 className="mb-3 font-semibold">Nova categoria</h2>
+      <NovoItem titulo="Nova categoria" aberto={categorias.length === 0}>
         {campeonatos.length === 0 ? (
           <p className="text-sm text-muted">
             Crie um campeonato antes de adicionar categorias.
@@ -61,7 +61,7 @@ export default async function CategoriasPage({
             <Button type="submit">Criar</Button>
           </form>
         )}
-      </Card>
+      </NovoItem>
 
       <div className="flex flex-col gap-2">
         {categorias.map((c) => (

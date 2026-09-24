@@ -12,6 +12,7 @@ import type { PartidaDetalhe } from "@/lib/partidas";
 import type { LinhaClassificacao } from "@/lib/classificacao";
 import { paths } from "@/lib/tenant-path";
 import { abasPartida, type AbaPartida } from "@/lib/labels";
+import { centralizarChip } from "@/lib/centralizar-chip";
 
 function MomentosPrincipais({ partida, tenantSlug }: { partida: PartidaDetalhe; tenantSlug: string }) {
   const gols = partida.eventos.filter((e) => e.tipo === "GOL");
@@ -59,7 +60,7 @@ export function MatchTabs({
 
   // Aberta por link (?aba=classificacao), a aba pode estar fora da tela no celular.
   useEffect(() => {
-    abaAtivaRef.current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    centralizarChip(abaAtivaRef.current);
   }, []);
 
   function trocarAba(nova: AbaPartida) {

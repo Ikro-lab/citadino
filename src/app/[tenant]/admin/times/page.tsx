@@ -4,6 +4,8 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
+import { FotoInput } from "@/components/ui/foto-input";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
@@ -34,8 +36,7 @@ export default async function TimesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <h2 className="mb-3 font-semibold">Novo time</h2>
+      <NovoItem titulo="Novo time" aberto={times.length === 0}>
         {categorias.length === 0 ? (
           <p className="text-sm text-muted">Crie uma categoria antes de adicionar times.</p>
         ) : (
@@ -69,15 +70,15 @@ export default async function TimesPage({
               </Select>
             </div>
             <div>
-              <Label htmlFor="escudoUrl">URL do escudo (opcional)</Label>
-              <Input id="escudoUrl" name="escudoUrl" placeholder="https://..." />
+              <Label htmlFor="escudo">Escudo (opcional)</Label>
+              <FotoInput id="escudo" name="escudo" accept="image/*" />
             </div>
             <div className="sm:col-span-2">
               <Button type="submit">Criar time</Button>
             </div>
           </form>
         )}
-      </Card>
+      </NovoItem>
 
       <div className="flex flex-col gap-2">
         {times.map((t) => (

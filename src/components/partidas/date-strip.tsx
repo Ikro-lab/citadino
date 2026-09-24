@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { chipClass } from "@/components/ui/chips";
 import { todayStr, shiftDateStr, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
 import { paths } from "@/lib/tenant-path";
+import { centralizarChip } from "@/lib/centralizar-chip";
 
 export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: boolean; tenantSlug: string }) {
   const router = useRouter();
@@ -18,7 +19,7 @@ export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: bool
   const dias = Array.from({ length: 14 }, (_, i) => shiftDateStr(hoje, i - 3));
 
   useEffect(() => {
-    selectedRef.current?.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    centralizarChip(selectedRef.current);
   }, [data]);
 
   function label(d: string) {

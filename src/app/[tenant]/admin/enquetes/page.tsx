@@ -2,6 +2,7 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
@@ -41,10 +42,9 @@ export default async function AdminEnquetesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <h2 className="mb-3 font-semibold">Nova enquete</h2>
+      <NovoItem titulo="Nova enquete" aberto={enquetes.length === 0}>
         <EnqueteForm categorias={categorias} atletas={atletasFormatados} />
-      </Card>
+      </NovoItem>
 
       <div className="flex flex-col gap-2">
         {enquetes.map((e) => {

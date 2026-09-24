@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AtletaManager } from "@/components/times/atleta-manager";
+import { Escudo } from "@/components/times/escudo";
+import { FotoInput } from "@/components/ui/foto-input";
 import { updateTime } from "@/lib/actions/times";
 
 export default async function EditarTimePage({
@@ -58,8 +60,14 @@ export default async function EditarTimePage({
             </Select>
           </div>
           <div>
-            <Label htmlFor="escudoUrl">URL do escudo</Label>
-            <Input id="escudoUrl" name="escudoUrl" defaultValue={time.escudoUrl ?? ""} />
+            <Label htmlFor="escudo">Escudo</Label>
+            <div className="flex items-center gap-3">
+              <Escudo nome={time.nome} escudoUrl={time.escudoUrl} size={44} />
+              <FotoInput id="escudo" name="escudo" accept="image/*" className="flex-1" />
+            </div>
+            <p className="mt-1 text-xs text-muted">
+              {time.escudoUrl ? "Escolha uma imagem só se quiser trocar o escudo." : "Nenhum escudo ainda: aparecem as iniciais."}
+            </p>
           </div>
           <div className="sm:col-span-2">
             <Button type="submit">Salvar alterações</Button>

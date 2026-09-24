@@ -2,8 +2,8 @@ import Link from "next/link";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { PartidaForm } from "@/components/partidas/partida-form";
 import { PartidaListItem, acaoLinkClass } from "@/components/partidas/partida-list-item";
@@ -34,8 +34,7 @@ export default async function AdminPartidasPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <h2 className="mb-3 font-semibold">Nova partida</h2>
+      <NovoItem titulo="Nova partida" aberto={partidas.length === 0}>
         {categorias.length === 0 || times.length === 0 ? (
           <p className="text-sm text-muted">
             Para agendar partidas, primeiro crie uma{" "}
@@ -51,7 +50,7 @@ export default async function AdminPartidasPage({
         ) : (
           <PartidaForm action={createPartida} categorias={categorias} times={times} submitLabel="Agendar partida" />
         )}
-      </Card>
+      </NovoItem>
 
       <section className="flex flex-col gap-2">
         {partidas.map((p) => (

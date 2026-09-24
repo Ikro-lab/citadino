@@ -2,6 +2,7 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
 import { Badge } from "@/components/ui/badge";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -128,8 +129,7 @@ export default async function PatrocinadoresPage({
         </div>
       </Card>
 
-      <Card>
-        <h2 className="mb-3 font-semibold">Novo patrocinador</h2>
+      <NovoItem titulo="Novo patrocinador" aberto={patrocinadores.length === 0}>
         {campeonatos.length === 0 ? (
           <p className="text-sm text-muted">
             Crie um campeonato antes de adicionar patrocinadores.
@@ -179,7 +179,7 @@ export default async function PatrocinadoresPage({
             <Button type="submit">Adicionar</Button>
           </form>
         )}
-      </Card>
+      </NovoItem>
 
       <div className="flex flex-col gap-2">
         {patrocinadores.map((p) => (

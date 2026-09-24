@@ -2,6 +2,7 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { NovoItem } from "@/components/ui/novo-item";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,8 +30,7 @@ export default async function CampeonatosPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Card>
-        <h2 className="mb-3 font-semibold">Novo campeonato</h2>
+      <NovoItem titulo="Novo campeonato" aberto={campeonatos.length === 0}>
         <form action={createCampeonato} className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <div className="flex-1">
             <Label htmlFor="nome">Nome</Label>
@@ -42,7 +42,7 @@ export default async function CampeonatosPage({
           </div>
           <Button type="submit">Criar</Button>
         </form>
-      </Card>
+      </NovoItem>
 
       <div className="flex flex-col gap-2">
         {campeonatos.map((c) => (
@@ -52,7 +52,7 @@ export default async function CampeonatosPage({
                 <p className="font-medium">
                   {c.nome} <span className="text-muted">· {c.temporada}</span>
                 </p>
-                <p className="text-xs text-muted">{c._count.categorias} categorias</p>
+                <p className="text-xs text-muted">{c._count.categorias} {c._count.categorias === 1 ? "categoria" : "categorias"}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={c.ativo ? "success" : "neutral"}>
