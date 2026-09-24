@@ -7,6 +7,7 @@ import { login } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form-error";
 import { paths } from "@/lib/tenant-path";
 
 export default function LoginForm({ tenantSlug }: { tenantSlug: string }) {
@@ -16,7 +17,7 @@ export default function LoginForm({ tenantSlug }: { tenantSlug: string }) {
 
   return (
     <div className="mx-auto flex min-h-[70vh] max-w-sm flex-col justify-center px-4 py-10">
-      <h1 className="mb-1 text-2xl font-bold">Entrar</h1>
+      <h1 className="mb-1 font-display text-3xl font-bold leading-none">Entrar</h1>
       <p className="mb-6 text-sm text-muted">
         Acesso restrito para administradores e treinadores.
       </p>
@@ -42,11 +43,7 @@ export default function LoginForm({ tenantSlug }: { tenantSlug: string }) {
             />
           </div>
 
-          {state?.error && (
-            <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
-              {state.error}
-            </p>
-          )}
+          <FormError message={state?.error} />
 
           <Button type="submit" disabled={pending} className="w-full">
             {pending ? "Entrando..." : "Entrar"}

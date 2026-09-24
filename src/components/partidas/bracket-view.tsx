@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { paths } from "@/lib/tenant-path";
 
 type PartidaChave = {
@@ -25,11 +26,7 @@ const ordemFase = ["OITAVAS", "QUARTAS", "SEMIFINAL", "TERCEIRO_LUGAR", "FINAL"]
 
 export function BracketView({ partidas, tenantSlug }: { partidas: PartidaChave[]; tenantSlug: string }) {
   if (partidas.length === 0) {
-    return (
-      <p className="rounded-2xl border border-dashed border-border py-8 text-center text-sm text-muted">
-        O mata-mata ainda não começou.
-      </p>
-    );
+    return <EmptyState>O mata-mata ainda não começou.</EmptyState>;
   }
 
   const fases = ordemFase
@@ -41,13 +38,13 @@ export function BracketView({ partidas, tenantSlug }: { partidas: PartidaChave[]
       <div className="flex gap-4" style={{ width: "max-content" }}>
         {fases.map(({ fase, jogos }) => (
           <div key={fase} className="w-56 shrink-0">
-            <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-muted">
+            <p className="mb-2 text-center text-sm font-semibold text-muted">
               {faseLabel[fase]}
             </p>
             <div className="flex flex-col gap-3">
               {jogos.map((p) => (
                 <Link key={p.id} href={paths.partida(tenantSlug, p.id)}>
-                  <Card className="p-3 hover:shadow-md">
+                  <Card className="p-3 tabular-nums hover:border-accent/50">
                     <div className="flex items-center justify-between text-sm">
                       <span className="truncate">{p.timeCasa.nome}</span>
                       {p.status !== "AGENDADA" && (

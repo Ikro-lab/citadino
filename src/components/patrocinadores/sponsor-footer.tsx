@@ -15,9 +15,9 @@ export async function SponsorFooter({
   if (patrocinadores.length === 0) return null;
 
   return (
-    <footer className="border-t border-border bg-surface/50 pb-20 md:pb-0">
+    <footer className="border-t border-border bg-surface/50">
       <div className="mx-auto max-w-5xl">
-        <p className="px-4 pt-3 text-center text-[11px] font-semibold tracking-wide text-muted uppercase">
+        <p className="px-4 pt-3 text-center text-xs font-semibold text-muted">
           Patrocinadores
         </p>
         <SponsorStrip

@@ -62,12 +62,12 @@ export default async function TreinadorPage({
     <div className="flex flex-col gap-6">
       {times.map((time) => (
         <div key={time.id} className="flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold">{time.nome}</h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-display text-2xl font-bold leading-none">{time.nome}</h2>
             <Badge variant="accent">{time.categoria.nome}</Badge>
           </div>
-          <InviteLink conviteToken={time.conviteToken} tenantSlug={tenantSlug} />
           <InscricoesPendentes inscricoes={time.inscricoes} />
+          <InviteLink conviteToken={time.conviteToken} tenantSlug={tenantSlug} />
           <AtletaManager timeId={time.id} atletas={time.atletas} />
         </div>
       ))}

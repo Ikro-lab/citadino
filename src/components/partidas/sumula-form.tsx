@@ -37,7 +37,7 @@ export function SumulaForm({
       action={async (formData) => {
         await addEvento(partidaId, formData);
       }}
-      className="grid gap-3 sm:grid-cols-2"
+      className="grid grid-cols-2 gap-3"
     >
       <div>
         <Label htmlFor="tipo">Tipo de evento</Label>
@@ -55,7 +55,7 @@ export function SumulaForm({
         <Input id="minuto" name="minuto" type="number" min={0} max={90} required />
       </div>
 
-      <div>
+      <div className="col-span-2 sm:col-span-1">
         <Label htmlFor="timeId">Time</Label>
         <Select
           id="timeId"
@@ -68,7 +68,7 @@ export function SumulaForm({
         </Select>
       </div>
 
-      <div>
+      <div className="col-span-2 sm:col-span-1">
         <Label htmlFor="atletaId">Atleta (opcional)</Label>
         <Select id="atletaId" name="atletaId" defaultValue="">
           <option value="">Não especificado</option>
@@ -80,13 +80,13 @@ export function SumulaForm({
         </Select>
       </div>
 
-      <div className="sm:col-span-2">
+      <div className="col-span-2">
         <Label htmlFor="descricao">Observação (opcional)</Label>
         <Input id="descricao" name="descricao" placeholder="Detalhes do lance" />
       </div>
 
-      <div className="sm:col-span-2">
-        <Button type="submit">Registrar evento</Button>
+      <div className="col-span-2">
+        <Button type="submit" size="lg" className="w-full sm:w-auto">Registrar lance</Button>
       </div>
     </form>
   );

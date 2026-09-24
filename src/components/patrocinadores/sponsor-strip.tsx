@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Patrocinador, Tenant } from "@prisma/client";
 import { cn } from "@/lib/utils";
 
@@ -16,18 +17,21 @@ const ESCALA_POR_TAMANHO: Record<Tenant["patrocinadoresTamanho"], number> = {
 function SponsorLogo({
   patrocinador,
   escala,
+  alturaMaxMobile,
 }: {
   patrocinador: Patrocinador;
   escala: number;
+  alturaMaxMobile?: number;
 }) {
   const altura = ALTURA_POR_NIVEL[patrocinador.nivel] * escala;
+  const alturaMobile = alturaMaxMobile ? Math.min(altura, alturaMaxMobile) : altura;
   const img = (
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={patrocinador.logoUrl}
       alt={patrocinador.nome}
-      style={{ height: altura, width: "auto" }}
-      className="shrink-0 object-contain transition hover:scale-105"
+      style={{ "--h": `${altura}px`, "--h-mobile": `${alturaMobile}px` } as CSSProperties}
+      className="h-(--h-mobile) w-auto shrink-0 object-contain transition hover:scale-105 md:h-(--h)"
     />
   );
 
@@ -39,6 +43,7 @@ function SponsorLogo({
       target="_blank"
       rel="noopener noreferrer sponsored"
       title={patrocinador.nome}
+      className="shrink-0"
     >
       {img}
     </a>
@@ -50,11 +55,14 @@ export function SponsorStrip({
   className,
   animado = true,
   tamanho = "MEDIO",
+  alturaMaxMobile,
 }: {
   patrocinadores: Patrocinador[];
   className?: string;
   animado?: boolean;
   tamanho?: Tenant["patrocinadoresTamanho"];
+  /** Limita a altura dos logos no celular (ex: faixa do topo, pra não empurrar o conteúdo). */
+  alturaMaxMobile?: number;
 }) {
   if (patrocinadores.length === 0) return null;
 
@@ -63,9 +71,9 @@ export function SponsorStrip({
   if (!animado) {
     return (
       <div className={cn("overflow-hidden py-2", className)}>
-        <div className="flex flex-wrap items-center justify-center gap-10">
+        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
           {patrocinadores.map((p) => (
-            <SponsorLogo key={p.id} patrocinador={p} escala={escala} />
+            <SponsorLogo key={p.id} patrocinador={p} escala={escala} alturaMaxMobile={alturaMaxMobile} />
           ))}
         </div>
       </div>
@@ -74,11 +82,11 @@ export function SponsorStrip({
 
   return (
     <div className={cn("overflow-hidden py-2", className)}>
-      <div className="flex w-max animate-marquee items-center gap-10">
+      <div className="flex w-max animate-marquee items-center gap-6 md:gap-10">
         {[0, 1].map((copia) => (
-          <div key={copia} className="flex shrink-0 items-center gap-10" aria-hidden={copia === 1}>
+          <div key={copia} className="flex shrink-0 items-center gap-6 md:gap-10" aria-hidden={copia === 1}>
             {patrocinadores.map((p) => (
-              <SponsorLogo key={p.id} patrocinador={p} escala={escala} />
+              <SponsorLogo key={p.id} patrocinador={p} escala={escala} alturaMaxMobile={alturaMaxMobile} />
             ))}
           </div>
         ))}

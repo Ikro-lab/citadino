@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { chipClass } from "@/components/ui/chips";
 import { todayStr, shiftDateStr, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
 import { paths } from "@/lib/tenant-path";
 
@@ -45,12 +46,8 @@ export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: bool
             key={d}
             ref={d === data ? selectedRef : undefined}
             href={hrefFor(d)}
-            className={cn(
-              "shrink-0 rounded-lg border px-3 py-2 text-center text-xs font-semibold capitalize whitespace-nowrap transition-colors",
-              d === data
-                ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-surface text-foreground hover:bg-border/60"
-            )}
+            aria-current={d === data ? "date" : undefined}
+            className={cn(chipClass(d === data), "px-3 capitalize")}
           >
             {label(d)}
           </Link>
@@ -72,9 +69,9 @@ export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: bool
           type="button"
           onClick={() => dateInputRef.current?.showPicker?.()}
           aria-label="Escolher data"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface text-muted hover:bg-border/60"
+          className="mb-1 flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface text-muted hover:bg-border/60"
         >
-          <CalendarDays size={16} />
+          <CalendarDays size={18} />
         </button>
       </div>
     </div>

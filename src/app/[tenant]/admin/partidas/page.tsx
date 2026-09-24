@@ -3,18 +3,11 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { PartidaForm } from "@/components/partidas/partida-form";
+import { PartidaListItem, acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { createPartida, deletePartida } from "@/lib/actions/partidas";
-import { TIMEZONE } from "@/lib/date-utils";
-
-const statusLabel: Record<string, { label: string; variant: "neutral" | "live" | "success" | "danger" }> = {
-  AGENDADA: { label: "Agendada", variant: "neutral" },
-  AO_VIVO: { label: "Ao vivo", variant: "live" },
-  ENCERRADA: { label: "Encerrada", variant: "success" },
-  ADIADA: { label: "Adiada", variant: "danger" },
-};
 
 export default async function AdminPartidasPage({
   params,
@@ -44,55 +37,42 @@ export default async function AdminPartidasPage({
       <Card>
         <h2 className="mb-3 font-semibold">Nova partida</h2>
         {categorias.length === 0 || times.length === 0 ? (
-          <p className="text-sm text-muted">Cadastre categorias e times antes de agendar partidas.</p>
+          <p className="text-sm text-muted">
+            Para agendar partidas, primeiro crie uma{" "}
+            <Link href={paths.admin.categorias(tenantSlug)} className="font-semibold text-accent">
+              categoria
+            </Link>{" "}
+            e cadastre os{" "}
+            <Link href={paths.admin.times(tenantSlug)} className="font-semibold text-accent">
+              times
+            </Link>
+            .
+          </p>
         ) : (
           <PartidaForm action={createPartida} categorias={categorias} times={times} submitLabel="Agendar partida" />
         )}
       </Card>
 
-      <div className="flex flex-col gap-2">
-        {partidas.map((p) => {
-          const status = statusLabel[p.status];
-          return (
-            <Card key={p.id} className="flex items-center justify-between">
-              <div>
-                <p className="font-medium">
-                  {p.timeCasa.nome} {p.placarCasa} x {p.placarFora} {p.timeFora.nome}
-                </p>
-                <p className="text-xs text-muted">
-                  {p.categoria.nome} ·{" "}
-                  {new Date(p.dataHora).toLocaleString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: TIMEZONE,
-                  })}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Badge variant={status.variant} pulse={p.status === "AO_VIVO"}>
-                  {status.label}
-                </Badge>
-                <Link
-                  href={paths.admin.partidaEditar(tenantSlug, p.id)}
-                  className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
-                >
-                  Editar
-                </Link>
-                <Link
-                  href={paths.admin.partidaSumula(tenantSlug, p.id)}
-                  className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
-                >
+      <section className="flex flex-col gap-2">
+        {partidas.map((p) => (
+          <PartidaListItem
+            key={p.id}
+            partida={p}
+            actions={
+              <>
+                <Link href={paths.admin.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
                   Súmula
                 </Link>
+                <Link href={paths.admin.partidaEditar(tenantSlug, p.id)} className={acaoLinkClass}>
+                  Editar
+                </Link>
                 <DeleteButton action={deletePartida.bind(null, p.id)} />
-              </div>
-            </Card>
-          );
-        })}
-        {partidas.length === 0 && <p className="text-sm text-muted">Nenhuma partida cadastrada.</p>}
-      </div>
+              </>
+            }
+          />
+        ))}
+        {partidas.length === 0 && <EmptyState>Nenhuma partida agendada ainda. Use o formulário acima.</EmptyState>}
+      </section>
     </div>
   );
 }

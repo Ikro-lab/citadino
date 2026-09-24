@@ -3,9 +3,11 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
+import { acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { createTime, deleteTime } from "@/lib/actions/times";
 
 export default async function TimesPage({
@@ -79,7 +81,7 @@ export default async function TimesPage({
 
       <div className="flex flex-col gap-2">
         {times.map((t) => (
-          <Card key={t.id} className="flex items-center justify-between">
+          <Card key={t.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-medium">{t.nome}</p>
               <p className="text-xs text-muted">
@@ -87,10 +89,10 @@ export default async function TimesPage({
                 {t.treinador ? t.treinador.name : "sem treinador"}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={paths.admin.time(tenantSlug, t.id)}
-                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
+                className={acaoLinkClass}
               >
                 Gerenciar
               </Link>
@@ -98,7 +100,7 @@ export default async function TimesPage({
             </div>
           </Card>
         ))}
-        {times.length === 0 && <p className="text-sm text-muted">Nenhum time cadastrado.</p>}
+        {times.length === 0 && <EmptyState>Nenhum time cadastrado. Crie o primeiro no formulário acima.</EmptyState>}
       </div>
     </div>
   );

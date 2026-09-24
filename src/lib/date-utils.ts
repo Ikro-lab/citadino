@@ -42,3 +42,23 @@ export function formatDatetimeLocalBRT(date: Date): string {
   const BRT_OFFSET_MS = 3 * 60 * 60 * 1000;
   return new Date(date.getTime() - BRT_OFFSET_MS).toISOString().slice(0, 16);
 }
+
+/** "16/07, 19:00" — listas de partidas nos painéis. */
+export function formatDataHoraCurta(date: Date | string): string {
+  return new Date(date).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: TIMEZONE,
+  });
+}
+
+/** "19:00" — horário de início no feed. */
+export function formatHora(date: Date | string): string {
+  return new Date(date).toLocaleTimeString("pt-BR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: TIMEZONE,
+  });
+}

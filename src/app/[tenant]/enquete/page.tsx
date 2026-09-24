@@ -5,6 +5,8 @@ import { paths } from "@/lib/tenant-path";
 import { getDeviceIdReadOnly } from "@/lib/device-id";
 import { CategoriaTabs } from "@/components/partidas/categoria-tabs";
 import { EnqueteCard } from "@/components/enquetes/enquete-card";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 
 export default async function EnquetePage({
   params,
@@ -45,20 +47,16 @@ export default async function EnquetePage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="mb-4 text-2xl font-bold">Melhor da Rodada</h1>
+      <PageHeader title="Melhor da rodada" />
 
       {categorias.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted">
-          Nenhum campeonato ativo no momento.
-        </p>
+        <EmptyState>Nenhum campeonato ativo no momento.</EmptyState>
       ) : (
         <div className="flex flex-col gap-4">
           <CategoriaTabs categorias={categorias} categoriaId={categoriaId} basePath={paths.enquete(tenantSlug)} />
 
           {enquetes.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted">
-              Nenhuma enquete ativa nesta categoria no momento.
-            </p>
+            <EmptyState>Nenhuma votação aberta nesta categoria. Ela abre depois de cada rodada.</EmptyState>
           ) : (
             enquetes.map((e) => (
               <EnqueteCard

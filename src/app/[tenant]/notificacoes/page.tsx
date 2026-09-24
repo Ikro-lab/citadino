@@ -26,7 +26,7 @@ export default async function NotificacoesPage({
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-      <h1 className="text-2xl font-bold">Notificações</h1>
+      <h1 className="font-display text-3xl font-bold leading-none">Notificações</h1>
       <PushManager categorias={categorias} times={times} tenantId={tenant.id} />
       <InstallPrompt />
     </div>

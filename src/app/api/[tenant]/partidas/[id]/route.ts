@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CACHE_AO_VIVO } from "@/lib/http-cache";
 import { getPartidaDetalhe } from "@/lib/partidas";
 import { getTenantBySlugOrNull } from "@/lib/tenant";
 
@@ -14,5 +15,5 @@ export async function GET(
   if (!partida) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
-  return NextResponse.json(partida);
+  return NextResponse.json(partida, { headers: CACHE_AO_VIVO });
 }

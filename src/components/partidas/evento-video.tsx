@@ -1,17 +1,20 @@
-const YOUTUBE_REGEX = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/;
-const TIMESTAMP_REGEX = /[?&]t=(\d+)s?/;
+import { extrairYoutubeId, segundoDoLink } from "@/lib/youtube";
+
+// Janela do clipe em volta do segundo marcado no link: a jogada antes do gol
+// e a comemoração depois.
+const SEGUNDOS_ANTES = 10;
+const SEGUNDOS_DEPOIS = 8;
 
 function parseYoutubeClip(url: string) {
-  const idMatch = url.match(YOUTUBE_REGEX);
-  if (!idMatch) return null;
+  const videoId = extrairYoutubeId(url);
+  if (!videoId) return null;
 
-  const tMatch = url.match(TIMESTAMP_REGEX);
-  const momento = tMatch ? Number(tMatch[1]) : 0;
+  const momento = segundoDoLink(url) ?? 0;
 
   return {
-    videoId: idMatch[1],
-    start: Math.max(0, momento - 10),
-    end: momento + 5,
+    videoId,
+    start: Math.max(0, momento - SEGUNDOS_ANTES),
+    end: momento + SEGUNDOS_DEPOIS,
   };
 }
 
@@ -21,8 +24,10 @@ export function EventoVideo({ url, className }: { url: string; className?: strin
   if (youtube) {
     return (
       <iframe
-        src={`https://www.youtube-nocookie.com/embed/${youtube.videoId}?start=${youtube.start}&end=${youtube.end}`}
+        src={`https://www.youtube-nocookie.com/embed/${youtube.videoId}?start=${youtube.start}&end=${youtube.end}&playsinline=1&rel=0`}
         title="Clipe do gol"
+        // Só baixa o player quando o lance aparece na tela — economiza dados no 4G.
+        loading="lazy"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         allowFullScreen
         className={className}
@@ -30,8 +35,5 @@ export function EventoVideo({ url, className }: { url: string; className?: strin
     );
   }
 
-  return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption
-    <video controls preload="metadata" src={url} className={className} />
-  );
+  return <video controls preload="metadata" playsInline src={url} className={className} />;
 }

@@ -1,10 +1,17 @@
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { calcularIdade } from "@/lib/utils";
 import { revogarInscricao } from "@/lib/actions/inscricoes";
+
+const statusLabel = {
+  PENDENTE: "Pendente",
+  APROVADA: "Aprovada",
+  RECUSADA: "Recusada",
+} as const;
 
 const statusVariant = {
   PENDENTE: "neutral",
@@ -39,21 +46,21 @@ export default async function AdminInscricoesPage({
             <p className="text-xs text-muted">
               {i.time.nome} · {i.time.categoria.nome}
             </p>
-            <div className="mt-1 flex gap-3 text-xs">
-              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">
+            <div className="mt-2 flex flex-wrap gap-2">
+              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
                 Foto
               </a>
-              <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">
+              <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
                 Documento
               </a>
-              <a href={i.comprovanteEnderecoUrl} target="_blank" rel="noopener noreferrer" className="text-accent underline">
+              <a href={i.comprovanteEnderecoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-background">
                 Comprovante
               </a>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Badge variant={statusVariant[i.status]}>{i.status}</Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={statusVariant[i.status]}>{statusLabel[i.status]}</Badge>
             {i.status === "APROVADA" && (
               <form action={revogarInscricao.bind(null, i.id)}>
                 <Button type="submit" variant="danger" size="sm">
@@ -65,7 +72,7 @@ export default async function AdminInscricoesPage({
         </Card>
       ))}
       {inscricoes.length === 0 && (
-        <p className="text-sm text-muted">Nenhuma inscrição recebida ainda.</p>
+        <EmptyState>Nenhuma inscrição ainda. Os atletas se inscrevem pelo link de convite de cada time.</EmptyState>
       )}
     </div>
   );

@@ -27,7 +27,7 @@ export function SumulaFormTreinador({
       action={async (formData) => {
         await addEvento(partidaId, formData);
       }}
-      className="grid gap-3 sm:grid-cols-2"
+      className="grid grid-cols-2 gap-3"
     >
       <input type="hidden" name="timeId" value={timeId} />
 
@@ -47,7 +47,7 @@ export function SumulaFormTreinador({
         <Input id="minuto" name="minuto" type="number" min={0} max={90} required />
       </div>
 
-      <div className="sm:col-span-2">
+      <div className="col-span-2">
         <Label htmlFor="atletaId">Atleta</Label>
         <Select id="atletaId" name="atletaId" defaultValue="">
           <option value="">Não especificado</option>
@@ -59,8 +59,8 @@ export function SumulaFormTreinador({
         </Select>
       </div>
 
-      <div className="sm:col-span-2">
-        <Button type="submit">Registrar evento</Button>
+      <div className="col-span-2">
+        <Button type="submit" size="lg" className="w-full sm:w-auto">Registrar lance</Button>
       </div>
     </form>
   );

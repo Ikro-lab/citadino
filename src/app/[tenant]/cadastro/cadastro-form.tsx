@@ -6,6 +6,7 @@ import { cadastroTreinador } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/card";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FieldError, FormError } from "@/components/ui/form-error";
 import { paths } from "@/lib/tenant-path";
 
 export default function CadastroForm({
@@ -24,50 +25,46 @@ export default function CadastroForm({
         <input type="hidden" name="tenantSlug" value={tenantSlug} />
         <div>
           <Label htmlFor="name">Nome completo</Label>
-          <Input id="name" name="name" required />
-          {state?.fieldErrors?.name && (
-            <p className="mt-1 text-xs text-danger">{state.fieldErrors.name[0]}</p>
-          )}
+          <Input id="name" name="name" autoComplete="name" required />
+          <FieldError errors={state?.fieldErrors?.name} />
         </div>
 
         <div>
           <Label htmlFor="email">E-mail</Label>
-          <Input id="email" name="email" type="email" required />
-          {state?.fieldErrors?.email && (
-            <p className="mt-1 text-xs text-danger">{state.fieldErrors.email[0]}</p>
-          )}
+          <Input id="email" name="email" type="email" autoComplete="email" required />
+          <FieldError errors={state?.fieldErrors?.email} />
         </div>
 
         <div>
           <Label htmlFor="password">Senha</Label>
-          <Input id="password" name="password" type="password" required />
-          {state?.fieldErrors?.password && (
-            <p className="mt-1 text-xs text-danger">{state.fieldErrors.password[0]}</p>
-          )}
+          <Input id="password" name="password" type="password" autoComplete="new-password" required />
+          <FieldError errors={state?.fieldErrors?.password} />
         </div>
 
         <div>
           <Label htmlFor="confirmPassword">Confirmar senha</Label>
-          <Input id="confirmPassword" name="confirmPassword" type="password" required />
-          {state?.fieldErrors?.confirmPassword && (
-            <p className="mt-1 text-xs text-danger">
-              {state.fieldErrors.confirmPassword[0]}
-            </p>
-          )}
+          <Input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            autoComplete="new-password"
+            required
+          />
+          <FieldError errors={state?.fieldErrors?.confirmPassword} />
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex min-h-11 items-center gap-3 text-sm">
           <input
             type="checkbox"
             checked={querTime}
             onChange={(e) => setQuerTime(e.target.checked)}
-            className="h-4 w-4 accent-accent"
+            className="h-5 w-5 shrink-0 accent-accent"
           />
-          Quero solicitar a criação de um novo time
+          Quero pedir a criação de um novo time
         </label>
 
         {querTime && (
-          <div className="flex flex-col gap-4 rounded-xl bg-surface p-3">
+          <div className="flex flex-col gap-4 rounded-xl border border-border bg-background p-3">
             <div>
               <Label htmlFor="nomeTime">Nome do time</Label>
               <Input id="nomeTime" name="nomeTime" placeholder="Ex: Real Bairro FC" />
@@ -88,11 +85,7 @@ export default function CadastroForm({
           </div>
         )}
 
-        {state?.error && (
-          <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
-            {state.error}
-          </p>
-        )}
+        <FormError message={state?.error} />
 
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Criando conta..." : "Criar conta"}

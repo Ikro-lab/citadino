@@ -3,15 +3,14 @@ import type { Patrocinador } from "@prisma/client";
 export function SponsorFeedCard({ patrocinador }: { patrocinador: Patrocinador }) {
   const conteudo = (
     <div className="flex items-center justify-between gap-3">
-      <span className="text-[11px] font-semibold tracking-wide text-muted uppercase">
+      <span className="text-xs font-semibold text-muted">
         Patrocínio
       </span>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={patrocinador.logoUrl}
         alt={patrocinador.nome}
-        style={{ height: 72, width: "auto" }}
-        className="object-contain"
+        className="h-14 w-auto max-w-[60%] object-contain sm:h-18"
       />
     </div>
   );

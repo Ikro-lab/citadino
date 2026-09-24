@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
+import { usePolling } from "@/lib/use-polling";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { votar } from "@/lib/actions/enquetes";
@@ -27,10 +28,11 @@ export function EnqueteCard({
   const [erro, setErro] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
+  // Parcial só aparece depois do voto — antes disso não há o que atualizar.
+  usePolling(
+    async () => {
       try {
-        const res = await fetch(`/api/${tenantSlug}/enquetes/${enqueteId}`, { cache: "no-store" });
+        const res = await fetch(`/api/${tenantSlug}/enquetes/${enqueteId}`);
         if (res.ok) {
           const data = await res.json();
           setOpcoes(data.opcoes);
@@ -38,9 +40,10 @@ export function EnqueteCard({
       } catch {
         // ignore transient network errors
       }
-    }, 6000);
-    return () => clearInterval(interval);
-  }, [enqueteId, tenantSlug]);
+    },
+    10000,
+    votadaEm !== null
+  );
 
   const total = opcoes.reduce((acc, o) => acc + o.votos, 0);
 
@@ -62,10 +65,8 @@ export function EnqueteCard({
 
   return (
     <Card>
-      <p className="text-xs font-semibold uppercase tracking-wide text-accent">
-        Rodada {rodada}
-      </p>
-      <h3 className="mb-3 font-semibold">{pergunta}</h3>
+      <h2 className="font-semibold">{pergunta}</h2>
+      <p className="mb-3 text-sm text-muted">Rodada {rodada}</p>
 
       <div className="flex flex-col gap-2">
         {opcoes.map((o) => {
@@ -79,11 +80,15 @@ export function EnqueteCard({
                   className="absolute inset-y-0 left-0 bg-accent-soft"
                   style={{ width: `${pct}%` }}
                 />
-                <div className="relative flex items-center justify-between text-sm">
-                  <span className={escolhida ? "font-semibold text-accent" : ""}>
-                    {o.atletaNome} <span className="text-muted">· {o.timeNome}</span>
+                <div className="relative flex items-center justify-between gap-3 text-sm">
+                  <span className="min-w-0">
+                    <span className={`block truncate ${escolhida ? "font-semibold text-accent" : "font-medium"}`}>
+                      {o.atletaNome}
+                      {escolhida && <span className="sr-only"> (seu voto)</span>}
+                    </span>
+                    <span className="block truncate text-xs text-muted">{o.timeNome}</span>
                   </span>
-                  <span className="font-semibold">{pct}%</span>
+                  <span className="shrink-0 font-semibold tabular-nums">{pct}%</span>
                 </div>
               </div>
             );
@@ -96,10 +101,11 @@ export function EnqueteCard({
               variant="secondary"
               disabled={pending}
               onClick={() => votarEm(o.id)}
-              className="justify-between"
+              className="h-auto min-h-12 justify-start py-2 text-left"
             >
-              <span>
-                {o.atletaNome} <span className="text-muted">· {o.timeNome}</span>
+              <span className="min-w-0">
+                <span className="block truncate">{o.atletaNome}</span>
+                <span className="block truncate text-xs font-normal text-muted">{o.timeNome}</span>
               </span>
             </Button>
           );
@@ -108,7 +114,9 @@ export function EnqueteCard({
 
       {erro && <p className="mt-2 text-xs text-danger">{erro}</p>}
       {votadaEm && (
-        <p className="mt-2 text-xs text-muted">{total} voto(s) até agora.</p>
+        <p className="mt-2 text-xs text-muted">
+          {total === 1 ? "1 voto até agora." : `${total} votos até agora.`}
+        </p>
       )}
     </Card>
   );

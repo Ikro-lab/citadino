@@ -2,16 +2,8 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TIMEZONE } from "@/lib/date-utils";
-
-const statusConfig = {
-  AGENDADA: { label: "Agendada", variant: "neutral" as const },
-  AO_VIVO: { label: "Ao vivo", variant: "live" as const },
-  ENCERRADA: { label: "Encerrada", variant: "success" as const },
-  ADIADA: { label: "Adiada", variant: "danger" as const },
-};
+import { EmptyState } from "@/components/ui/empty-state";
+import { PartidaListItem, acaoLinkClass } from "@/components/partidas/partida-list-item";
 
 export default async function TreinadorPartidasPage({
   params,
@@ -43,35 +35,19 @@ export default async function TreinadorPartidasPage({
 
   return (
     <div className="flex flex-col gap-2">
-      {partidas.map((p) => {
-        const status = statusConfig[p.status];
-        return (
-          <Link key={p.id} href={paths.treinador.partidaSumula(tenantSlug, p.id)}>
-            <Card className="flex items-center justify-between hover:shadow-md">
-              <div>
-                <p className="font-medium">
-                  {p.timeCasa.nome} {p.placarCasa} x {p.placarFora} {p.timeFora.nome}
-                </p>
-                <p className="text-xs text-muted">
-                  {p.categoria.nome} ·{" "}
-                  {new Date(p.dataHora).toLocaleString("pt-BR", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                    timeZone: TIMEZONE,
-                  })}
-                </p>
-              </div>
-              <Badge variant={status.variant} pulse={p.status === "AO_VIVO"}>
-                {status.label}
-              </Badge>
-            </Card>
-          </Link>
-        );
-      })}
+      {partidas.map((p) => (
+        <PartidaListItem
+          key={p.id}
+          partida={p}
+          actions={
+            <Link href={paths.treinador.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
+              {p.status === "AO_VIVO" ? "Lançar lances" : "Ver súmula"}
+            </Link>
+          }
+        />
+      ))}
       {partidas.length === 0 && (
-        <p className="text-sm text-muted">Nenhuma partida encontrada para o seu time.</p>
+        <EmptyState>Seu time ainda não tem partidas agendadas. O organizador monta a tabela.</EmptyState>
       )}
     </div>
   );

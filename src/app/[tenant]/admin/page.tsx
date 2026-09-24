@@ -3,8 +3,8 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { TIMEZONE } from "@/lib/date-utils";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PartidaListItem, acaoLinkClass } from "@/components/partidas/partida-list-item";
 
 export default async function AdminDashboard({
   params,
@@ -39,81 +39,68 @@ export default async function AdminDashboard({
       db.atleta.count(),
     ]);
 
+  const numeros = [
+    { label: "Ao vivo", valor: aoVivo.length, href: paths.admin.partidas(tenantSlug) },
+    { label: "Solicitações pendentes", valor: solicitacoesPendentes, href: paths.admin.solicitacoes(tenantSlug) },
+    { label: "Times", valor: totalTimes, href: paths.admin.times(tenantSlug) },
+    { label: "Atletas", valor: totalAtletas, href: paths.admin.times(tenantSlug) },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Card>
-          <p className="text-xs font-medium uppercase text-muted">Ao vivo</p>
-          <p className="text-2xl font-bold text-accent">{aoVivo.length}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium uppercase text-muted">Solicitações</p>
-          <p className="text-2xl font-bold">{solicitacoesPendentes}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium uppercase text-muted">Times</p>
-          <p className="text-2xl font-bold">{totalTimes}</p>
-        </Card>
-        <Card>
-          <p className="text-xs font-medium uppercase text-muted">Atletas</p>
-          <p className="text-2xl font-bold">{totalAtletas}</p>
-        </Card>
-      </div>
+      <Card className="grid grid-cols-2 divide-border p-0 sm:grid-cols-4 sm:divide-x">
+        {numeros.map((n) => (
+          <Link key={n.label} href={n.href} className="px-4 py-3 hover:bg-background">
+            <p className="font-display text-3xl font-bold leading-none tabular-nums">{n.valor}</p>
+            <p className="mt-1 text-xs text-muted">{n.label}</p>
+          </Link>
+        ))}
+      </Card>
 
       {aoVivo.length > 0 && (
-        <div>
-          <h2 className="mb-2 font-semibold">Partidas ao vivo agora</h2>
+        <section>
+          <h2 className="mb-2 font-semibold">Ao vivo agora</h2>
           <div className="flex flex-col gap-2">
             {aoVivo.map((p) => (
-              <Link key={p.id} href={paths.admin.partidaSumula(tenantSlug, p.id)}>
-                <Card className="flex items-center justify-between">
-                  <span className="font-medium">
-                    {p.timeCasa.nome} {p.placarCasa} x {p.placarFora} {p.timeFora.nome}
-                  </span>
-                  <Badge variant="live" pulse>
-                    Ao vivo
-                  </Badge>
-                </Card>
-              </Link>
+              <PartidaListItem
+                key={p.id}
+                partida={p}
+                actions={
+                  <Link href={paths.admin.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
+                    Abrir súmula
+                  </Link>
+                }
+              />
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      <div>
+      <section>
         <h2 className="mb-2 font-semibold">Próximas partidas</h2>
         {proximas.length === 0 ? (
-          <p className="text-sm text-muted">Nenhuma partida agendada.</p>
+          <EmptyState>
+            Nenhuma partida agendada.{" "}
+            <Link href={paths.admin.partidas(tenantSlug)} className="font-semibold text-accent">
+              Agendar partida
+            </Link>
+          </EmptyState>
         ) : (
           <div className="flex flex-col gap-2">
             {proximas.map((p) => (
-              <Card key={p.id} className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">
-                    {p.timeCasa.nome} x {p.timeFora.nome}
-                  </p>
-                  <p className="text-xs text-muted">
-                    {p.categoria.nome} ·{" "}
-                    {new Date(p.dataHora).toLocaleString("pt-BR", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      timeZone: TIMEZONE,
-                    })}
-                  </p>
-                </div>
-                <Link
-                  href={paths.admin.partidaSumula(tenantSlug, p.id)}
-                  className="text-sm font-semibold text-accent"
-                >
-                  Súmula
-                </Link>
-              </Card>
+              <PartidaListItem
+                key={p.id}
+                partida={p}
+                actions={
+                  <Link href={paths.admin.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
+                    Súmula
+                  </Link>
+                }
+              />
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

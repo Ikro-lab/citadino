@@ -1,6 +1,7 @@
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,14 +47,14 @@ export default async function CampeonatosPage({
       <div className="flex flex-col gap-2">
         {campeonatos.map((c) => (
           <Card key={c.id} className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-medium">
                   {c.nome} <span className="text-muted">· {c.temporada}</span>
                 </p>
                 <p className="text-xs text-muted">{c._count.categorias} categorias</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Badge variant={c.ativo ? "success" : "neutral"}>
                   {c.ativo ? "Ativo" : "Inativo"}
                 </Badge>
@@ -81,14 +82,14 @@ export default async function CampeonatosPage({
               )}
               <form
                 action={uploadRegulamentoCampeonato.bind(null, c.id)}
-                className="flex items-center gap-2"
+                className="flex w-full flex-wrap items-center gap-2 sm:w-auto"
               >
                 <input
                   name="regulamento"
                   type="file"
                   accept="application/pdf"
                   required
-                  className="text-xs"
+                  className="min-w-0 flex-1 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-background file:px-3 file:py-1.5 file:font-medium"
                 />
                 <Button type="submit" size="sm" variant="secondary">
                   Enviar PDF
@@ -98,7 +99,7 @@ export default async function CampeonatosPage({
           </Card>
         ))}
         {campeonatos.length === 0 && (
-          <p className="text-sm text-muted">Nenhum campeonato cadastrado.</p>
+          <EmptyState>Nenhum campeonato cadastrado. Crie o primeiro acima.</EmptyState>
         )}
       </div>
     </div>

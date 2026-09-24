@@ -1,24 +1,6 @@
 import { ImageResponse } from "next/og";
+import { BrandIcon } from "../brand-icon";
 
 export async function GET() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#ff6a00",
-          color: "#ffffff",
-          fontSize: 256,
-          fontWeight: 700,
-        }}
-      >
-        C
-      </div>
-    ),
-    { width: 512, height: 512 }
-  );
+  return new ImageResponse(<BrandIcon size={512} />, { width: 512, height: 512 });
 }

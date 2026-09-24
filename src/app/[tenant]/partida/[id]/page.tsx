@@ -4,13 +4,17 @@ import { getClassificacao } from "@/lib/classificacao";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { LiveMatchDetail } from "@/components/partidas/live-match-detail";
+import { isAbaPartida } from "@/lib/labels";
 
 export default async function PartidaPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tenant: string; id: string }>;
+  searchParams: Promise<{ aba?: string }>;
 }) {
   const { tenant: tenantSlug, id } = await params;
+  const { aba } = await searchParams;
   const tenant = await getTenantBySlug(tenantSlug);
   const db = getTenantPrisma(tenant.id);
 
@@ -38,7 +42,12 @@ export default async function PartidaPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <LiveMatchDetail initial={partida} linhasClassificacao={linhasClassificacao} tenantSlug={tenantSlug} />
+      <LiveMatchDetail
+        initial={partida}
+        linhasClassificacao={linhasClassificacao}
+        tenantSlug={tenantSlug}
+        abaInicial={isAbaPartida(aba) ? aba : undefined}
+      />
     </div>
   );
 }

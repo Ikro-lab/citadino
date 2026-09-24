@@ -1,9 +1,11 @@
 "use client";
 
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { FeedGroup } from "@/components/partidas/feed-group";
 import { MatchRow } from "@/components/partidas/match-row";
 import { SponsorFeedCard } from "@/components/patrocinadores/sponsor-feed-card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { usePolling } from "@/lib/use-polling";
 import type { FeedGrupo } from "@/lib/partidas";
 import type { Patrocinador } from "@prisma/client";
 
@@ -36,14 +38,12 @@ export function FeedList({
 
   const temAoVivo = grupos.some((g) => g.partidas.some((p) => p.status === "AO_VIVO"));
 
-  useEffect(() => {
-    if (!temAoVivo) return;
-
-    const interval = setInterval(async () => {
+  usePolling(
+    async () => {
       try {
         const params = new URLSearchParams({ data });
         if (vivo) params.set("vivo", "1");
-        const res = await fetch(`/api/${tenantSlug}/feed?${params.toString()}`, { cache: "no-store" });
+        const res = await fetch(`/api/${tenantSlug}/feed?${params.toString()}`);
         if (res.ok) {
           const json = await res.json();
           setGrupos(json.grupos);
@@ -52,16 +52,18 @@ export function FeedList({
       } catch {
         // ignore transient network errors, will retry on next tick
       }
-    }, 8000);
-
-    return () => clearInterval(interval);
-  }, [temAoVivo, data, vivo, tenantSlug]);
+    },
+    8000,
+    temAoVivo
+  );
 
   if (grupos.length === 0) {
     return (
-      <p className="rounded-xl border border-dashed border-border py-12 text-center text-sm text-muted">
-        {vivo ? "Nenhuma partida ao vivo agora." : "Nenhuma partida agendada para este dia."}
-      </p>
+      <EmptyState>
+        {vivo
+          ? "Nenhuma partida ao vivo agora. Toque em “Todos” para ver os jogos do dia."
+          : "Nenhuma partida neste dia. Escolha outra data acima."}
+      </EmptyState>
     );
   }
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AtSign, Goal, Square } from "lucide-react";
+import { AtSign, Goal } from "lucide-react";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
@@ -8,16 +8,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { EventoVideo } from "@/components/partidas/evento-video";
+import { CartaoIcon, EventoIcon } from "@/components/partidas/evento-icon";
 import { calcularIdade } from "@/lib/utils";
 import { TIMEZONE } from "@/lib/date-utils";
-
-const tipoConfig: Record<string, { label: string; icon: typeof Goal; className: string }> = {
-  GOL: { label: "Gol", icon: Goal, className: "text-accent" },
-  CARTAO_AMARELO: { label: "Cartão amarelo", icon: Square, className: "text-yellow-500" },
-  CARTAO_VERMELHO: { label: "Cartão vermelho", icon: Square, className: "text-danger" },
-  SUBSTITUICAO: { label: "Substituição", icon: Square, className: "text-muted" },
-  OUTRO: { label: "Lance", icon: Square, className: "text-muted" },
-};
+import { posicaoLabel, tipoEventoLabel, type PosicaoAtleta, type TipoEvento } from "@/lib/labels";
 
 export default async function AtletaPage({
   params,
@@ -81,16 +75,17 @@ export default async function AtletaPage({
   const instagramHandle = atleta.instagram?.replace(/^@/, "").trim();
 
   return (
-    <div className="mx-auto max-w-sm px-4 py-6">
+    <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
       <Card className="text-center">
-        <div className="mx-auto mb-3">
-          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={80} className="text-2xl" />
+        <div className="mx-auto mb-3 w-fit">
+          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={88} className="text-2xl" />
         </div>
-        <h1 className="text-xl font-bold">{atleta.nome}</h1>
+        <h1 className="font-display text-3xl font-bold leading-tight">{atleta.nome}</h1>
         <p className="text-sm text-muted">
-          #{atleta.numero} · {atleta.posicao} · {atleta.time.nome}
+          <span className="tabular-nums">#{atleta.numero}</span>, {posicaoLabel[atleta.posicao as PosicaoAtleta]} do{" "}
+          {atleta.time.nome}
         </p>
-        <div className="mt-2 flex items-center justify-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
           <Badge variant="accent">{atleta.time.categoria.nome}</Badge>
           {atleta.dataNascimento && (
             <Badge variant="neutral">{calcularIdade(atleta.dataNascimento)} anos</Badge>
@@ -102,7 +97,7 @@ export default async function AtletaPage({
             href={`https://instagram.com/${instagramHandle}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium hover:bg-surface"
+            className="mt-4 inline-flex h-11 items-center gap-2 rounded-full border border-border px-4 text-sm font-medium hover:bg-background"
           >
             <AtSign size={16} />
             {instagramHandle}
@@ -110,36 +105,44 @@ export default async function AtletaPage({
         )}
       </Card>
 
-      <div className="mt-4 grid grid-cols-3 gap-3">
-        <Card className="text-center">
-          <p className="text-2xl font-bold text-accent">{gols}</p>
+      <Card className="grid grid-cols-3 divide-x divide-border p-0 text-center">
+        <div className="py-4">
+          <p className="flex items-center justify-center gap-1.5 font-display text-3xl font-bold tabular-nums">
+            <Goal size={18} aria-hidden className="text-accent" />
+            {gols}
+          </p>
           <p className="text-xs text-muted">Gols</p>
-        </Card>
-        <Card className="text-center">
-          <p className="text-2xl font-bold text-yellow-500">{amarelos}</p>
+        </div>
+        <div className="py-4">
+          <p className="flex items-center justify-center gap-1.5 font-display text-3xl font-bold tabular-nums">
+            <CartaoIcon cor="amarelo" />
+            {amarelos}
+          </p>
           <p className="text-xs text-muted">Amarelos</p>
-        </Card>
-        <Card className="text-center">
-          <p className="text-2xl font-bold text-danger">{vermelhos}</p>
+        </div>
+        <div className="py-4">
+          <p className="flex items-center justify-center gap-1.5 font-display text-3xl font-bold tabular-nums">
+            <CartaoIcon cor="vermelho" />
+            {vermelhos}
+          </p>
           <p className="text-xs text-muted">Vermelhos</p>
-        </Card>
-      </div>
-
-      <Card className="mt-4">
-        <p className="text-sm text-muted">
-          {atleta.time.nome} disputou {jogosDoTime} partida(s) encerrada(s) nesta temporada.
-        </p>
+        </div>
       </Card>
 
-      <Card className="mt-4">
+      <p className="px-1 text-sm text-muted">
+        {jogosDoTime === 1
+          ? `O ${atleta.time.nome} tem 1 partida encerrada nesta temporada.`
+          : `O ${atleta.time.nome} tem ${jogosDoTime} partidas encerradas nesta temporada.`}
+      </p>
+
+      <Card>
         <h2 className="mb-3 font-semibold">Gols e lances</h2>
         {eventos.length === 0 ? (
           <p className="text-sm text-muted">Nenhum gol ou lance registrado ainda.</p>
         ) : (
           <ol className="flex flex-col gap-4">
             {eventos.map((e) => {
-              const config = tipoConfig[e.tipo] ?? tipoConfig.OUTRO;
-              const Icon = config.icon;
+              const label = tipoEventoLabel[e.tipo as TipoEvento] ?? tipoEventoLabel.OUTRO;
               const adversario =
                 e.timeId === e.partida.timeCasaId
                   ? e.partida.timeFora.nome
@@ -157,19 +160,21 @@ export default async function AtletaPage({
                     href={paths.partida(tenantSlug, e.partida.id)}
                     className="flex items-start gap-3 hover:text-accent"
                   >
-                    <Icon size={16} className={`mt-0.5 shrink-0 ${config.className}`} />
+                    <span className="mt-0.5 flex w-4 shrink-0 justify-center">
+                      <EventoIcon tipo={e.tipo} />
+                    </span>
                     <div>
                       <p className="font-medium">
-                        {config.label} · {e.minuto}&apos;
+                        {label} aos <span className="tabular-nums">{e.minuto}&apos;</span>
                       </p>
                       <p className="text-xs text-muted">
-                        vs {adversario} · {data}
-                        {e.descricao ? ` · ${e.descricao}` : ""}
+                        Contra {adversario}, {data}
+                        {e.descricao ? `. ${e.descricao}` : ""}
                       </p>
                     </div>
                   </Link>
                   {e.videoUrl && (
-                    <EventoVideo url={e.videoUrl} className="max-h-64 w-full rounded-lg" />
+                    <EventoVideo url={e.videoUrl} className="aspect-video max-h-64 w-full rounded-lg bg-black" />
                   )}
                 </li>
               );

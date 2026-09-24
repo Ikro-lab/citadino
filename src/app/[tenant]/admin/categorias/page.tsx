@@ -3,10 +3,12 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
+import { acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { createCategoria, deleteCategoria } from "@/lib/actions/categorias";
 
 export default async function CategoriasPage({
@@ -63,7 +65,7 @@ export default async function CategoriasPage({
 
       <div className="flex flex-col gap-2">
         {categorias.map((c) => (
-          <Card key={c.id} className="flex items-center justify-between">
+          <Card key={c.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-medium">
                 {c.nome}{" "}
@@ -75,10 +77,10 @@ export default async function CategoriasPage({
                 {c.campeonato.nome} · {c._count.times} times · {c._count.partidas} partidas
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={paths.admin.categoria(tenantSlug, c.id)}
-                className="rounded-lg px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent-soft"
+                className={acaoLinkClass}
               >
                 Gerenciar
               </Link>
@@ -87,7 +89,7 @@ export default async function CategoriasPage({
           </Card>
         ))}
         {categorias.length === 0 && (
-          <p className="text-sm text-muted">Nenhuma categoria cadastrada.</p>
+          <EmptyState>Nenhuma categoria cadastrada. Crie a primeira acima (ex: Masculino Livre).</EmptyState>
         )}
       </div>
     </div>

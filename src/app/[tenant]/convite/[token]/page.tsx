@@ -22,7 +22,7 @@ export default async function ConvitePage({
 
   return (
     <div className="mx-auto max-w-sm px-4 py-10">
-      <h1 className="mb-1 text-2xl font-bold">Inscrição de atleta</h1>
+      <h1 className="mb-1 font-display text-3xl font-bold leading-none">Inscrição de atleta</h1>
       <p className="mb-6 text-sm text-muted">
         {time.nome} · {time.categoria.nome}
       </p>

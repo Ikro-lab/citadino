@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CACHE_AO_VIVO } from "@/lib/http-cache";
 import { getTenantBySlugOrNull } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 
@@ -25,14 +26,17 @@ export async function GET(
 
   if (!enquete) return NextResponse.json({ error: "not_found" }, { status: 404 });
 
-  return NextResponse.json({
-    id: enquete.id,
-    ativa: enquete.ativa,
-    opcoes: enquete.opcoes.map((o) => ({
-      id: o.id,
-      atletaNome: o.atleta.nome,
-      timeNome: o.atleta.time.nome,
-      votos: o._count.votos,
-    })),
-  });
+  return NextResponse.json(
+    {
+      id: enquete.id,
+      ativa: enquete.ativa,
+      opcoes: enquete.opcoes.map((o) => ({
+        id: o.id,
+        atletaNome: o.atleta.nome,
+        timeNome: o.atleta.time.nome,
+        votos: o._count.votos,
+      })),
+    },
+    { headers: CACHE_AO_VIVO }
+  );
 }

@@ -2,28 +2,16 @@ import { notFound } from "next/navigation";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { SumulaForm } from "@/components/partidas/sumula-form";
+import { SumulaPlacar, EventoRegistrado } from "@/components/partidas/sumula-parts";
 import { VideoUploadButton } from "@/components/partidas/video-upload-button";
-import { Input, Label } from "@/components/ui/input";
+import { TransmissaoCard } from "@/components/partidas/transmissao-card";
+import { ClipeYoutubeAjuste } from "@/components/partidas/clipe-youtube-ajuste";
 import { getAtletasSuspensosIds } from "@/lib/artilharia";
-import {
-  iniciarPartida,
-  encerrarPartida,
-  adiarPartida,
-  deleteEvento,
-  setLinkTransmissao,
-} from "@/lib/actions/partidas";
-
-const tipoLabel: Record<string, string> = {
-  GOL: "Gol",
-  CARTAO_AMARELO: "Cartão amarelo",
-  CARTAO_VERMELHO: "Cartão vermelho",
-  SUBSTITUICAO: "Substituição",
-  OUTRO: "Outro",
-};
+import { extrairYoutubeId } from "@/lib/youtube";
+import { iniciarPartida, encerrarPartida, adiarPartida, deleteEvento } from "@/lib/actions/partidas";
 
 export default async function SumulaPage({
   params,
@@ -65,80 +53,44 @@ export default async function SumulaPage({
   return (
     <div className="flex flex-col gap-6">
       <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <Badge variant="accent">{partida.categoria.nome}</Badge>
-          <Badge
-            variant={
-              partida.status === "AO_VIVO"
-                ? "live"
-                : partida.status === "ENCERRADA"
-                  ? "success"
-                  : partida.status === "ADIADA"
-                    ? "danger"
-                    : "neutral"
-            }
-            pulse={partida.status === "AO_VIVO"}
-          >
-            {partida.status.replace("_", " ")}
-          </Badge>
-        </div>
+        <SumulaPlacar partida={partida} />
 
-        <p className="mb-4 text-center text-2xl font-bold">
-          {partida.timeCasa.nome} {partida.placarCasa} x {partida.placarFora} {partida.timeFora.nome}
-        </p>
-
-        <div className="flex flex-wrap gap-2">
-          {partida.status === "AGENDADA" && (
-            <>
-              <form action={iniciarPartida.bind(null, id)}>
-                <Button type="submit">Iniciar partida</Button>
-              </form>
-              <form action={adiarPartida.bind(null, id)}>
-                <Button type="submit" variant="secondary">
-                  Adiar
+        {(partida.status === "AGENDADA" || partida.status === "AO_VIVO") && (
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {partida.status === "AGENDADA" && (
+              <>
+                <form action={iniciarPartida.bind(null, id)}>
+                  <Button type="submit" size="lg" className="w-full">
+                    Iniciar partida
+                  </Button>
+                </form>
+                <form action={adiarPartida.bind(null, id)}>
+                  <Button type="submit" variant="secondary" size="lg" className="w-full">
+                    Adiar
+                  </Button>
+                </form>
+              </>
+            )}
+            {partida.status === "AO_VIVO" && (
+              <form action={encerrarPartida.bind(null, id)} className="col-span-2">
+                <Button type="submit" variant="secondary" size="lg" className="w-full">
+                  Encerrar partida
                 </Button>
               </form>
-            </>
-          )}
-          {partida.status === "AO_VIVO" && (
-            <form action={encerrarPartida.bind(null, id)}>
-              <Button type="submit" variant="secondary">
-                Encerrar partida
-              </Button>
-            </form>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </Card>
 
-      <Card>
-        <h2 className="mb-3 font-semibold">Transmissão ao vivo</h2>
-        <form
-          action={setLinkTransmissao.bind(null, id)}
-          className="flex flex-col gap-3 sm:flex-row sm:items-end"
-        >
-          <div className="flex-1">
-            <Label htmlFor="linkTransmissaoUrl">Link da live (YouTube)</Label>
-            <Input
-              id="linkTransmissaoUrl"
-              name="linkTransmissaoUrl"
-              type="url"
-              placeholder="https://youtube.com/watch?v=..."
-              defaultValue={partida.linkTransmissaoUrl ?? ""}
-            />
-          </div>
-          <Button type="submit" variant="secondary">
-            Salvar
-          </Button>
-        </form>
-      </Card>
+      {/* Antes e durante o jogo, a live fica no topo: precisa estar configurada antes do 1º gol. */}
+      {partida.status !== "ENCERRADA" && <TransmissaoCard partida={partida} />}
 
       {(partida.status === "AO_VIVO" || partida.status === "AGENDADA") && (
         <Card>
-          <h2 className="mb-3 font-semibold">Registrar evento</h2>
+          <h2 className="mb-3 font-semibold">Registrar lance</h2>
           {suspensosNestaPartida.length > 0 && (
-            <p className="mb-3 text-xs text-muted">
-              Suspensos por cartões (não aparecem na lista): {" "}
-              {suspensosNestaPartida.map((a) => a.nome).join(", ")}
+            <p className="mb-3 rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">
+              Suspensos por cartão, fora da lista: {suspensosNestaPartida.map((a) => a.nome).join(", ")}
             </p>
           )}
           <SumulaForm partidaId={id} timeCasa={timeCasaDisponivel} timeFora={timeForaDisponivel} />
@@ -146,29 +98,25 @@ export default async function SumulaPage({
       )}
 
       <Card>
-        <h2 className="mb-3 font-semibold">Eventos registrados</h2>
+        <h2 className="mb-3 font-semibold">Lances registrados</h2>
         <div className="flex flex-col gap-2">
           {partida.eventos.map((e) => (
-            <div
-              key={e.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border px-3 py-2 text-sm"
-            >
-              <span>
-                <span className="mr-2 font-mono font-semibold text-muted">{e.minuto}&apos;</span>
-                {tipoLabel[e.tipo]} · {e.time.nome}
-                {e.atleta && ` · ${e.atleta.nome} (#${e.atleta.numero})`}
-              </span>
-              <div className="flex items-center gap-3">
+            <EventoRegistrado key={e.id} evento={e}>
+              {e.videoUrl && extrairYoutubeId(e.videoUrl) ? (
+                <ClipeYoutubeAjuste eventoId={e.id} videoUrl={e.videoUrl} />
+              ) : (
                 <VideoUploadButton eventoId={e.id} videoUrl={e.videoUrl} />
-                <DeleteButton action={deleteEvento.bind(null, e.id, id)} />
-              </div>
-            </div>
+              )}
+              <DeleteButton action={deleteEvento.bind(null, e.id, id)} />
+            </EventoRegistrado>
           ))}
           {partida.eventos.length === 0 && (
-            <p className="text-sm text-muted">Nenhum evento registrado.</p>
+            <p className="text-sm text-muted">Nenhum lance registrado ainda.</p>
           )}
         </div>
       </Card>
+
+      {partida.status === "ENCERRADA" && <TransmissaoCard partida={partida} />}
     </div>
   );
 }

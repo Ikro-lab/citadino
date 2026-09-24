@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FotoInput } from "@/components/ui/foto-input";
+import { FieldError, FormError } from "@/components/ui/form-error";
 import { criarInscricao } from "@/lib/actions/inscricoes";
 
 export default function InscricaoForm({ conviteToken }: { conviteToken: string }) {
@@ -15,9 +17,9 @@ export default function InscricaoForm({ conviteToken }: { conviteToken: string }
   if (state?.success) {
     return (
       <Card>
-        <p className="font-medium text-success">Inscrição enviada!</p>
+        <p className="font-medium text-success">Inscrição enviada</p>
         <p className="mt-1 text-sm text-muted">
-          O treinador vai revisar seus dados e aprovar sua entrada no elenco em breve.
+          O treinador vai revisar seus dados e aprovar sua entrada no elenco.
         </p>
       </Card>
     );
@@ -28,49 +30,37 @@ export default function InscricaoForm({ conviteToken }: { conviteToken: string }
       <form action={formAction} className="flex flex-col gap-4">
         <div>
           <Label htmlFor="nome">Nome completo</Label>
-          <Input id="nome" name="nome" required />
-          {state?.fieldErrors?.nome && (
-            <p className="mt-1 text-xs text-danger">{state.fieldErrors.nome[0]}</p>
-          )}
+          <Input id="nome" name="nome" autoComplete="name" required />
+          <FieldError errors={state?.fieldErrors?.nome} />
         </div>
 
         <div>
           <Label htmlFor="dataNascimento">Data de nascimento</Label>
-          <Input id="dataNascimento" name="dataNascimento" type="date" required />
-          {state?.fieldErrors?.dataNascimento && (
-            <p className="mt-1 text-xs text-danger">{state.fieldErrors.dataNascimento[0]}</p>
-          )}
+          <Input id="dataNascimento" name="dataNascimento" type="date" autoComplete="bday" required />
+          <FieldError errors={state?.fieldErrors?.dataNascimento} />
         </div>
 
         <div>
           <Label htmlFor="foto">Foto do atleta</Label>
-          <Input id="foto" name="foto" type="file" accept="image/*" required />
+          <FotoInput id="foto" name="foto" accept="image/*" required />
         </div>
 
         <div>
-          <Label htmlFor="documento">Documento de identificação (foto)</Label>
-          <Input id="documento" name="documento" type="file" accept="image/*" required />
+          <Label htmlFor="documento">Foto do documento de identidade</Label>
+          <FotoInput id="documento" name="documento" accept="image/*" required />
         </div>
 
         <div>
           <Label htmlFor="comprovanteEndereco">Comprovante de endereço</Label>
-          <Input
-            id="comprovanteEndereco"
-            name="comprovanteEndereco"
-            type="file"
-            accept="image/*,application/pdf"
-            required
-          />
+          <FotoInput id="comprovanteEndereco" name="comprovanteEndereco" accept="image/*,application/pdf" required />
         </div>
 
         <div>
           <Label htmlFor="instagram">Instagram (opcional)</Label>
-          <Input id="instagram" name="instagram" placeholder="@seuinstagram" />
+          <Input id="instagram" name="instagram" placeholder="@seuinstagram" autoCapitalize="none" />
         </div>
 
-        {state?.error && (
-          <p className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">{state.error}</p>
-        )}
+        <FormError message={state?.error} />
 
         <Button type="submit" disabled={pending} className="w-full">
           {pending ? "Enviando..." : "Enviar inscrição"}

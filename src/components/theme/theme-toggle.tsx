@@ -32,7 +32,7 @@ export function ThemeToggle() {
         applyTheme(next);
         setIsDark(!isDark);
       }}
-      className="flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-surface"
+      className="flex h-10 w-10 items-center justify-center rounded-lg text-muted hover:bg-surface"
     >
       {isDark ? <Sun size={18} /> : <Moon size={18} />}
     </button>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { assertPodeEditarEvento } from "@/lib/actions/partidas";
+import { VIDEO_MAX_BYTES } from "@/lib/video-limits";
 
 export async function POST(request: Request): Promise<NextResponse> {
   const body = (await request.json()) as HandleUploadBody;
@@ -16,7 +17,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
         return {
           allowedContentTypes: ["video/mp4", "video/quicktime", "video/webm"],
-          maximumSizeInBytes: 200 * 1024 * 1024,
+          maximumSizeInBytes: VIDEO_MAX_BYTES,
           addRandomSuffix: false,
           tokenPayload: clientPayload,
         };

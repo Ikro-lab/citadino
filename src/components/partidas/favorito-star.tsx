@@ -45,7 +45,7 @@ export function FavoritoStar({ partidaId }: { partidaId: string }) {
         salvarFavoritos(favoritos);
         setFavorito(favoritos.has(partidaId));
       }}
-      className="flex h-9 w-9 shrink-0 items-center justify-center text-muted hover:text-accent"
+      className="flex h-11 w-11 shrink-0 items-center justify-center text-muted hover:text-accent"
     >
       <Star size={18} className={favorito ? "fill-accent text-accent" : ""} />
     </button>

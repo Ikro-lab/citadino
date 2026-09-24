@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { ChipLink, ChipRow } from "@/components/ui/chips";
 
 export function CategoriaTabs({
   categorias,
@@ -15,24 +14,15 @@ export function CategoriaTabs({
   if (categorias.length === 0) return null;
 
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+    <ChipRow>
       {categorias.map((c) => {
         const params = new URLSearchParams({ ...extraParams, categoria: c.id });
         return (
-          <Link
-            key={c.id}
-            href={`${basePath}?${params.toString()}`}
-            className={cn(
-              "shrink-0 rounded-lg border px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
-              c.id === categoriaId
-                ? "border-accent bg-accent text-accent-foreground"
-                : "border-border bg-surface text-foreground hover:bg-border/60"
-            )}
-          >
+          <ChipLink key={c.id} href={`${basePath}?${params.toString()}`} ativo={c.id === categoriaId}>
             {c.label}
-          </Link>
+          </ChipLink>
         );
       })}
-    </div>
+    </ChipRow>
   );
 }

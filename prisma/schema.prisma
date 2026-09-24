@@ -306,6 +306,8 @@ model Partida {
   placarFora    Int      @default(0)
   golsCasaDetalhe Int?
   linkTransmissaoUrl String?
+  /// Quando a live do YouTube começou — base para o link do minuto de cada gol.
+  transmissaoInicioEm DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

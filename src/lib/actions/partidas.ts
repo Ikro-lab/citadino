@@ -8,7 +8,34 @@ import { auth } from "@/auth";
 import { paths } from "@/lib/tenant-path";
 import { notifyPartidaEvento } from "@/lib/push/notify";
 import { parseDatetimeLocalAsBRT } from "@/lib/date-utils";
+import { extrairYoutubeId, segundoDoLink, youtubeUrlNoSegundo } from "@/lib/youtube";
+import { buscarInicioLiveYoutube } from "@/lib/youtube-live";
 import type { FasePartida, TipoEvento } from "@prisma/client";
+
+// Quem lança o gol na súmula normalmente registra alguns segundos depois do
+// lance. O link do clipe volta esse tempo; o player ainda mostra 10s antes.
+const ATRASO_REGISTRO_SEGUNDOS = 12;
+
+type TenantDb = ReturnType<typeof getTenantPrisma>;
+
+/**
+ * Garante que a partida sabe quando a live começou, perguntando ao YouTube
+ * se ainda não souber. Retorna o início (ou null se não deu para descobrir).
+ */
+async function garantirInicioLive(
+  db: TenantDb,
+  partida: { id: string; linkTransmissaoUrl: string | null; transmissaoInicioEm: Date | null }
+): Promise<Date | null> {
+  if (partida.transmissaoInicioEm) return partida.transmissaoInicioEm;
+  const videoId = extrairYoutubeId(partida.linkTransmissaoUrl);
+  if (!videoId) return null;
+
+  const inicio = await buscarInicioLiveYoutube(videoId);
+  if (inicio) {
+    await db.partida.update({ where: { id: partida.id }, data: { transmissaoInicioEm: inicio } });
+  }
+  return inicio;
+}
 
 export async function assertPodeEditarEvento(eventoId: string) {
   const session = await auth();
@@ -162,6 +189,7 @@ export async function iniciarPartida(id: string) {
     data: { status: "AO_VIVO" },
     include: { timeCasa: true, timeFora: true },
   });
+  await garantirInicioLive(db, partida);
   revalidatePath(paths.admin.partidaSumula(tenantSlug, id));
   revalidatePath(paths.home(tenantSlug));
   await notifyPartidaEvento(session.user.tenantId!, partida.id, {
@@ -213,10 +241,12 @@ export async function addEvento(partidaId: string, formData: FormData) {
   const tenantSlug = session!.user.tenantSlug!;
   const db = getTenantPrisma(tenantId);
 
+  let eventoId = "";
   const partida = await db.$transaction(async (tx) => {
-    await tx.eventoPartida.create({
+    const evento = await tx.eventoPartida.create({
       data: { tenantId, partidaId, tipo, timeId, atletaId, minuto, descricao },
     });
+    eventoId = evento.id;
 
     if (tipo === "GOL") {
       const current = await tx.partida.findUniqueOrThrow({ where: { id: partidaId } });
@@ -236,7 +266,24 @@ export async function addEvento(partidaId: string, formData: FormData) {
     });
   });
 
+  // Gol com live no YouTube: o lance ganha o link do vídeo já no minuto certo.
+  const videoId = extrairYoutubeId(partida.linkTransmissaoUrl);
+  if (tipo === "GOL" && videoId) {
+    const registradoEm = Date.now();
+    const inicio = await garantirInicioLive(db, partida);
+    if (inicio) {
+      const segundo = Math.floor((registradoEm - inicio.getTime()) / 1000) - ATRASO_REGISTRO_SEGUNDOS;
+      if (segundo > 0) {
+        await db.eventoPartida.update({
+          where: { id: eventoId },
+          data: { videoUrl: youtubeUrlNoSegundo(videoId, segundo) },
+        });
+      }
+    }
+  }
+
   revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.treinador.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.partida(tenantSlug, partidaId));
   revalidatePath(paths.home(tenantSlug));
 
@@ -303,11 +350,56 @@ export async function setLinkTransmissao(partidaId: string, formData: FormData) 
   const tenantSlug = session.user.tenantSlug!;
   const url = String(formData.get("linkTransmissaoUrl") || "").trim() || null;
 
-  await db.partida.update({
+  const atual = await db.partida.findUniqueOrThrow({ where: { id: partidaId } });
+  const mudouLink = atual.linkTransmissaoUrl !== url;
+
+  const partida = await db.partida.update({
     where: { id: partidaId },
-    data: { linkTransmissaoUrl: url },
+    // Link novo = outra live: o início antigo não vale mais.
+    data: { linkTransmissaoUrl: url, ...(mudouLink ? { transmissaoInicioEm: null } : {}) },
   });
+  await garantirInicioLive(db, partida);
 
   revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.partida(tenantSlug, partidaId));
+}
+
+/**
+ * Plano B quando o YouTube não informa o início: o organizador toca no botão
+ * no momento em que a live entra no ar.
+ */
+export async function marcarInicioLiveAgora(partidaId: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.partida.update({ where: { id: partidaId }, data: { transmissaoInicioEm: new Date() } });
+  revalidatePath(paths.admin.partidaSumula(session.user.tenantSlug!, partidaId));
+}
+
+/** Tenta de novo ler o início da live no YouTube (ex: a live entrou no ar depois de salvar o link). */
+export async function sincronizarInicioLive(partidaId: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const partida = await db.partida.findUniqueOrThrow({ where: { id: partidaId } });
+  await garantirInicioLive(db, { ...partida, transmissaoInicioEm: null });
+  revalidatePath(paths.admin.partidaSumula(session.user.tenantSlug!, partidaId));
+}
+
+/** Ajuste fino do clipe automático: adianta ou atrasa o ponto do vídeo em alguns segundos. */
+export async function ajustarClipeEvento(eventoId: string, deltaSegundos: number) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+
+  const evento = await db.eventoPartida.findUniqueOrThrow({ where: { id: eventoId } });
+  const videoId = extrairYoutubeId(evento.videoUrl);
+  const segundo = evento.videoUrl ? segundoDoLink(evento.videoUrl) : null;
+  if (!videoId || segundo === null) return;
+
+  await db.eventoPartida.update({
+    where: { id: eventoId },
+    data: { videoUrl: youtubeUrlNoSegundo(videoId, segundo + deltaSegundos) },
+  });
+
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, evento.partidaId));
+  revalidatePath(paths.partida(tenantSlug, evento.partidaId));
 }

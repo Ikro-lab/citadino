@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { auth } from "@/auth";
 import { getTenantBySlug } from "@/lib/tenant";
 import { deriveThemeVariants } from "@/lib/color";
@@ -19,6 +19,17 @@ export async function generateMetadata({
     title: tenant.nome,
     description: `Acompanhe o ${tenant.nome}: feed de partidas ao vivo, resultados e tabela de classificação.`,
   };
+}
+
+// Barra de status do celular / app instalado na cor do campeonato.
+export async function generateViewport({
+  params,
+}: {
+  params: Promise<{ tenant: string }>;
+}): Promise<Viewport> {
+  const { tenant: tenantSlug } = await params;
+  const tenant = await getTenantBySlug(tenantSlug);
+  return { themeColor: tenant.corPrimaria };
 }
 
 export default async function TenantLayout({
@@ -72,9 +83,10 @@ export default async function TenantLayout({
           className="justify-center border-b border-border bg-surface/50"
           animado={tenant.patrocinadoresAnimados}
           tamanho={tenant.patrocinadoresTamanho}
+          alturaMaxMobile={56}
         />
       )}
-      <main className="flex-1 pb-20 md:pb-8">{children}</main>
+      <main className="flex-1 pb-8">{children}</main>
       {tenant.patrocinadoresPosicao !== "TOPO" && (
         <SponsorFooter
           tenantId={tenant.id}
@@ -82,6 +94,8 @@ export default async function TenantLayout({
           tamanho={tenant.patrocinadoresTamanho}
         />
       )}
+      {/* Reserva o espaço da barra inferior fixa (só no celular), uma única vez. */}
+      <div aria-hidden className="h-[calc(3.5rem+env(safe-area-inset-bottom))] shrink-0 md:hidden" />
       <BottomNav role={role} tenantSlug={tenantSlug} />
     </>
   );

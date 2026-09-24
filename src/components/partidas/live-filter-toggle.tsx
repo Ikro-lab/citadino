@@ -1,5 +1,4 @@
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { ChipLink } from "@/components/ui/chips";
 import { paths } from "@/lib/tenant-path";
 
 export function LiveFilterToggle({
@@ -11,23 +10,20 @@ export function LiveFilterToggle({
   vivo: boolean;
   tenantSlug: string;
 }) {
-  const base = "rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors";
   const home = paths.home(tenantSlug);
 
   return (
     <div className="flex gap-2">
-      <Link
-        href={`${home}?${new URLSearchParams({ data }).toString()}`}
-        className={cn(base, !vivo ? "bg-accent text-accent-foreground" : "bg-surface text-muted hover:bg-border/60")}
-      >
+      <ChipLink href={`${home}?${new URLSearchParams({ data }).toString()}`} ativo={!vivo}>
         Todos
-      </Link>
-      <Link
-        href={`${home}?${new URLSearchParams({ data, vivo: "1" }).toString()}`}
-        className={cn(base, vivo ? "bg-accent text-accent-foreground" : "bg-surface text-muted hover:bg-border/60")}
-      >
+      </ChipLink>
+      <ChipLink href={`${home}?${new URLSearchParams({ data, vivo: "1" }).toString()}`} ativo={vivo}>
+        <span
+          aria-hidden
+          className={`h-2 w-2 rounded-full ${vivo ? "bg-accent-foreground" : "bg-danger"} animate-pulse-live`}
+        />
         Ao vivo
-      </Link>
+      </ChipLink>
     </div>
   );
 }

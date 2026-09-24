@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { CACHE_AO_VIVO } from "@/lib/http-cache";
 import { getFeedAgrupado, getFormaRecenteEmLote, todayStr } from "@/lib/partidas";
 import { getTenantBySlugOrNull } from "@/lib/tenant";
 
@@ -26,5 +27,5 @@ export async function GET(
   const timeIds = grupos.flatMap((g) => g.partidas.flatMap((p) => [p.timeCasaId, p.timeForaId]));
   const forma = await getFormaRecenteEmLote(tenant.id, timeIds);
 
-  return NextResponse.json({ grupos, forma });
+  return NextResponse.json({ grupos, forma }, { headers: CACHE_AO_VIVO });
 }

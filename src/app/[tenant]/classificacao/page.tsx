@@ -1,4 +1,7 @@
+import { FileText } from "lucide-react";
 import { resolveCategoriaId } from "@/lib/categorias";
+import { PageHeader } from "@/components/ui/page-header";
+import { EmptyState } from "@/components/ui/empty-state";
 import { getClassificacao } from "@/lib/classificacao";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
@@ -59,24 +62,25 @@ export default async function ClassificacaoPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Classificação</h1>
-        {regulamentoUrl && (
-          <a
-            href={regulamentoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-semibold text-accent underline"
-          >
-            Regulamento
-          </a>
-        )}
-      </div>
+      <PageHeader
+        title="Classificação"
+        action={
+          regulamentoUrl && (
+            <a
+              href={regulamentoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-accent hover:bg-accent-soft"
+            >
+              <FileText size={16} />
+              Regulamento
+            </a>
+          )
+        }
+      />
 
       {categorias.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border py-12 text-center text-sm text-muted">
-          Nenhum campeonato ativo no momento.
-        </p>
+        <EmptyState>Nenhum campeonato ativo no momento.</EmptyState>
       ) : (
         <div className="flex flex-col gap-6">
           <CategoriaTabs
@@ -95,7 +99,7 @@ export default async function ClassificacaoPage({
                   </div>
                 ))}
                 {linhasPorGrupo.length === 0 && (
-                  <p className="text-sm text-muted">Nenhum grupo configurado ainda.</p>
+                  <EmptyState>Os grupos desta categoria ainda não foram definidos.</EmptyState>
                 )}
               </div>
 

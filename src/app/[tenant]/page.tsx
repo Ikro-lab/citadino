@@ -1,13 +1,10 @@
-import Link from "next/link";
-import { Target, Vote } from "lucide-react";
 import { getFeedAgrupado, getFormaRecenteEmLote, todayStr } from "@/lib/partidas";
 import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
 import { getTenantBySlug } from "@/lib/tenant";
-import { paths } from "@/lib/tenant-path";
 import { DateStrip } from "@/components/partidas/date-strip";
 import { LiveFilterToggle } from "@/components/partidas/live-filter-toggle";
 import { FeedList } from "@/components/partidas/feed-list";
-import { BlobBackground } from "@/components/decor/blob-background";
+import { PageHeader } from "@/components/ui/page-header";
 
 export default async function HomePage({
   params,
@@ -38,26 +35,7 @@ export default async function HomePage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
-      <div className="relative mb-4 overflow-hidden rounded-xl">
-        <BlobBackground />
-        <div className="relative px-1 py-1">
-          <h1 className="mb-3 text-2xl font-bold">Partidas</h1>
-          <div className="flex gap-2">
-            <Link
-              href={paths.artilharia(tenantSlug)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:bg-border/60"
-            >
-              <Target size={14} /> Artilharia
-            </Link>
-            <Link
-              href={paths.enquete(tenantSlug)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium hover:bg-border/60"
-            >
-              <Vote size={14} /> Melhor da rodada
-            </Link>
-          </div>
-        </div>
-      </div>
+      <PageHeader title="Partidas" />
 
       <div className="flex flex-col gap-3">
         <DateStrip data={data} vivo={vivo} tenantSlug={tenantSlug} />

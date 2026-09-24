@@ -1,6 +1,7 @@
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/input";
@@ -68,7 +69,7 @@ export default async function SolicitacoesPage({
         </Card>
       ))}
       {solicitacoes.length === 0 && (
-        <p className="text-sm text-muted">Nenhuma solicitação recebida.</p>
+        <EmptyState>Nenhuma solicitação de time. Quando um treinador pedir um time novo no cadastro, ela aparece aqui.</EmptyState>
       )}
     </div>
   );
