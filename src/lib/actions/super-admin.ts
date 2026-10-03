@@ -54,6 +54,8 @@ export async function createTenantComAdmin(
   });
 
   revalidatePath("/super-admin");
+  // A tela inicial é pré-renderizada no build e lista os tenants ativos.
+  revalidatePath("/");
   return { success: true };
 }
 
@@ -61,4 +63,6 @@ export async function toggleTenantAtivo(id: string, ativo: boolean) {
   await requireSuperAdmin();
   await prisma.tenant.update({ where: { id }, data: { ativo } });
   revalidatePath("/super-admin");
+  // A tela inicial é pré-renderizada no build e lista os tenants ativos.
+  revalidatePath("/");
 }
