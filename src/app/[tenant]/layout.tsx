@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/nav/bottom-nav";
 import { SponsorFooter } from "@/components/patrocinadores/sponsor-footer";
 import { SponsorStrip } from "@/components/patrocinadores/sponsor-strip";
 import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
+import { Assinatura } from "@/components/brand/assinatura";
 
 export async function generateMetadata({
   params,
@@ -94,6 +95,7 @@ export default async function TenantLayout({
           tamanho={tenant.patrocinadoresTamanho}
         />
       )}
+      <Assinatura />
       {/* Reserva o espaço da barra inferior fixa (só no celular), uma única vez. */}
       <div aria-hidden className="h-[calc(3.5rem+env(safe-area-inset-bottom))] shrink-0 md:hidden" />
       <BottomNav role={role} tenantSlug={tenantSlug} />

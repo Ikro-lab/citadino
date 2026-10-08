@@ -3,6 +3,7 @@ import { logout } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionNav } from "@/components/nav/section-nav";
+import { Assinatura } from "@/components/brand/assinatura";
 
 export default async function SuperAdminLayout({
   children,
@@ -30,6 +31,7 @@ export default async function SuperAdminLayout({
         ]}
       />
       {children}
+      <Assinatura />
     </div>
   );
 }
