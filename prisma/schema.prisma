@@ -314,6 +314,10 @@ model Partida {
   eventos       EventoPartida[]
 
   @@index([tenantId, categoriaId])
+  // Feed do dia (filtra por data) e forma recente de cada time.
+  @@index([tenantId, dataHora])
+  @@index([timeCasaId, dataHora])
+  @@index([timeForaId, dataHora])
 }
 
 model EventoPartida {
@@ -335,6 +339,9 @@ model EventoPartida {
   createdAt   DateTime @default(now())
 
   @@index([tenantId])
+  // Sem este, a tela da partida ao vivo (polling) lê a tabela inteira de eventos.
+  @@index([partidaId])
+  @@index([atletaId])
 }
 
 model Enquete {
