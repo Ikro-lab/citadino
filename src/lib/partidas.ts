@@ -56,6 +56,25 @@ export async function getFeedAgrupado(tenantId: string, dateStr: string) {
   return Array.from(grupos.values());
 }
 
+/**
+ * Dias (YYYY-MM-DD, horário de Brasília) entre `de` e `ate` que têm pelo menos
+ * uma partida de campeonato ativo — destacados na faixa de datas do feed.
+ */
+export async function getDiasComJogo(tenantId: string, de: string, ate: string) {
+  const db = getTenantPrisma(tenantId);
+  const partidas = await db.partida.findMany({
+    where: {
+      dataHora: { gte: dayRange(de).start, lte: dayRange(ate).end },
+      categoria: { campeonato: { ativo: true } },
+    },
+    select: { dataHora: true },
+  });
+  const BRT_OFFSET_MS = 3 * 60 * 60 * 1000;
+  return Array.from(
+    new Set(partidas.map((p) => new Date(p.dataHora.getTime() - BRT_OFFSET_MS).toISOString().slice(0, 10)))
+  );
+}
+
 const RESULTADOS_FORMA = 5;
 
 export async function getFormaRecente(tenantId: string, timeId: string) {

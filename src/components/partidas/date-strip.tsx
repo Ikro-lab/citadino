@@ -5,17 +5,29 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { todayStr, shiftDateStr, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
+import { todayStr, shiftDateStr, diasDaFaixa, TIMEZONE, BRT_OFFSET } from "@/lib/date-utils";
 import { paths } from "@/lib/tenant-path";
 import { centralizarChip } from "@/lib/centralizar-chip";
 
-export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: boolean; tenantSlug: string }) {
+export function DateStrip({
+  data,
+  vivo,
+  tenantSlug,
+  diasComJogo = [],
+}: {
+  data: string;
+  vivo: boolean;
+  tenantSlug: string;
+  /** Dias da faixa que têm partida — ficam em laranja para achar a rodada sem procurar dia a dia. */
+  diasComJogo?: string[];
+}) {
   const router = useRouter();
   const hoje = todayStr();
   const selectedRef = useRef<HTMLAnchorElement>(null);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
-  const dias = Array.from({ length: 14 }, (_, i) => shiftDateStr(hoje, i - 3));
+  const dias = diasDaFaixa(hoje);
+  const temJogo = new Set(diasComJogo);
 
   useEffect(() => {
     centralizarChip(selectedRef.current);
@@ -53,13 +65,23 @@ export function DateStrip({ data, vivo, tenantSlug }: { data: string; vivo: bool
             aria-current={d === data ? "date" : undefined}
             className={cn(
               "flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl transition-colors",
-              d === data ? "bg-foreground text-surface" : "bg-surface hover:bg-field dark:border dark:border-border"
+              d === data
+                ? "bg-foreground text-surface"
+                : temJogo.has(d)
+                  ? "bg-accent-soft text-accent hover:bg-accent/20 dark:border dark:border-accent/40"
+                  : "bg-surface hover:bg-field dark:border dark:border-border"
             )}
           >
-            <span className={cn("text-[11px] leading-none capitalize", d === data ? "opacity-80" : "text-muted")}>
+            <span
+              className={cn(
+                "text-[11px] leading-none capitalize",
+                d === data ? "opacity-80" : temJogo.has(d) ? "font-medium" : "text-muted"
+              )}
+            >
               {rotulo(d).semana}
             </span>
             <span className="mt-1 text-base leading-none font-semibold tabular-nums">{rotulo(d).dia}</span>
+            {temJogo.has(d) && <span className="sr-only">, com jogo</span>}
           </Link>
         ))}
       </div>

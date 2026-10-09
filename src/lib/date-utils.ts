@@ -17,6 +17,11 @@ export function todayStr() {
   return new Date(Date.now() - BRT_OFFSET_MS).toISOString().slice(0, 10);
 }
 
+/** Dias mostrados na faixa de datas do feed: 3 antes de hoje até 10 depois. */
+export function diasDaFaixa(hoje: string) {
+  return Array.from({ length: 14 }, (_, i) => shiftDateStr(hoje, i - 3));
+}
+
 export function shiftDateStr(dateStr: string, deltaDays: number) {
   const d = new Date(`${dateStr}T00:00:00${BRT_OFFSET}`);
   d.setUTCDate(d.getUTCDate() + deltaDays);

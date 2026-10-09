@@ -1,4 +1,5 @@
-import { getFeedAgrupado, getFormaRecenteEmLote, todayStr } from "@/lib/partidas";
+import { getDiasComJogo, getFeedAgrupado, getFormaRecenteEmLote, todayStr } from "@/lib/partidas";
+import { diasDaFaixa } from "@/lib/date-utils";
 import { getPatrocinadoresAtivos } from "@/lib/patrocinadores";
 import { getTenantBySlug } from "@/lib/tenant";
 import { DateStrip } from "@/components/partidas/date-strip";
@@ -27,9 +28,11 @@ export default async function HomePage({
   }
 
   const timeIds = grupos.flatMap((g) => g.partidas.flatMap((p) => [p.timeCasaId, p.timeForaId]));
-  const [forma, patrocinadores] = await Promise.all([
+  const faixa = diasDaFaixa(todayStr());
+  const [forma, patrocinadores, diasComJogo] = await Promise.all([
     getFormaRecenteEmLote(tenant.id, timeIds),
     getPatrocinadoresAtivos(tenant.id),
+    getDiasComJogo(tenant.id, faixa[0], faixa[faixa.length - 1]),
   ]);
   const patrocinadoresFeed = patrocinadores.filter((p) => p.nivel !== "MASTER");
 
@@ -38,7 +41,7 @@ export default async function HomePage({
       <PageHeader title="Partidas" />
 
       <div className="flex flex-col gap-3">
-        <DateStrip data={data} vivo={vivo} tenantSlug={tenantSlug} />
+        <DateStrip data={data} vivo={vivo} tenantSlug={tenantSlug} diasComJogo={diasComJogo} />
         <LiveFilterToggle data={data} vivo={vivo} tenantSlug={tenantSlug} />
         <FeedList
           initialGrupos={grupos}
