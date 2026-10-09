@@ -66,3 +66,44 @@ export async function toggleTenantAtivo(id: string, ativo: boolean) {
   // A tela inicial é pré-renderizada no build e lista os tenants ativos.
   revalidatePath("/");
 }
+
+export type ExcluirTenantState = { error?: string } | undefined;
+
+/**
+ * Exclui um tenant e tudo dele. Várias ligações internas são RESTRICT (jogo →
+ * time, opção de enquete → atleta), então a cascata do tenant não basta: apaga
+ * na ordem certa, numa transação (se algo falhar, nada é apagado). Exige
+ * digitar o slug para confirmar.
+ */
+export async function excluirTenant(id: string, _prev: ExcluirTenantState, formData: FormData): Promise<ExcluirTenantState> {
+  await requireSuperAdmin();
+  const tenant = await prisma.tenant.findUnique({ where: { id }, select: { slug: true } });
+  if (!tenant) return { error: "Campeonato não encontrado." };
+  if (String(formData.get("confirmacao") || "").trim() !== tenant.slug) {
+    return { error: `Digite exatamente "${tenant.slug}" para confirmar.` };
+  }
+
+  const doTenant = { where: { tenantId: id } };
+  await prisma.$transaction([
+    prisma.enqueteVoto.deleteMany(doTenant),
+    prisma.enqueteOpcao.deleteMany(doTenant),
+    prisma.enquete.deleteMany(doTenant),
+    prisma.eventoPartida.deleteMany(doTenant),
+    prisma.partida.deleteMany(doTenant),
+    prisma.inscricaoAtleta.deleteMany(doTenant),
+    prisma.solicitacaoTime.deleteMany(doTenant),
+    prisma.atleta.deleteMany(doTenant),
+    prisma.time.deleteMany(doTenant),
+    prisma.grupo.deleteMany(doTenant),
+    prisma.patrocinador.deleteMany(doTenant),
+    prisma.categoria.deleteMany(doTenant),
+    prisma.campeonato.deleteMany(doTenant),
+    prisma.pushSubscription.deleteMany(doTenant),
+    prisma.user.deleteMany(doTenant),
+    prisma.tenant.delete({ where: { id } }),
+  ]);
+
+  revalidatePath("/super-admin");
+  revalidatePath("/");
+  return {};
+}

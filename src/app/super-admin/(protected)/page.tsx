@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toggleTenantAtivo } from "@/lib/actions/super-admin";
+import { ExcluirTenant } from "@/components/super-admin/excluir-tenant";
 
 export default async function SuperAdminDashboard() {
   const tenants = await prisma.tenant.findMany({
@@ -13,7 +14,7 @@ export default async function SuperAdminDashboard() {
   return (
     <div className="flex flex-col gap-3">
       {tenants.map((t) => (
-        <Card key={t.id} className="flex items-center justify-between">
+        <Card key={t.id} className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="font-medium">
               {t.nome} <span className="text-muted">· /{t.slug}</span>
@@ -29,6 +30,7 @@ export default async function SuperAdminDashboard() {
                 {t.ativo ? "Desativar" : "Ativar"}
               </Button>
             </form>
+            <ExcluirTenant id={t.id} slug={t.slug} />
           </div>
         </Card>
       ))}
