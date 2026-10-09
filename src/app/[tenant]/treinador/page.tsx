@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { AtletaManager } from "@/components/times/atleta-manager";
 import { InviteLink } from "@/components/times/invite-link";
 import { InscricoesPendentes } from "@/components/times/inscricoes-pendentes";
+import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
+import { formatDataHoraCurta } from "@/lib/date-utils";
+import { CriarMeuTime } from "@/components/times/criar-meu-time";
 
 export default async function TreinadorPage({
   params,
@@ -16,11 +19,13 @@ export default async function TreinadorPage({
   const userId = session!.user.id;
   const db = getTenantPrisma(session!.user.tenantId!);
 
-  const [times, solicitacoes] = await Promise.all([
+  const [times, solicitacoes, usuario] = await Promise.all([
     db.time.findMany({
       where: { treinadorId: userId },
       include: {
-        categoria: { select: { nome: true } },
+        categoria: {
+          select: { nome: true, campeonato: { select: { inscricoesAbertas: true, inscricoesEncerramEm: true } } },
+        },
         atletas: { orderBy: { numero: "asc" } },
         inscricoes: {
           where: { status: "PENDENTE" },
@@ -32,7 +37,16 @@ export default async function TreinadorPage({
     db.solicitacaoTime.findMany({
       where: { treinadorId: userId, status: "PENDENTE" },
     }),
+    db.user.findUnique({ where: { id: userId }, select: { categoriaConviteId: true } }),
   ]);
+
+  // Veio pelo link de cadastro de uma categoria e ainda não criou o time.
+  const categoriaConvite = usuario?.categoriaConviteId
+    ? await db.categoria.findUnique({ where: { id: usuario.categoriaConviteId }, select: { nome: true } })
+    : null;
+  const criarTime = categoriaConvite && <CriarMeuTime categoriaNome={categoriaConvite.nome} />;
+
+  if (times.length === 0 && criarTime) return criarTime;
 
   if (times.length === 0) {
     return (
@@ -60,6 +74,7 @@ export default async function TreinadorPage({
 
   return (
     <div className="flex flex-col gap-6">
+      {criarTime}
       {times.map((time) => (
         <div key={time.id} className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -67,7 +82,16 @@ export default async function TreinadorPage({
             <Badge variant="accent">{time.categoria.nome}</Badge>
           </div>
           <InscricoesPendentes inscricoes={time.inscricoes} />
-          <InviteLink conviteToken={time.conviteToken} tenantSlug={tenantSlug} />
+          <InviteLink
+            conviteToken={time.conviteToken}
+            tenantSlug={tenantSlug}
+            encerradas={inscricoesEncerradas(time.categoria.campeonato)}
+            encerramEm={
+              time.categoria.campeonato.inscricoesEncerramEm
+                ? formatDataHoraCurta(time.categoria.campeonato.inscricoesEncerramEm)
+                : null
+            }
+          />
           <AtletaManager timeId={time.id} atletas={time.atletas} />
         </div>
       ))}

@@ -12,9 +12,12 @@ import { paths } from "@/lib/tenant-path";
 export default function CadastroForm({
   categorias,
   tenantSlug,
+  conviteTreinador,
 }: {
   categorias: { id: string; nome: string }[];
   tenantSlug: string;
+  /** Código do link de cadastro da categoria: o time é criado depois de entrar. */
+  conviteTreinador?: string;
 }) {
   const [state, formAction, pending] = useActionState(cadastroTreinador, undefined);
   const [querTime, setQuerTime] = useState(false);
@@ -23,6 +26,7 @@ export default function CadastroForm({
     <Card>
       <form action={formAction} className="flex flex-col gap-4">
         <input type="hidden" name="tenantSlug" value={tenantSlug} />
+        {conviteTreinador && <input type="hidden" name="conviteTreinador" value={conviteTreinador} />}
         <div>
           <Label htmlFor="name">Nome completo</Label>
           <Input id="name" name="name" autoComplete="name" required />
@@ -53,17 +57,19 @@ export default function CadastroForm({
           <FieldError errors={state?.fieldErrors?.confirmPassword} />
         </div>
 
-        <label className="flex min-h-11 items-center gap-3 text-sm">
-          <input
-            type="checkbox"
-            checked={querTime}
-            onChange={(e) => setQuerTime(e.target.checked)}
-            className="h-5 w-5 shrink-0 accent-accent"
-          />
-          Quero pedir a criação de um novo time
-        </label>
+        {!conviteTreinador && (
+          <label className="flex min-h-11 items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={querTime}
+              onChange={(e) => setQuerTime(e.target.checked)}
+              className="h-5 w-5 shrink-0 accent-accent"
+            />
+            Quero pedir a criação de um novo time
+          </label>
+        )}
 
-        {querTime && (
+        {!conviteTreinador && querTime && (
           <div className="flex flex-col gap-4 rounded-xl border border-border bg-field p-3">
             <div>
               <Label htmlFor="nomeTime">Nome do time</Label>

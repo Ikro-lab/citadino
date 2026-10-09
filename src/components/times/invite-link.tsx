@@ -5,13 +5,37 @@ import { Copy, Check, MessageCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { paths } from "@/lib/tenant-path";
 
-export function InviteLink({ conviteToken, tenantSlug }: { conviteToken: string; tenantSlug: string }) {
+export function InviteLink({
+  conviteToken,
+  tenantSlug,
+  encerradas = false,
+  encerramEm = null,
+}: {
+  conviteToken: string;
+  tenantSlug: string;
+  /** Inscrições do campeonato fechadas: o link não aceita novos atletas. */
+  encerradas?: boolean;
+  /** Data-limite já formatada, quando o admin definiu uma. */
+  encerramEm?: string | null;
+}) {
   const [copiado, setCopiado] = useState(false);
   const caminho = paths.convite(tenantSlug, conviteToken);
+
+  if (encerradas) {
+    return (
+      <Card className="bg-surface">
+        <p className="text-sm font-semibold">Link de convite para atletas</p>
+        <p className="mt-1 text-sm text-muted">
+          Inscrições encerradas: o link não aceita novos atletas. As inscrições que já chegaram continuam para você aprovar.
+        </p>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-surface">
       <p className="mb-2 text-sm font-semibold">Link de convite para atletas</p>
+      {encerramEm && <p className="-mt-1 mb-2 text-xs font-medium text-accent">Inscrições abertas até {encerramEm}</p>}
       <div className="flex items-center gap-2">
         <input
           readOnly

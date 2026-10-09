@@ -7,6 +7,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
 import { saveUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
+import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
 import type { Posicao } from "@prisma/client";
 
 const InscricaoSchema = z.object({
@@ -26,8 +27,14 @@ export async function criarInscricao(
 ): Promise<InscricaoState> {
   // Rota pública (sem sessão) — o tenant é resolvido a partir do próprio
   // conviteToken (cuid globalmente único), não de um argumento confiável do cliente.
-  const time = await prisma.time.findUnique({ where: { conviteToken } });
+  const time = await prisma.time.findUnique({
+    where: { conviteToken },
+    include: { categoria: { select: { campeonato: { select: { inscricoesAbertas: true, inscricoesEncerramEm: true } } } } },
+  });
   if (!time) return { error: "Link de convite inválido." };
+  if (inscricoesEncerradas(time.categoria.campeonato)) {
+    return { error: "As inscrições deste campeonato estão encerradas. Fale com o seu treinador." };
+  }
 
   const parsed = InscricaoSchema.safeParse({
     nome: formData.get("nome"),

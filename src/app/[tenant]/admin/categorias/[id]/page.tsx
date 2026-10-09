@@ -6,9 +6,12 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
 import {
+  regenerarConviteTreinador,
   updateCategoria,
   uploadRegulamentoCategoria,
 } from "@/lib/actions/categorias";
+import { ConviteTreinadorLink } from "@/components/times/convite-treinador-link";
+import { paths } from "@/lib/tenant-path";
 import { createGrupo, deleteGrupo, atribuirGrupoDoTime } from "@/lib/actions/grupos";
 
 export default async function EditarCategoriaPage({
@@ -82,6 +85,25 @@ export default async function EditarCategoriaPage({
           <div className="sm:col-span-2">
             <Button type="submit">Salvar</Button>
           </div>
+        </form>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 font-semibold">Link de cadastro de treinadores</h2>
+        <p className="mb-3 text-xs text-muted">
+          Mande para os treinadores desta categoria. Cada um cria a conta (e-mail e senha) e, ao entrar, cadastra o nome
+          e o escudo do time, que já fica em {categoria.nome}.
+        </p>
+        {categoria.conviteTreinadorToken && (
+          <ConviteTreinadorLink
+            caminho={paths.cadastroConvite(tenantSlug, categoria.conviteTreinadorToken)}
+            categoriaNome={categoria.nome}
+          />
+        )}
+        <form action={regenerarConviteTreinador.bind(null, id)} className="mt-3">
+          <Button type="submit" size="sm" variant="secondary">
+            {categoria.conviteTreinadorToken ? "Gerar novo link (o atual para de funcionar)" : "Gerar link"}
+          </Button>
         </form>
       </Card>
 

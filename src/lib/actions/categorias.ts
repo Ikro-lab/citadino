@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { saveUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
+import { randomBytes } from "crypto";
 import type { FormatoDisputa } from "@prisma/client";
 
 export async function createCategoria(formData: FormData) {
@@ -47,6 +48,14 @@ export async function uploadRegulamentoCategoria(id: string, formData: FormData)
   await db.categoria.update({ where: { id }, data: { regulamentoUrl: url } });
   revalidatePath(paths.admin.categoria(session.user.tenantSlug!, id));
   revalidatePath(paths.classificacao(session.user.tenantSlug!));
+}
+
+/** Troca o link de cadastro de treinadores: o anterior deixa de funcionar. */
+export async function regenerarConviteTreinador(id: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.categoria.update({ where: { id }, data: { conviteTreinadorToken: randomBytes(12).toString("hex") } });
+  revalidatePath(paths.admin.categoria(session.user.tenantSlug!, id));
 }
 
 export async function deleteCategoria(id: string) {

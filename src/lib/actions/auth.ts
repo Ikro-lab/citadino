@@ -87,6 +87,21 @@ export async function cadastroTreinador(
 
   const tenant = await getTenantBySlug(tenantSlug);
 
+  // Cadastro pelo link de uma categoria: o treinador cria o time depois de
+  // entrar, e ele nasce nessa categoria (sem pedido de aprovação).
+  const conviteTreinador = String(formData.get("conviteTreinador") || "");
+  let categoriaConviteId: string | null = null;
+  if (conviteTreinador) {
+    const categoria = await prisma.categoria.findUnique({
+      where: { conviteTreinadorToken: conviteTreinador },
+      select: { id: true, tenantId: true, campeonato: { select: { ativo: true } } },
+    });
+    if (!categoria || categoria.tenantId !== tenant.id || !categoria.campeonato.ativo) {
+      return { error: "Este link de cadastro não é mais válido. Peça um novo ao organizador." };
+    }
+    categoriaConviteId = categoria.id;
+  }
+
   const existing = await prisma.user.findUnique({
     where: { tenantId_email: { tenantId: tenant.id, email } },
   });
@@ -97,10 +112,10 @@ export async function cadastroTreinador(
   const passwordHash = await bcrypt.hash(password, 10);
 
   const user = await prisma.user.create({
-    data: { name, email, passwordHash, role: "TREINADOR", tenantId: tenant.id },
+    data: { name, email, passwordHash, role: "TREINADOR", tenantId: tenant.id, categoriaConviteId },
   });
 
-  if (nomeTime) {
+  if (nomeTime && !categoriaConviteId) {
     await prisma.solicitacaoTime.create({
       data: {
         tenantId: tenant.id,

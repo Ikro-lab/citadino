@@ -8,11 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DeleteButton } from "@/components/ui/delete-button";
 import {
+  alternarInscricoes,
   createCampeonato,
+  definirPrazoInscricoes,
   deleteCampeonato,
   toggleCampeonatoAtivo,
   uploadRegulamentoCampeonato,
 } from "@/lib/actions/campeonatos";
+import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
+import { formatDataHoraCurta, formatDatetimeLocalBRT } from "@/lib/date-utils";
 
 export default async function CampeonatosPage({
   params,
@@ -65,6 +69,40 @@ export default async function CampeonatosPage({
                 </form>
                 <DeleteButton action={deleteCampeonato.bind(null, c.id)} />
               </div>
+            </div>
+
+            <div className="flex flex-col gap-3 border-t border-border pt-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium">Inscrições de atletas</span>
+                <Badge variant={inscricoesEncerradas(c) ? "danger" : "success"}>
+                  {inscricoesEncerradas(c) ? "Encerradas" : "Abertas"}
+                </Badge>
+                <form action={alternarInscricoes.bind(null, c.id, inscricoesEncerradas(c))}>
+                  <Button type="submit" variant="secondary" size="sm">
+                    {inscricoesEncerradas(c) ? "Abrir inscrições" : "Fechar inscrições"}
+                  </Button>
+                </form>
+              </div>
+              <form action={definirPrazoInscricoes.bind(null, c.id)} className="flex flex-wrap items-end gap-2">
+                <div className="min-w-0 flex-1">
+                  <Label htmlFor={`prazo-${c.id}`}>Fecham sozinhas em (opcional)</Label>
+                  <Input
+                    id={`prazo-${c.id}`}
+                    name="encerramEm"
+                    type="datetime-local"
+                    defaultValue={c.inscricoesEncerramEm ? formatDatetimeLocalBRT(c.inscricoesEncerramEm) : ""}
+                  />
+                </div>
+                <Button type="submit" size="sm" variant="secondary">
+                  Salvar prazo
+                </Button>
+              </form>
+              <p className="text-xs text-muted">
+                {c.inscricoesEncerramEm
+                  ? `Prazo: ${formatDataHoraCurta(c.inscricoesEncerramEm)}. Para tirar o prazo, apague a data e salve.`
+                  : "Sem prazo: o link de convite aceita inscrições até você fechar."}{" "}
+                Fechadas, os links dos times mostram “Inscrições encerradas”.
+              </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">

@@ -3,6 +3,8 @@ import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
 import InscricaoForm from "./inscricao-form";
+import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
+import { formatDataHoraCurta } from "@/lib/date-utils";
 
 export default async function ConvitePage({
   params,
@@ -15,10 +17,17 @@ export default async function ConvitePage({
 
   const time = await db.time.findUnique({
     where: { conviteToken: token },
-    include: { categoria: { select: { nome: true } } },
+    include: {
+      categoria: {
+        select: { nome: true, campeonato: { select: { inscricoesAbertas: true, inscricoesEncerramEm: true } } },
+      },
+    },
   });
 
   if (!time) notFound();
+
+  const campeonato = time.categoria.campeonato;
+  const encerradas = inscricoesEncerradas(campeonato);
 
   return (
     <div className="mx-auto max-w-sm px-4 py-10">
@@ -27,16 +36,33 @@ export default async function ConvitePage({
         {time.nome} · {time.categoria.nome}
       </p>
 
-      <Card className="mb-4 bg-accent-soft">
-        <p className="text-xs text-muted">
-          Seus documentos são usados apenas para validar a inscrição junto ao
-          treinador/administrador do campeonato e nunca aparecem publicamente.
-          Você pode pedir a exclusão dos seus dados a qualquer momento junto ao
-          administrador.
-        </p>
-      </Card>
+      {encerradas ? (
+        <Card>
+          <p className="font-medium">Inscrições encerradas</p>
+          <p className="mt-1 text-sm text-muted">
+            O prazo de inscrição deste campeonato terminou e este link não aceita novas inscrições. Fale com o seu
+            treinador.
+          </p>
+        </Card>
+      ) : (
+        <>
+          {campeonato.inscricoesEncerramEm && (
+            <p className="mb-3 text-sm font-medium text-accent">
+              Inscrições abertas até {formatDataHoraCurta(campeonato.inscricoesEncerramEm)}
+            </p>
+          )}
+          <Card className="mb-4 bg-accent-soft">
+            <p className="text-xs text-muted">
+              Seus documentos são usados apenas para validar a inscrição junto ao
+              treinador/administrador do campeonato e nunca aparecem publicamente.
+              Você pode pedir a exclusão dos seus dados a qualquer momento junto ao
+              administrador.
+            </p>
+          </Card>
 
-      <InscricaoForm conviteToken={token} />
+          <InscricaoForm conviteToken={token} />
+        </>
+      )}
     </div>
   );
 }

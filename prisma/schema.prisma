@@ -92,6 +92,9 @@ model User {
   email         String
   passwordHash  String
   role          Role     @default(TREINADOR)
+  /// Categoria do link de cadastro usado pelo treinador: depois de entrar ele
+  /// cria o time, que já nasce nela. Limpa quando o time é criado.
+  categoriaConviteId String?
   tenantId      String?
   tenant        Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
@@ -113,6 +116,11 @@ model Campeonato {
   temporada      String
   ativo          Boolean  @default(true)
   regulamentoUrl String?
+  /// Inscrições de atletas pelo link de convite dos times. Fechadas, o link
+  /// mostra "Inscrições encerradas" e o servidor recusa novos envios.
+  inscricoesAbertas    Boolean   @default(true)
+  /// Opcional: as inscrições fecham sozinhas nesta data/hora.
+  inscricoesEncerramEm DateTime?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -169,6 +177,8 @@ model Categoria {
   cartoesParaSuspensao  Int      @default(3)
   jogosSuspensao        Int      @default(1)
   regulamentoUrl        String?
+  /// Link de cadastro de treinadores desta categoria (/{tenant}/cadastro/{token}).
+  conviteTreinadorToken String?  @unique @default(cuid())
   createdAt             DateTime @default(now())
 
   times       Time[]
