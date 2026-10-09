@@ -120,7 +120,7 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
           nome: true,
           escudoUrl: true,
           atletas: {
-            select: { id: true, nome: true, numero: true, posicao: true },
+            select: { id: true, nome: true, numero: true, posicao: true, fotoUrl: true },
             orderBy: { numero: "asc" },
           },
         },
@@ -131,7 +131,7 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
           nome: true,
           escudoUrl: true,
           atletas: {
-            select: { id: true, nome: true, numero: true, posicao: true },
+            select: { id: true, nome: true, numero: true, posicao: true, fotoUrl: true },
             orderBy: { numero: "asc" },
           },
         },
