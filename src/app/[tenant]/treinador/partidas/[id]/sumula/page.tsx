@@ -3,11 +3,7 @@ import { auth } from "@/auth";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { SumulaFormTreinador } from "@/components/partidas/sumula-form-treinador";
 import { SumulaPlacar, EventoRegistrado } from "@/components/partidas/sumula-parts";
-import { VideoUploadButton } from "@/components/partidas/video-upload-button";
-import { getAtletasSuspensosIds } from "@/lib/artilharia";
 
 export default async function TreinadorSumulaPage({
   params,
@@ -43,37 +39,20 @@ export default async function TreinadorSumulaPage({
 
   if (!meuTime) redirect(paths.treinador.partidas(tenantSlug));
 
-  const suspensos = await getAtletasSuspensosIds(session!.user.tenantId!, partida.categoriaId);
-  const atletasDisponiveis = meuTime.atletas.filter((a) => !suspensos.has(a.id));
-  const suspensosDoTime = meuTime.atletas.filter((a) => suspensos.has(a.id));
-
+  // Súmula só para acompanhar: lances e vídeos são lançados pela organização.
   return (
     <div className="flex flex-col gap-6">
       <Card>
         <SumulaPlacar partida={partida} />
       </Card>
 
-      {partida.status === "AO_VIVO" ? (
-        <Card>
-          <h2 className="mb-3 font-semibold">Registrar lance do {meuTime.nome}</h2>
-          {suspensosDoTime.length > 0 && (
-            <p className="mb-3 rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">
-              Suspensos por cartão, fora da lista: {suspensosDoTime.map((a) => a.nome).join(", ")}
-            </p>
-          )}
-          <SumulaFormTreinador partidaId={id} timeId={meuTime.id} atletas={atletasDisponiveis} />
-        </Card>
-      ) : (
-        <EmptyState>Os lances só podem ser lançados enquanto a partida estiver ao vivo.</EmptyState>
-      )}
+      <p className="text-center text-xs text-muted">Os lances da partida são lançados pela organização do campeonato.</p>
 
       <Card>
         <h2 className="mb-3 font-semibold">Lances registrados</h2>
         <div className="flex flex-col gap-2">
           {partida.eventos.map((e) => (
-            <EventoRegistrado key={e.id} evento={e}>
-              {e.timeId === meuTime.id && <VideoUploadButton eventoId={e.id} videoUrl={e.videoUrl} />}
-            </EventoRegistrado>
+            <EventoRegistrado key={e.id} evento={e} />
           ))}
           {partida.eventos.length === 0 && (
             <p className="text-sm text-muted">Nenhum lance registrado ainda.</p>

@@ -41,18 +41,11 @@ export default async function PartidaPage({
     linhasClassificacao = await getClassificacao(tenant.id, partida.categoria.id);
   }
 
-  // Quem pode mexer na escalação/lances pela quadra: admin do campeonato nos
-  // dois times; treinador só no próprio. As ações conferem de novo no servidor.
+  // Lances e escalação pela quadra são só do admin do campeonato (as ações
+  // conferem de novo no servidor).
   const session = await auth();
-  let timesEditaveis: string[] = [];
-  if (session?.user?.tenantSlug === tenantSlug) {
-    const ids = [partida.timeCasa.id, partida.timeFora.id];
-    if (session.user.role === "ADMIN") timesEditaveis = ids;
-    else if (session.user.role === "TREINADOR") {
-      const meus = await db.time.findMany({ where: { id: { in: ids }, treinadorId: session.user.id }, select: { id: true } });
-      timesEditaveis = meus.map((t) => t.id);
-    }
-  }
+  const timesEditaveis =
+    session?.user?.tenantSlug === tenantSlug && session.user.role === "ADMIN" ? [partida.timeCasa.id, partida.timeFora.id] : [];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">

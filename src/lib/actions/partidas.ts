@@ -38,73 +38,25 @@ async function garantirInicioLive(
   return inicio;
 }
 
-export async function assertPodeEditarEvento(eventoId: string) {
+const SO_ORGANIZACAO = "Só a organização do campeonato pode lançar ou editar lances.";
+
+/** Lances (súmula, vídeos, substituições) são só do admin do campeonato. */
+async function exigirAdmin() {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
-  const db = getTenantPrisma(session.user.tenantId!);
-
-  const evento = await db.eventoPartida.findUnique({
-    where: { id: eventoId },
-    select: {
-      partidaId: true,
-      timeId: true,
-      partida: {
-        select: {
-          timeCasaId: true,
-          timeForaId: true,
-          timeCasa: { select: { treinadorId: true } },
-          timeFora: { select: { treinadorId: true } },
-        },
-      },
-    },
-  });
-  if (!evento) throw new Error("Evento não encontrado.");
-  if (session.user.role === "ADMIN") return evento;
-
-  const timeDoTreinador =
-    evento.partida.timeCasa.treinadorId === session.user.id
-      ? evento.partida.timeCasaId
-      : evento.partida.timeFora.treinadorId === session.user.id
-        ? evento.partida.timeForaId
-        : null;
-
-  if (!timeDoTreinador || timeDoTreinador !== evento.timeId) {
-    throw new Error("Você só pode editar eventos do seu próprio time.");
-  }
-  return evento;
+  if (session.user.role !== "ADMIN") throw new Error(SO_ORGANIZACAO);
+  return session;
 }
 
-async function assertPodeLancarEvento(partidaId: string, timeId: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Não autenticado.");
+export async function assertPodeEditarEvento(eventoId: string) {
+  const session = await exigirAdmin();
   const db = getTenantPrisma(session.user.tenantId!);
-  if (session.user.role === "ADMIN") return;
-
-  const partida = await db.partida.findUnique({
-    where: { id: partidaId },
-    select: {
-      status: true,
-      timeCasaId: true,
-      timeForaId: true,
-      timeCasa: { select: { treinadorId: true } },
-      timeFora: { select: { treinadorId: true } },
-    },
+  const evento = await db.eventoPartida.findUnique({
+    where: { id: eventoId },
+    select: { partidaId: true, timeId: true },
   });
-  if (!partida) throw new Error("Partida não encontrada.");
-  if (partida.status !== "AO_VIVO") {
-    throw new Error("Só é possível lançar eventos com a partida ao vivo.");
-  }
-
-  const timeDoTreinador =
-    partida.timeCasa.treinadorId === session.user.id
-      ? partida.timeCasaId
-      : partida.timeFora.treinadorId === session.user.id
-        ? partida.timeForaId
-        : null;
-
-  if (!timeDoTreinador || timeDoTreinador !== timeId) {
-    throw new Error("Você só pode lançar eventos do seu próprio time.");
-  }
+  if (!evento) throw new Error("Evento não encontrado.");
+  return evento;
 }
 
 function parseForm(formData: FormData) {
@@ -235,7 +187,7 @@ export async function addEvento(partidaId: string, formData: FormData) {
 
   if (!tipo || !timeId || Number.isNaN(minuto)) return;
 
-  await assertPodeLancarEvento(partidaId, timeId);
+  await exigirAdmin();
 
   const session = await auth();
   const tenantId = session!.user.tenantId!;
@@ -308,8 +260,7 @@ export async function addEvento(partidaId: string, formData: FormData) {
  * substituição na súmula (aparece em Detalhes e na Linha do tempo).
  */
 export async function substituirAtleta(partidaId: string, timeId: string, saiId: string, entraId: string) {
-  const session = await auth();
-  if (!session?.user) throw new Error("Não autenticado.");
+  const session = await exigirAdmin();
   const tenantId = session.user.tenantId!;
   const tenantSlug = session.user.tenantSlug!;
   const db = getTenantPrisma(tenantId);
@@ -318,8 +269,8 @@ export async function substituirAtleta(partidaId: string, timeId: string, saiId:
   const partida = await db.partida.findUnique({
     where: { id: partidaId },
     include: {
-      timeCasa: { select: { treinadorId: true, atletas: elenco } },
-      timeFora: { select: { treinadorId: true, atletas: elenco } },
+      timeCasa: { select: { atletas: elenco } },
+      timeFora: { select: { atletas: elenco } },
       eventos: {
         where: { tipo: "SUBSTITUICAO", timeId },
         select: { tipo: true, atletaId: true, atletaEntraId: true, createdAt: true },
@@ -331,9 +282,6 @@ export async function substituirAtleta(partidaId: string, timeId: string, saiId:
 
   const ehCasa = timeId === partida.timeCasaId;
   const time = ehCasa ? partida.timeCasa : partida.timeFora;
-  if (session.user.role !== "ADMIN" && time.treinadorId !== session.user.id) {
-    throw new Error("Você só pode mexer na escalação do seu próprio time.");
-  }
   if (partida.status !== "AO_VIVO" && partida.status !== "AGENDADA") {
     throw new Error("A escalação só muda antes ou durante o jogo.");
   }

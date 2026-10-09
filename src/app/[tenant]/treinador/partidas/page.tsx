@@ -41,7 +41,7 @@ export default async function TreinadorPartidasPage({
           partida={p}
           actions={
             <Link href={paths.treinador.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
-              {p.status === "AO_VIVO" ? "Lançar lances" : "Ver súmula"}
+              {p.status === "AO_VIVO" ? "Acompanhar ao vivo" : "Ver súmula"}
             </Link>
           }
         />
