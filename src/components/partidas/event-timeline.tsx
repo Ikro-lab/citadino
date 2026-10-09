@@ -34,14 +34,25 @@ export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe
               </span>
               <div className="min-w-0 flex-1">
                 <p className="font-medium">
-                  {evento.atleta ? (
+                  {evento.tipo === "SUBSTITUICAO" && evento.atleta && evento.atletaEntra ? (
+                    <>
+                      <span className="font-normal text-muted">Sai </span>
+                      <Link href={paths.atleta(tenantSlug, evento.atleta.id)} className="hover:text-accent hover:underline">
+                        {evento.atleta.nome}
+                      </Link>
+                      <span className="font-normal text-muted">, entra </span>
+                      <Link href={paths.atleta(tenantSlug, evento.atletaEntra.id)} className="hover:text-accent hover:underline">
+                        {evento.atletaEntra.nome}
+                      </Link>
+                    </>
+                  ) : evento.atleta ? (
                     <Link href={paths.atleta(tenantSlug, evento.atleta.id)} className="hover:text-accent hover:underline">
                       {evento.atleta.nome}
                     </Link>
                   ) : (
                     label
                   )}
-                  {evento.atleta && (
+                  {evento.atleta && !(evento.tipo === "SUBSTITUICAO" && evento.atletaEntra) && (
                     <span className="ml-1 text-muted tabular-nums">#{evento.atleta.numero}</span>
                   )}
                 </p>

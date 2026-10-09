@@ -1,4 +1,4 @@
-import { Goal, ArrowLeftRight, Circle } from "lucide-react";
+import { Goal, ArrowLeftRight, Circle, Footprints } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** Cartão de árbitro desenhado (em vez de emoji/quadrado genérico). */
@@ -23,6 +23,8 @@ export function EventoIcon({ tipo, className }: { tipo: string; className?: stri
       return <CartaoIcon cor="amarelo" className={className} />;
     case "CARTAO_VERMELHO":
       return <CartaoIcon cor="vermelho" className={className} />;
+    case "ASSISTENCIA":
+      return <Footprints size={16} aria-hidden className={cn("shrink-0 text-accent", className)} />;
     case "SUBSTITUICAO":
       return <ArrowLeftRight size={16} aria-hidden className={cn("shrink-0 text-muted", className)} />;
     default:

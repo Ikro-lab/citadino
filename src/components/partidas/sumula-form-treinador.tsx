@@ -11,6 +11,7 @@ const tipos = [
   { value: "CARTAO_AMARELO", label: "Cartão amarelo" },
   { value: "CARTAO_VERMELHO", label: "Cartão vermelho" },
   { value: "SUBSTITUICAO", label: "Substituição" },
+  { value: "ASSISTENCIA", label: "Assistência" },
 ];
 
 export function SumulaFormTreinador({

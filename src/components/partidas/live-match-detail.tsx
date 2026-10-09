@@ -13,11 +13,13 @@ export function LiveMatchDetail({
   linhasClassificacao,
   tenantSlug,
   abaInicial,
+  timesEditaveis = [],
 }: {
   initial: PartidaDetalhe;
   linhasClassificacao: LinhaClassificacao[];
   tenantSlug: string;
   abaInicial?: AbaPartida;
+  timesEditaveis?: string[];
 }) {
   const [partida, setPartida] = useState(initial);
   const [prevInitial, setPrevInitial] = useState(initial);
@@ -50,6 +52,7 @@ export function LiveMatchDetail({
         linhasClassificacao={linhasClassificacao}
         tenantSlug={tenantSlug}
         abaInicial={abaInicial}
+        timesEditaveis={timesEditaveis}
       />
     </div>
   );

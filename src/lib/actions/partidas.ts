@@ -10,6 +10,7 @@ import { notifyPartidaEvento } from "@/lib/push/notify";
 import { parseDatetimeLocalAsBRT } from "@/lib/date-utils";
 import { extrairYoutubeId, segundoDoLink, youtubeUrlNoSegundo } from "@/lib/youtube";
 import { buscarInicioLiveYoutube } from "@/lib/youtube-live";
+import { VAGAS, escalacaoAtual, minutoDeJogo, type Titulares } from "@/lib/escalacao";
 import type { FasePartida, TipoEvento } from "@prisma/client";
 
 // Quem lança o gol na súmula normalmente registra alguns segundos depois do
@@ -299,6 +300,78 @@ export async function addEvento(partidaId: string, formData: FormData) {
       body: `${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
     });
   }
+}
+
+/**
+ * Troca um jogador em quadra por um do banco, pela quadra da página da partida.
+ * Antes do jogo, só muda os titulares; com o jogo rolando, vira uma
+ * substituição na súmula (aparece em Detalhes e na Linha do tempo).
+ */
+export async function substituirAtleta(partidaId: string, timeId: string, saiId: string, entraId: string) {
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autenticado.");
+  const tenantId = session.user.tenantId!;
+  const tenantSlug = session.user.tenantSlug!;
+  const db = getTenantPrisma(tenantId);
+
+  const elenco = { select: { id: true, posicao: true }, orderBy: { numero: "asc" as const } };
+  const partida = await db.partida.findUnique({
+    where: { id: partidaId },
+    include: {
+      timeCasa: { select: { treinadorId: true, atletas: elenco } },
+      timeFora: { select: { treinadorId: true, atletas: elenco } },
+      eventos: {
+        where: { tipo: "SUBSTITUICAO", timeId },
+        select: { tipo: true, atletaId: true, atletaEntraId: true, createdAt: true },
+      },
+    },
+  });
+  if (!partida) throw new Error("Partida não encontrada.");
+  if (timeId !== partida.timeCasaId && timeId !== partida.timeForaId) throw new Error("Time fora desta partida.");
+
+  const ehCasa = timeId === partida.timeCasaId;
+  const time = ehCasa ? partida.timeCasa : partida.timeFora;
+  if (session.user.role !== "ADMIN" && time.treinadorId !== session.user.id) {
+    throw new Error("Você só pode mexer na escalação do seu próprio time.");
+  }
+  if (partida.status !== "AO_VIVO" && partida.status !== "AGENDADA") {
+    throw new Error("A escalação só muda antes ou durante o jogo.");
+  }
+
+  const titularesJson = ehCasa ? partida.escalacaoCasa : partida.escalacaoFora;
+  const { quadra } = escalacaoAtual(time.atletas, titularesJson, partida.eventos);
+  const vaga = VAGAS.find((v) => quadra[v]?.id === saiId);
+  if (!vaga) throw new Error("Esse atleta não está em quadra.");
+  if (!time.atletas.some((a) => a.id === entraId) || VAGAS.some((v) => quadra[v]?.id === entraId)) {
+    throw new Error("Escolha um atleta do banco.");
+  }
+
+  if (partida.status === "AO_VIVO") {
+    await db.eventoPartida.create({
+      data: {
+        tenantId,
+        partidaId,
+        tipo: "SUBSTITUICAO",
+        timeId,
+        atletaId: saiId,
+        atletaEntraId: entraId,
+        minuto: minutoDeJogo(partida.dataHora),
+        lancadoPorId: session.user.id,
+      },
+    });
+  } else {
+    const titulares: Titulares = {};
+    for (const v of VAGAS) titulares[v] = quadra[v]?.id;
+    titulares[vaga] = entraId;
+    await db.partida.update({
+      where: { id: partidaId },
+      data: ehCasa ? { escalacaoCasa: JSON.stringify(titulares) } : { escalacaoFora: JSON.stringify(titulares) },
+    });
+  }
+
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.treinador.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.partida(tenantSlug, partidaId));
 }
 
 export async function deleteEvento(eventoId: string, partidaId: string) {

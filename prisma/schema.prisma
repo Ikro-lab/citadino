@@ -30,6 +30,7 @@ enum TipoEvento {
   CARTAO_AMARELO
   CARTAO_VERMELHO
   SUBSTITUICAO
+  ASSISTENCIA
   OUTRO
 }
 
@@ -252,7 +253,9 @@ model Atleta {
   time          Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
 
-  eventos       EventoPartida[]
+  eventos       EventoPartida[] @relation("EventoAtleta")
+  /// Substituições em que este atleta entrou em quadra.
+  entradas      EventoPartida[] @relation("EventoAtletaEntra")
   inscricao     InscricaoAtleta?
   votosRecebidos EnqueteOpcao[]
 
@@ -308,6 +311,10 @@ model Partida {
   linkTransmissaoUrl String?
   /// Quando a live do YouTube começou — base para o link do minuto de cada gol.
   transmissaoInicioEm DateTime?
+  /// Titulares escolhidos pelo admin (JSON {GOL, FIXO, ALA_E, ALA_D, PIVO} → atletaId).
+  /// Vazio = escalação provável pela posição. Substituições são aplicadas por cima.
+  escalacaoCasa String?
+  escalacaoFora String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -331,7 +338,10 @@ model EventoPartida {
   timeId      String
   time        Time     @relation(fields: [timeId], references: [id])
   atletaId    String?
-  atleta      Atleta?  @relation(fields: [atletaId], references: [id])
+  atleta      Atleta?  @relation("EventoAtleta", fields: [atletaId], references: [id])
+  /// Na substituição, `atleta` é quem sai e `atletaEntra` quem entra.
+  atletaEntraId String?
+  atletaEntra Atleta?  @relation("EventoAtletaEntra", fields: [atletaEntraId], references: [id])
   descricao   String?
   videoUrl    String?
   lancadoPorId String?

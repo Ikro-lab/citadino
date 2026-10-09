@@ -13,13 +13,14 @@ export const statusPartida: Record<
   ADIADA: { label: "Adiada", variant: "danger" },
 };
 
-export type TipoEvento = "GOL" | "CARTAO_AMARELO" | "CARTAO_VERMELHO" | "SUBSTITUICAO" | "OUTRO";
+export type TipoEvento = "GOL" | "CARTAO_AMARELO" | "CARTAO_VERMELHO" | "SUBSTITUICAO" | "ASSISTENCIA" | "OUTRO";
 
 export const tipoEventoLabel: Record<TipoEvento, string> = {
   GOL: "Gol",
   CARTAO_AMARELO: "Cartão amarelo",
   CARTAO_VERMELHO: "Cartão vermelho",
   SUBSTITUICAO: "Substituição",
+  ASSISTENCIA: "Assistência",
   OUTRO: "Lance",
 };
 

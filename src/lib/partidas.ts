@@ -141,6 +141,7 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
         orderBy: { minuto: "asc" },
         include: {
           atleta: { select: { id: true, nome: true, numero: true } },
+          atletaEntra: { select: { id: true, nome: true, numero: true } },
           time: { select: { id: true, nome: true } },
         },
       },
