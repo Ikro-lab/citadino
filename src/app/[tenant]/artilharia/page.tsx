@@ -11,12 +11,14 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 
+const LIMITE_ARTILHARIA = 30;
+
 export default async function ArtilhariaPage({
   params,
   searchParams,
 }: {
   params: Promise<{ tenant: string }>;
-  searchParams: Promise<{ categoria?: string }>;
+  searchParams: Promise<{ categoria?: string; todos?: string }>;
 }) {
   const { tenant: tenantSlug } = await params;
   const tenant = await getTenantBySlug(tenantSlug);
@@ -24,6 +26,11 @@ export default async function ArtilhariaPage({
   const { categoriaId, categorias } = await resolveCategoriaId(tenant.id, sp.categoria);
 
   const linhas = categoriaId ? await getArtilharia(tenant.id, categoriaId) : [];
+  // A lista completa passa de 1MB no fim da temporada (~360 atletas por
+  // categoria) e ocupava o servidor por ~0,4s por visita no teste de carga.
+  // Por padrão só o topo; a lista inteira fica a um toque.
+  const mostrarTodos = sp.todos === "1";
+  const visiveis = mostrarTodos ? linhas : linhas.slice(0, LIMITE_ARTILHARIA);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
@@ -40,7 +47,7 @@ export default async function ArtilhariaPage({
           ) : (
             <Card className="p-0">
               <ul className="divide-y divide-border">
-                {linhas.map((l, i) => (
+                {visiveis.map((l, i) => (
                   <li key={l.atletaId} className="flex items-center justify-between gap-3 px-4 py-3">
                     <div className="flex min-w-0 items-center gap-3">
                       <span className="w-5 shrink-0 text-sm font-semibold text-muted tabular-nums">{i + 1}</span>
@@ -78,6 +85,14 @@ export default async function ArtilhariaPage({
                   </li>
                 ))}
               </ul>
+              {visiveis.length < linhas.length && (
+                <Link
+                  href={`${paths.artilharia(tenantSlug)}?${new URLSearchParams({ categoria: categoriaId!, todos: "1" })}`}
+                  className="block border-t border-border px-4 py-3 text-center text-sm font-semibold text-accent hover:bg-accent-soft"
+                >
+                  Ver todos ({linhas.length})
+                </Link>
+              )}
             </Card>
           )}
         </div>
