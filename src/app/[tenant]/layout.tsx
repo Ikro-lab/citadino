@@ -19,6 +19,9 @@ export async function generateMetadata({
   return {
     title: tenant.nome,
     description: `Acompanhe o ${tenant.nome}: feed de partidas ao vivo, resultados e tabela de classificação.`,
+    // App instalado abre direto neste campeonato (ver [tenant]/manifest.webmanifest).
+    manifest: `/${tenant.slug}/manifest.webmanifest`,
+    appleWebApp: { capable: true, statusBarStyle: "default", title: tenant.nome },
   };
 }
 
