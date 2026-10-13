@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { FotoInput } from "@/components/ui/foto-input";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { FormError } from "@/components/ui/form-error";
-import { createAtleta, updateAtleta, deleteAtleta } from "@/lib/actions/atletas";
+import { createAtleta, updateAtleta, deleteAtleta, type UpdateAtletaState } from "@/lib/actions/atletas";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { paths } from "@/lib/tenant-path";
 import { posicaoLabel, posicoes } from "@/lib/labels";
@@ -86,27 +86,49 @@ function CamposAtleta({ prefixo, atleta }: { prefixo: string; atleta?: Atleta })
   );
 }
 
+function EditarAtleta({ atleta, timeId, onFechar }: { atleta: Atleta; timeId: string; onFechar: () => void }) {
+  const [state, formAction, pending] = useActionState(
+    async (prev: UpdateAtletaState, formData: FormData) => {
+      const res = await updateAtleta(atleta.id, timeId, prev, formData);
+      if (res?.ok) onFechar();
+      return res;
+    },
+    undefined
+  );
+
+  return (
+    <form action={formAction} className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-field p-3">
+      <CamposAtleta prefixo={atleta.id} atleta={atleta} />
+      <div>
+        <Label htmlFor={`${atleta.id}-foto`}>Foto de perfil</Label>
+        <div className="flex items-center gap-3">
+          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={48} />
+          <div className="min-w-0 flex-1">
+            <FotoInput id={`${atleta.id}-foto`} name="foto" accept="image/*" />
+          </div>
+        </div>
+        <p className="mt-1 text-xs text-muted">
+          {atleta.fotoUrl ? "Escolha uma imagem só se quiser trocar a foto atual." : "Atleta sem foto: escolha uma imagem."}
+        </p>
+      </div>
+      <FormError message={state?.error} />
+      <div className="grid grid-cols-2 gap-2 sm:flex">
+        <Button type="submit" disabled={pending}>
+          {pending ? "Salvando..." : "Salvar"}
+        </Button>
+        <Button type="button" variant="secondary" onClick={onFechar} disabled={pending}>
+          Cancelar
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 function AtletaRow({ atleta, timeId, tenantSlug }: { atleta: Atleta; timeId: string; tenantSlug: string }) {
   const [editando, setEditando] = useState(false);
 
   if (editando) {
-    return (
-      <form
-        action={async (formData) => {
-          await updateAtleta(atleta.id, timeId, formData);
-          setEditando(false);
-        }}
-        className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-field p-3"
-      >
-        <CamposAtleta prefixo={atleta.id} atleta={atleta} />
-        <div className="grid grid-cols-2 gap-2 sm:flex">
-          <Button type="submit">Salvar</Button>
-          <Button type="button" variant="secondary" onClick={() => setEditando(false)}>
-            Cancelar
-          </Button>
-        </div>
-      </form>
-    );
+    return <EditarAtleta atleta={atleta} timeId={timeId} onFechar={() => setEditando(false)} />;
   }
 
   return (

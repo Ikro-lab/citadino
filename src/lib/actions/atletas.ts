@@ -90,11 +90,14 @@ export async function createAtleta(
   revalidateTimeViews(tenantSlug, timeId);
 }
 
+export type UpdateAtletaState = { error?: string; ok?: boolean } | undefined;
+
 export async function updateAtleta(
   atletaId: string,
   timeId: string,
+  _prevState: UpdateAtletaState,
   formData: FormData
-) {
+): Promise<UpdateAtletaState> {
   const db = await assertCanManageTime(timeId);
   const session = await auth();
   const tenantSlug = session!.user.tenantSlug!;
@@ -102,17 +105,35 @@ export async function updateAtleta(
   const nome = String(formData.get("nome") || "").trim();
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
-  const fotoUrl = String(formData.get("fotoUrl") || "").trim() || null;
   const instagram = String(formData.get("instagram") || "").trim() || null;
   const dataNascimentoRaw = String(formData.get("dataNascimento") || "").trim();
   const dataNascimento = dataNascimentoRaw ? new Date(dataNascimentoRaw) : null;
-  if (!nome || !numero || Number.isNaN(numero)) return;
+  if (!nome || !numero || Number.isNaN(numero)) {
+    return { error: "Preencha o nome e o número corretamente." };
+  }
 
-  await db.atleta.update({
-    where: { id: atletaId },
-    data: { nome, numero, posicao, fotoUrl, instagram, dataNascimento },
+  // Foto só muda quando uma nova é enviada; sem arquivo, mantém a atual.
+  let fotoUrl: string | undefined;
+  const foto = formData.get("foto");
+  if (foto instanceof File && foto.size > 0) {
+    if (!foto.type.startsWith("image/")) return { error: "A foto precisa ser uma imagem." };
+    try {
+      fotoUrl = await saveUpload(foto, `atletas/${timeId}`);
+    } catch (e) {
+      return { error: e instanceof Error ? e.message : "Falha ao enviar a foto." };
+    }
+  }
+
+  // timeId no where: o treinador só edita atletas do próprio time.
+  const { count } = await db.atleta.updateMany({
+    where: { id: atletaId, timeId },
+    data: { nome, numero, posicao, instagram, dataNascimento, ...(fotoUrl && { fotoUrl }) },
   });
+  if (count === 0) return { error: "Atleta não encontrado neste time." };
+
   revalidateTimeViews(tenantSlug, timeId);
+  revalidatePath(paths.atleta(tenantSlug, atletaId));
+  return { ok: true };
 }
 
 export async function deleteAtleta(atletaId: string, timeId: string) {
