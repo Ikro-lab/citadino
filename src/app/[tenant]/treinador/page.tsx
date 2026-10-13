@@ -92,7 +92,10 @@ export default async function TreinadorPage({
                 : null
             }
           />
-          <AtletaManager timeId={time.id} atletas={time.atletas} />
+          <AtletaManager
+            timeId={time.id}
+            atletas={time.atletas.map((a) => ({ ...a, documentoUrl: null, comprovanteEnderecoUrl: null }))}
+          />
         </div>
       ))}
     </div>

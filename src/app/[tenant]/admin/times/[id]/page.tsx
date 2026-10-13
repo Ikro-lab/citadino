@@ -75,7 +75,7 @@ export default async function EditarTimePage({
         </form>
       </Card>
 
-      <AtletaManager timeId={time.id} atletas={time.atletas} />
+      <AtletaManager timeId={time.id} atletas={time.atletas} mostrarAnexos />
     </div>
   );
 }

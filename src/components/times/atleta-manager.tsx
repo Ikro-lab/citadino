@@ -23,7 +23,38 @@ type Atleta = {
   fotoUrl: string | null;
   instagram?: string | null;
   dataNascimento?: Date | null;
+  documentoUrl?: string | null;
+  comprovanteEnderecoUrl?: string | null;
 };
+
+/** Links de verificação dos anexos — só renderizado para o admin. */
+function AnexosAtleta({ atleta }: { atleta: Atleta }) {
+  const itens = [
+    { rotulo: "Documento", url: atleta.documentoUrl },
+    { rotulo: "Comprovante", url: atleta.comprovanteEnderecoUrl },
+  ];
+  return (
+    <div className="mt-1 flex flex-wrap gap-1.5">
+      {itens.map(({ rotulo, url }) =>
+        url ? (
+          <a
+            key={rotulo}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent hover:underline"
+          >
+            ✔ {rotulo}
+          </a>
+        ) : (
+          <span key={rotulo} className="rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-500">
+            ✖ Sem {rotulo.toLowerCase()}
+          </span>
+        )
+      )}
+    </div>
+  );
+}
 
 function toDateInputValue(date?: Date | null) {
   if (!date) return "";
@@ -124,7 +155,17 @@ function EditarAtleta({ atleta, timeId, onFechar }: { atleta: Atleta; timeId: st
   );
 }
 
-function AtletaRow({ atleta, timeId, tenantSlug }: { atleta: Atleta; timeId: string; tenantSlug: string }) {
+function AtletaRow({
+  atleta,
+  timeId,
+  tenantSlug,
+  mostrarAnexos,
+}: {
+  atleta: Atleta;
+  timeId: string;
+  tenantSlug: string;
+  mostrarAnexos: boolean;
+}) {
   const [editando, setEditando] = useState(false);
 
   if (editando) {
@@ -133,15 +174,20 @@ function AtletaRow({ atleta, timeId, tenantSlug }: { atleta: Atleta; timeId: str
 
   return (
     <div className="flex items-center justify-between gap-2 rounded-xl border border-border px-3 py-2">
-      <Link href={paths.atleta(tenantSlug, atleta.id)} className="flex min-w-0 items-center gap-3">
-        <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={36} />
+      <div className="flex min-w-0 items-center gap-3">
+        <Link href={paths.atleta(tenantSlug, atleta.id)} className="shrink-0">
+          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={36} />
+        </Link>
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium hover:text-accent">
-            <span className="tabular-nums">#{atleta.numero}</span> {atleta.nome}
-          </p>
-          <p className="text-xs text-muted">{posicaoLabel[atleta.posicao]}</p>
+          <Link href={paths.atleta(tenantSlug, atleta.id)} className="block">
+            <p className="truncate text-sm font-medium hover:text-accent">
+              <span className="tabular-nums">#{atleta.numero}</span> {atleta.nome}
+            </p>
+            <p className="text-xs text-muted">{posicaoLabel[atleta.posicao]}</p>
+          </Link>
+          {mostrarAnexos && <AnexosAtleta atleta={atleta} />}
         </div>
-      </Link>
+      </div>
       <div className="flex shrink-0 items-center gap-1">
         <button
           type="button"
@@ -159,9 +205,12 @@ function AtletaRow({ atleta, timeId, tenantSlug }: { atleta: Atleta; timeId: str
 export function AtletaManager({
   timeId,
   atletas,
+  mostrarAnexos = false,
 }: {
   timeId: string;
   atletas: Atleta[];
+  /** Exibe o status/links de documento e comprovante. Apenas a página do admin liga isto. */
+  mostrarAnexos?: boolean;
 }) {
   const { tenant: tenantSlug } = useParams<{ tenant: string }>();
   const [state, formAction, pending] = useActionState(
@@ -214,7 +263,7 @@ export function AtletaManager({
 
       <div className="flex flex-col gap-2">
         {atletas.map((a) => (
-          <AtletaRow key={a.id} atleta={a} timeId={timeId} tenantSlug={tenantSlug} />
+          <AtletaRow key={a.id} atleta={a} timeId={timeId} tenantSlug={tenantSlug} mostrarAnexos={mostrarAnexos} />
         ))}
         {atletas.length === 0 && (
           <p className="text-sm text-muted">
