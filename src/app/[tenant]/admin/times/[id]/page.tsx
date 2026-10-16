@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AtletaManager } from "@/components/times/atleta-manager";
 import { Escudo } from "@/components/times/escudo";
 import { FotoInput } from "@/components/ui/foto-input";
-import { updateTime } from "@/lib/actions/times";
+import { removerEscudo, updateTime } from "@/lib/actions/times";
 
 export default async function EditarTimePage({
   params,
@@ -62,12 +62,29 @@ export default async function EditarTimePage({
           <div>
             <Label htmlFor="escudo">Escudo</Label>
             <div className="flex items-center gap-3">
-              <Escudo nome={time.nome} escudoUrl={time.escudoUrl} size={44} />
+              <Escudo nome={time.nome} escudoUrl={time.escudoUrl} size={64} className="rounded-md border border-border" />
               <FotoInput id="escudo" name="escudo" accept="image/*" className="flex-1" />
             </div>
             <p className="mt-1 text-xs text-muted">
-              {time.escudoUrl ? "Escolha uma imagem só se quiser trocar o escudo." : "Nenhum escudo ainda: aparecem as iniciais."}
+              {time.escudoUrl
+                ? "Para trocar, escolha a imagem nova e toque em Salvar alterações."
+                : "Nenhum escudo ainda: aparecem as iniciais."}
             </p>
+            {time.escudoUrl && (
+              <div className="mt-2 flex flex-wrap gap-3 text-sm">
+                <a href={`/api/${tenantSlug}/times/${id}/escudo`} className="font-medium text-accent hover:underline">
+                  Baixar escudo
+                </a>
+                <button
+                  type="submit"
+                  formAction={removerEscudo.bind(null, id)}
+                  formNoValidate
+                  className="font-medium text-danger hover:underline"
+                >
+                  Remover escudo
+                </button>
+              </div>
+            )}
           </div>
           <div className="sm:col-span-2">
             <Button type="submit">Salvar alterações</Button>

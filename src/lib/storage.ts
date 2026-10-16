@@ -75,7 +75,14 @@ export async function saveLogoUpload(file: File, subdir: string): Promise<string
 
   let buffer = original;
   try {
-    buffer = Buffer.from(await sharp(original).trim().png().toBuffer());
+    // Logo nunca aparece maior que isso; evita PNG de vários MB vindo de foto.
+    buffer = Buffer.from(
+      await sharp(original)
+        .trim()
+        .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
+        .png()
+        .toBuffer()
+    );
   } catch {
     // formato que o sharp não conseguiu processar (ex: SVG) — usa o original
     const ext = EXT_BY_MIME[file.type] || path.extname(file.name) || ".png";

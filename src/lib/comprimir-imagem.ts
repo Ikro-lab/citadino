@@ -2,6 +2,13 @@
 
 const LADO_MAXIMO = 1600; // px — suficiente para ler um documento e para foto de perfil
 const QUALIDADE_JPEG = 0.8;
+const EXT_POR_TIPO: Record<string, string> = { "image/jpeg": ".jpg", "image/webp": ".webp", "image/png": ".png" };
+
+function temTransparencia(ctx: CanvasRenderingContext2D, largura: number, altura: number) {
+  const pixels = ctx.getImageData(0, 0, largura, altura).data;
+  for (let i = 3; i < pixels.length; i += 4) if (pixels[i] < 255) return true;
+  return false;
+}
 
 /**
  * Reduz uma foto de câmera de celular (3–8MB) para ~200–400KB antes do envio.
@@ -28,13 +35,19 @@ export async function comprimirImagem(file: File): Promise<File> {
     ctx.drawImage(bitmap, 0, 0, largura, altura);
     bitmap.close();
 
+    // JPEG não tem transparência: o fundo transparente de um escudo em PNG
+    // viraria preto. Imagem com transparência vai como WebP (ou PNG, nos
+    // navegadores que não geram WebP) — o tipo real vem do blob.
+    const formato = temTransparencia(ctx, largura, altura) ? "image/webp" : "image/jpeg";
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/jpeg", QUALIDADE_JPEG)
+      canvas.toBlob(resolve, formato, QUALIDADE_JPEG)
     );
     if (!blob || blob.size >= file.size) return file;
 
-    const nome = file.name.replace(/\.[^.]+$/, "") + ".jpg";
-    return new File([blob], nome, { type: "image/jpeg", lastModified: Date.now() });
+    const ext = EXT_POR_TIPO[blob.type];
+    if (!ext) return file;
+    const nome = file.name.replace(/\.[^.]+$/, "") + ext;
+    return new File([blob], nome, { type: blob.type, lastModified: Date.now() });
   } catch {
     // Formato que o navegador não decodifica — envia o original.
     return file;

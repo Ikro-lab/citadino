@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { NovoItem } from "@/components/ui/novo-item";
 import { FotoInput } from "@/components/ui/foto-input";
+import { Escudo } from "@/components/times/escudo";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { DeleteButton } from "@/components/ui/delete-button";
@@ -83,12 +84,15 @@ export default async function TimesPage({
       <div className="flex flex-col gap-2">
         {times.map((t) => (
           <Card key={t.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-medium">{t.nome}</p>
-              <p className="text-xs text-muted">
-                {t.categoria.nome} · {t._count.atletas} atletas ·{" "}
-                {t.treinador ? t.treinador.name : "sem treinador"}
-              </p>
+            <div className="flex items-center gap-3">
+              <Escudo nome={t.nome} escudoUrl={t.escudoUrl} size={40} />
+              <div>
+                <p className="font-medium">{t.nome}</p>
+                <p className="text-xs text-muted">
+                  {t.categoria.nome} · {t._count.atletas} atletas ·{" "}
+                  {t.treinador ? t.treinador.name : "sem treinador"}
+                </p>
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Link

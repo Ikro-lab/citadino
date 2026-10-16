@@ -4,12 +4,14 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
-import { saveUpload } from "@/lib/storage";
+import { saveLogoUpload } from "@/lib/storage";
 import { auth } from "@/auth";
 
 async function escudoEnviado(formData: FormData): Promise<string | null> {
   const arquivo = formData.get("escudo");
-  return arquivo instanceof File && arquivo.size > 0 ? saveUpload(arquivo, "escudos") : null;
+  // Como os logos de patrocinador: recorta a margem vazia e grava em PNG,
+  // mantendo o fundo transparente.
+  return arquivo instanceof File && arquivo.size > 0 ? saveLogoUpload(arquivo, "escudos") : null;
 }
 
 export type CriarMeuTimeState = { error?: string } | undefined;
@@ -78,6 +80,15 @@ export async function updateTime(id: string, formData: FormData) {
     where: { id },
     data: { nome, categoriaId, treinadorId, ...(escudoUrl ? { escudoUrl } : {}) },
   });
+  revalidatePath(paths.admin.times(session.user.tenantSlug!));
+  revalidatePath(paths.admin.time(session.user.tenantSlug!, id));
+}
+
+/** Tira o escudo do time; voltam a aparecer as iniciais. */
+export async function removerEscudo(id: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  await db.time.update({ where: { id }, data: { escudoUrl: null } });
   revalidatePath(paths.admin.times(session.user.tenantSlug!));
   revalidatePath(paths.admin.time(session.user.tenantSlug!, id));
 }
