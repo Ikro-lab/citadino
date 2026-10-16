@@ -1,11 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { saveLogoUpload } from "@/lib/storage";
 import { auth } from "@/auth";
+import { ERRO_TREINADOR_MESMA_CATEGORIA, treinadorTemTimeNaCategoria } from "@/lib/treinador-categoria";
+
+/** Formulários do painel não têm estado: o erro volta na URL (?erro=). */
+function voltarComErro(url: string, mensagem: string): never {
+  redirect(`${url}?erro=${encodeURIComponent(mensagem)}`);
+}
 
 async function escudoEnviado(formData: FormData): Promise<string | null> {
   const arquivo = formData.get("escudo");
@@ -30,6 +37,11 @@ export async function criarMeuTime(_prev: CriarMeuTimeState, formData: FormData)
   if (!user?.categoriaConviteId) return { error: "Sua conta não veio do link de uma categoria. Fale com o organizador." };
   const categoria = await db.categoria.findUnique({ where: { id: user.categoriaConviteId }, select: { id: true } });
   if (!categoria) return { error: "A categoria do seu link não existe mais. Fale com o organizador." };
+  if (await treinadorTemTimeNaCategoria(db, session.user.id, categoria.id)) {
+    await db.user.update({ where: { id: session.user.id }, data: { categoriaConviteId: null } });
+    revalidatePath(paths.treinador.root(session.user.tenantSlug!));
+    return { error: "Você já tem um time nesta categoria. Para outro time, use o link de outra categoria." };
+  }
 
   const nome = String(formData.get("nome") || "").trim();
   if (nome.length < 2) return { error: "Informe o nome do time." };
@@ -58,6 +70,9 @@ export async function createTime(formData: FormData) {
   const categoriaId = String(formData.get("categoriaId") || "");
   const treinadorId = String(formData.get("treinadorId") || "") || null;
   if (!nome || !categoriaId) return;
+  if (treinadorId && (await treinadorTemTimeNaCategoria(db, treinadorId, categoriaId))) {
+    voltarComErro(paths.admin.times(session.user.tenantSlug!), ERRO_TREINADOR_MESMA_CATEGORIA);
+  }
   const escudoUrl = await escudoEnviado(formData);
 
   await db.time.create({
@@ -73,6 +88,9 @@ export async function updateTime(id: string, formData: FormData) {
   const categoriaId = String(formData.get("categoriaId") || "");
   const treinadorId = String(formData.get("treinadorId") || "") || null;
   if (!nome || !categoriaId) return;
+  if (treinadorId && (await treinadorTemTimeNaCategoria(db, treinadorId, categoriaId, id))) {
+    voltarComErro(paths.admin.time(session.user.tenantSlug!, id), ERRO_TREINADOR_MESMA_CATEGORIA);
+  }
   // Sem foto nova, o escudo atual continua.
   const escudoUrl = await escudoEnviado(formData);
 
@@ -98,4 +116,23 @@ export async function deleteTime(id: string) {
   const db = getTenantPrisma(session.user.tenantId!);
   await db.time.delete({ where: { id } });
   revalidatePath(paths.admin.times(session.user.tenantSlug!));
+}
+
+/**
+ * Treinador que já tem conta abre o link de cadastro de outra categoria:
+ * a categoria fica guardada na conta e ele cria o novo time no painel.
+ */
+export async function usarLinkCategoria(token: string) {
+  const session = await auth();
+  if (!session?.user || session.user.role !== "TREINADOR") return;
+  const db = getTenantPrisma(session.user.tenantId!);
+  const categoria = await db.categoria.findFirst({
+    where: { conviteTreinadorToken: token, campeonato: { ativo: true } },
+    select: { id: true },
+  });
+  if (!categoria || (await treinadorTemTimeNaCategoria(db, session.user.id, categoria.id))) return;
+
+  await db.user.update({ where: { id: session.user.id }, data: { categoriaConviteId: categoria.id } });
+  revalidatePath(paths.treinador.root(session.user.tenantSlug!));
+  redirect(paths.treinador.root(session.user.tenantSlug!));
 }

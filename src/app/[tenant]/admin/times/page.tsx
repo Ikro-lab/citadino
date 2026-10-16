@@ -9,16 +9,20 @@ import { FotoInput } from "@/components/ui/foto-input";
 import { Escudo } from "@/components/times/escudo";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form-error";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { createTime, deleteTime } from "@/lib/actions/times";
 
 export default async function TimesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tenant: string }>;
+  searchParams: Promise<{ erro?: string }>;
 }) {
   const { tenant: tenantSlug } = await params;
+  const { erro } = await searchParams;
   const tenant = await getTenantBySlug(tenantSlug);
   const db = getTenantPrisma(tenant.id);
 
@@ -37,7 +41,8 @@ export default async function TimesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <NovoItem titulo="Novo time" aberto={times.length === 0}>
+      <FormError message={erro} />
+      <NovoItem titulo="Novo time" aberto={times.length === 0 || !!erro}>
         {categorias.length === 0 ? (
           <p className="text-sm text-muted">Crie uma categoria antes de adicionar times.</p>
         ) : (
