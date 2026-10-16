@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
+import { ERRO_TREINADOR_MESMA_CATEGORIA, treinadorTemTimeNaCategoria } from "@/lib/treinador-categoria";
 
 export async function aprovarSolicitacao(id: string, formData: FormData) {
   const session = await requireAdmin();
@@ -13,6 +15,9 @@ export async function aprovarSolicitacao(id: string, formData: FormData) {
 
   const solicitacao = await db.solicitacaoTime.findUnique({ where: { id } });
   if (!solicitacao || solicitacao.status !== "PENDENTE") return;
+  if (await treinadorTemTimeNaCategoria(db, solicitacao.treinadorId, categoriaId)) {
+    redirect(`${paths.admin.solicitacoes(session.user.tenantSlug!)}?erro=${encodeURIComponent(ERRO_TREINADOR_MESMA_CATEGORIA)}`);
+  }
 
   await db.$transaction(async (tx) => {
     const time = await tx.time.create({

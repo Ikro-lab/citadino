@@ -4,15 +4,19 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form-error";
 import { Select } from "@/components/ui/input";
 import { aprovarSolicitacao, recusarSolicitacao } from "@/lib/actions/solicitacoes";
 
 export default async function SolicitacoesPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tenant: string }>;
+  searchParams: Promise<{ erro?: string }>;
 }) {
   const { tenant: tenantSlug } = await params;
+  const { erro } = await searchParams;
   const tenant = await getTenantBySlug(tenantSlug);
   const db = getTenantPrisma(tenant.id);
 
@@ -26,6 +30,7 @@ export default async function SolicitacoesPage({
 
   return (
     <div className="flex flex-col gap-3">
+      <FormError message={erro} />
       {solicitacoes.map((s) => (
         <Card key={s.id} className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>

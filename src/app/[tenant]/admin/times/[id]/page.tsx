@@ -6,15 +6,19 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { AtletaManager } from "@/components/times/atleta-manager";
 import { Escudo } from "@/components/times/escudo";
+import { FormError } from "@/components/ui/form-error";
 import { FotoInput } from "@/components/ui/foto-input";
 import { removerEscudo, updateTime } from "@/lib/actions/times";
 
 export default async function EditarTimePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ tenant: string; id: string }>;
+  searchParams: Promise<{ erro?: string }>;
 }) {
   const { tenant: tenantSlug, id } = await params;
+  const { erro } = await searchParams;
   const tenant = await getTenantBySlug(tenantSlug);
   const db = getTenantPrisma(tenant.id);
 
@@ -86,8 +90,9 @@ export default async function EditarTimePage({
               </div>
             )}
           </div>
-          <div className="sm:col-span-2">
-            <Button type="submit">Salvar alterações</Button>
+          <div className="flex flex-col gap-3 sm:col-span-2">
+            <FormError message={erro} />
+            <Button type="submit" className="self-start">Salvar alterações</Button>
           </div>
         </form>
       </Card>
