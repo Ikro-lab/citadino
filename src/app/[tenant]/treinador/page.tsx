@@ -98,6 +98,10 @@ export default async function TreinadorPage({
           />
         </div>
       ))}
+      <p className="text-center text-xs text-muted">
+        Vai treinar times em outras categorias? Abra o link de cadastro de cada categoria (o organizador envia) com esta
+        conta: cada time novo aparece aqui.
+      </p>
     </div>
   );
 }

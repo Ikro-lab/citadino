@@ -100,7 +100,14 @@ export default function CadastroForm({
 
       <p className="mt-4 text-center text-sm text-muted">
         Já tem conta?{" "}
-        <Link href={paths.login(tenantSlug)} className="font-semibold text-accent">
+        <Link
+          href={
+            conviteTreinador
+              ? `${paths.login(tenantSlug)}?callbackUrl=${encodeURIComponent(paths.cadastroConvite(tenantSlug, conviteTreinador))}`
+              : paths.login(tenantSlug)
+          }
+          className="font-semibold text-accent"
+        >
           Entrar
         </Link>
       </p>

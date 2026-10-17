@@ -106,7 +106,11 @@ export async function cadastroTreinador(
     where: { tenantId_email: { tenantId: tenant.id, email } },
   });
   if (existing) {
-    return { error: "Já existe uma conta com este e-mail." };
+    return {
+      error: categoriaConviteId
+        ? "Já existe uma conta com este e-mail. Toque em Entrar e o novo time fica nessa mesma conta."
+        : "Já existe uma conta com este e-mail.",
+    };
   }
 
   const passwordHash = await bcrypt.hash(password, 10);

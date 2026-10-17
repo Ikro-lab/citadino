@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
@@ -17,8 +18,10 @@ async function escudoEnviado(formData: FormData): Promise<string | null> {
 export type CriarMeuTimeState = { error?: string } | undefined;
 
 /**
- * Treinador que entrou pelo link de cadastro de uma categoria cria o próprio
- * time (nome + escudo). A categoria vem da conta dele, não do formulário.
+ * Treinador cria o próprio time (nome + escudo) numa categoria. A categoria vem
+ * do link de cadastro dela (`conviteTreinador`), quando o treinador já logado
+ * abre o link de outra categoria, ou da conta dele, no primeiro acesso.
+ * Assim um mesmo treinador pode ter times em várias categorias.
  */
 export async function criarMeuTime(_prev: CriarMeuTimeState, formData: FormData): Promise<CriarMeuTimeState> {
   const session = await auth();
@@ -26,10 +29,26 @@ export async function criarMeuTime(_prev: CriarMeuTimeState, formData: FormData)
   const tenantId = session.user.tenantId!;
   const db = getTenantPrisma(tenantId);
 
+  const conviteTreinador = String(formData.get("conviteTreinador") || "");
   const user = await db.user.findUnique({ where: { id: session.user.id }, select: { categoriaConviteId: true } });
-  if (!user?.categoriaConviteId) return { error: "Sua conta não veio do link de uma categoria. Fale com o organizador." };
-  const categoria = await db.categoria.findUnique({ where: { id: user.categoriaConviteId }, select: { id: true } });
-  if (!categoria) return { error: "A categoria do seu link não existe mais. Fale com o organizador." };
+  const categoria = conviteTreinador
+    ? await db.categoria.findFirst({
+        where: { conviteTreinadorToken: conviteTreinador, campeonato: { ativo: true } },
+        select: { id: true },
+      })
+    : user?.categoriaConviteId
+      ? await db.categoria.findUnique({ where: { id: user.categoriaConviteId }, select: { id: true } })
+      : null;
+  if (!categoria) {
+    return {
+      error: conviteTreinador
+        ? "Este link de cadastro não é mais válido. Peça um novo ao organizador."
+        : "Abra o link de cadastro da categoria que o organizador te enviou.",
+    };
+  }
+
+  const jaTem = await db.time.findFirst({ where: { categoriaId: categoria.id, treinadorId: session.user.id }, select: { id: true } });
+  if (jaTem) return { error: "Você já tem um time nesta categoria." };
 
   const nome = String(formData.get("nome") || "").trim();
   if (nome.length < 2) return { error: "Informe o nome do time." };
@@ -44,10 +63,13 @@ export async function criarMeuTime(_prev: CriarMeuTimeState, formData: FormData)
   }
 
   await db.time.create({ data: { tenantId, nome, categoriaId: categoria.id, treinadorId: session.user.id, escudoUrl } });
-  await db.user.update({ where: { id: session.user.id }, data: { categoriaConviteId: null } });
+  if (user?.categoriaConviteId === categoria.id) {
+    await db.user.update({ where: { id: session.user.id }, data: { categoriaConviteId: null } });
+  }
 
   revalidatePath(paths.treinador.root(session.user.tenantSlug!));
   revalidatePath(paths.admin.times(session.user.tenantSlug!));
+  if (conviteTreinador) redirect(paths.treinador.root(session.user.tenantSlug!));
   return {};
 }
 

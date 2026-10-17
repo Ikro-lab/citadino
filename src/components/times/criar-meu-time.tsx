@@ -8,17 +8,29 @@ import { FotoInput } from "@/components/ui/foto-input";
 import { FormError } from "@/components/ui/form-error";
 import { criarMeuTime } from "@/lib/actions/times";
 
-/** Primeiro acesso do treinador que veio pelo link de uma categoria. */
-export function CriarMeuTime({ categoriaNome }: { categoriaNome: string }) {
+/**
+ * Treinador cadastra um time na categoria do link que recebeu: no primeiro
+ * acesso ou, já com conta, abrindo o link de outra categoria (`conviteTreinador`).
+ */
+export function CriarMeuTime({
+  categoriaNome,
+  conviteTreinador,
+  titulo = "Cadastre seu time",
+}: {
+  categoriaNome: string;
+  conviteTreinador?: string;
+  titulo?: string;
+}) {
   const [state, formAction, pending] = useActionState(criarMeuTime, undefined);
 
   return (
     <Card>
-      <h2 className="font-semibold">Cadastre seu time</h2>
+      <h2 className="font-semibold">{titulo}</h2>
       <p className="mt-1 mb-4 text-sm text-muted">
         Ele já fica na categoria <span className="font-semibold text-foreground">{categoriaNome}</span>.
       </p>
       <form action={formAction} className="flex flex-col gap-4">
+        {conviteTreinador && <input type="hidden" name="conviteTreinador" value={conviteTreinador} />}
         <div>
           <Label htmlFor="nome">Nome do time</Label>
           <Input id="nome" name="nome" placeholder="Ex: Real Bairro FC" required />
