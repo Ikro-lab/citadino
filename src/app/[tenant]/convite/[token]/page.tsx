@@ -56,11 +56,11 @@ export default async function ConvitePage({
               Seus documentos são usados apenas para validar a inscrição junto ao
               treinador/administrador do campeonato e nunca aparecem publicamente.
               Você pode pedir a exclusão dos seus dados a qualquer momento junto ao
-              administrador.
+              administrador. A foto só aparece no site com a autorização de imagem.
             </p>
           </Card>
 
-          <InscricaoForm conviteToken={token} />
+          <InscricaoForm conviteToken={token} tenantSlug={tenantSlug} />
         </>
       )}
     </div>

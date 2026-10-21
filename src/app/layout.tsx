@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Onest, Barlow_Condensed } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const onest = Onest({
@@ -54,6 +55,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
+        {/* Visitas agregadas, sem cookies (Vercel Web Analytics). */}
+        <Analytics />
       </body>
     </html>
   );

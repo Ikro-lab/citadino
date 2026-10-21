@@ -98,7 +98,7 @@ export default async function TenantLayout({
           tamanho={tenant.patrocinadoresTamanho}
         />
       )}
-      <Assinatura />
+      <Assinatura tenantSlug={tenantSlug} />
       {/* Reserva o espaço da barra inferior fixa (só no celular), uma única vez. */}
       <div aria-hidden className="h-[calc(3.5rem+env(safe-area-inset-bottom))] shrink-0 md:hidden" />
       <BottomNav role={role} tenantSlug={tenantSlug} />

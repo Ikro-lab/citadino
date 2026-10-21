@@ -5,9 +5,11 @@ import * as z from "zod";
 import { prisma } from "@/lib/prisma";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
-import { saveDocumentoPrivado, saveUpload } from "@/lib/storage";
+import { saveDocumentoPrivado, saveFotoAtleta } from "@/lib/storage";
+import { apagarArquivosSemUso, refsDe } from "@/lib/arquivos-atleta";
 import { paths } from "@/lib/tenant-path";
 import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
+import { PRIVACIDADE_VERSAO, ehMenorDeIdade } from "@/lib/privacidade";
 import type { Posicao } from "@prisma/client";
 
 const InscricaoSchema = z.object({
@@ -45,6 +47,29 @@ export async function criarInscricao(
     return { fieldErrors: parsed.error.flatten().fieldErrors };
   }
 
+  const dataNascimento = new Date(parsed.data.dataNascimento);
+  if (Number.isNaN(dataNascimento.getTime()) || dataNascimento > new Date()) {
+    return { fieldErrors: { dataNascimento: ["Data de nascimento inválida."] } };
+  }
+
+  // LGPD: a base legal da inscrição é a execução de política pública (art. 7º, III,
+  // e art. 23), inclusive para menores (Enunciado CD/ANPD 1/2023); por isso o
+  // formulário pede só a ciência da política. O consentimento fica para a imagem:
+  // campo separado, opcional e, para menor, dado pelo responsável (ECA Digital).
+  if (formData.get("aceite") !== "on") {
+    return { fieldErrors: { aceite: ["Confirme que leu a política de privacidade."] } };
+  }
+  const menor = ehMenorDeIdade(dataNascimento);
+  const autorizaImagem = formData.get("aceiteImagem") === "on";
+  const responsavel = String(formData.get("responsavelNome") || "").trim();
+  if (menor && autorizaImagem && responsavel.length < 5) {
+    return {
+      fieldErrors: {
+        responsavelNome: ["Para autorizar a imagem de menor, informe o nome do pai, mãe ou responsável legal."],
+      },
+    };
+  }
+
   const foto = formData.get("foto");
   const documento = formData.get("documento");
   const comprovante = formData.get("comprovanteEndereco");
@@ -62,7 +87,7 @@ export async function criarInscricao(
   let documentoUrl: string;
   let comprovanteEnderecoUrl: string;
   try {
-    fotoUrl = await saveUpload(foto, `inscricoes/${time.id}`);
+    fotoUrl = await saveFotoAtleta(foto, `inscricoes/${time.id}`, autorizaImagem);
     documentoUrl = await saveDocumentoPrivado(documento, `inscricoes/${time.id}`);
     comprovanteEnderecoUrl = await saveDocumentoPrivado(comprovante, `inscricoes/${time.id}`);
   } catch (e) {
@@ -75,11 +100,16 @@ export async function criarInscricao(
       tenantId: time.tenantId,
       timeId: time.id,
       nome: parsed.data.nome,
-      dataNascimento: new Date(parsed.data.dataNascimento),
+      dataNascimento,
       instagram: parsed.data.instagram || null,
       fotoUrl,
       documentoUrl,
       comprovanteEnderecoUrl,
+      aceiteTermoEm: new Date(),
+      aceiteVersao: PRIVACIDADE_VERSAO,
+      aceiteOrigem: menor ? "RESPONSAVEL" : "ATLETA",
+      aceiteResponsavel: menor && responsavel ? responsavel : null,
+      imagemAutorizadaEm: autorizaImagem ? new Date() : null,
     },
   });
 
@@ -129,6 +159,11 @@ export async function aprovarInscricao(id: string, formData: FormData) {
         fotoUrl: inscricao.fotoUrl,
         documentoUrl: inscricao.documentoUrl,
         comprovanteEnderecoUrl: inscricao.comprovanteEnderecoUrl,
+        aceiteTermoEm: inscricao.aceiteTermoEm,
+        aceiteVersao: inscricao.aceiteVersao,
+        aceiteOrigem: inscricao.aceiteOrigem,
+        aceiteResponsavel: inscricao.aceiteResponsavel,
+        imagemAutorizadaEm: inscricao.imagemAutorizadaEm,
         timeId: inscricao.timeId,
       },
     });
@@ -154,10 +189,14 @@ export async function recusarInscricao(id: string) {
 
   await assertPodeGerenciarTime(inscricao.timeId);
 
+  // Recusada, a inscrição não tem mais para que guardar documento e comprovante.
   await db.inscricaoAtleta.update({
     where: { id },
-    data: { status: "RECUSADA", revisadoEm: new Date() },
+    data: { status: "RECUSADA", revisadoEm: new Date(), documentoUrl: null, comprovanteEnderecoUrl: null },
   });
+  await apagarArquivosSemUso(
+    refsDe([{ documentoUrl: inscricao.documentoUrl, comprovanteEnderecoUrl: inscricao.comprovanteEnderecoUrl }])
+  );
 
   revalidatePath(paths.treinador.root(tenantSlug));
   revalidatePath(paths.admin.inscricoes(tenantSlug));

@@ -26,9 +26,10 @@ export function AtletaAvatar({
   size?: number;
   className?: string;
 }) {
-  if (fotoUrl) {
-    // eslint-disable-next-line @next/next/no-img-element
+  // `privado:` = foto sem autorização de imagem: nunca vai para o navegador.
+  if (fotoUrl && !fotoUrl.startsWith("privado:")) {
     return (
+      // eslint-disable-next-line @next/next/no-img-element
       <img
         src={fotoUrl}
         alt={nome}

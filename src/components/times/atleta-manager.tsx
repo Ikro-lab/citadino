@@ -26,6 +26,7 @@ type Atleta = {
   /** Só o fato de existir: a referência do arquivo nunca vai para o navegador. */
   temDocumento?: boolean;
   temComprovante?: boolean;
+  aceiteResponsavel?: string | null;
 };
 
 /** Links de verificação dos anexos — só renderizado para o admin. */
@@ -64,6 +65,7 @@ function toDateInputValue(date?: Date | null) {
 
 /** Campos comuns de cadastro/edição: nº + nome, posição + nascimento, Instagram. */
 function CamposAtleta({ prefixo, atleta }: { prefixo: string; atleta?: Atleta }) {
+  const { tenant: tenantSlug } = useParams<{ tenant: string }>();
   return (
     <>
       <div className="grid grid-cols-[5rem_1fr] gap-3">
@@ -114,6 +116,37 @@ function CamposAtleta({ prefixo, atleta }: { prefixo: string; atleta?: Atleta })
           defaultValue={atleta?.instagram ?? ""}
         />
       </div>
+      <fieldset className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <legend className="px-1 text-sm font-semibold">Autorização de uso de imagem</legend>
+        <p className="text-xs text-muted">
+          Marque só com autorização por escrito do atleta, ou do responsável legal se for menor. Sem ela, a foto fica
+          privada e o site mostra as iniciais. Desmarcar depois revoga a autorização e tira a foto do site.
+        </p>
+        <div>
+          <Label htmlFor={`${prefixo}-responsavel`}>Responsável legal (obrigatório para autorizar menor)</Label>
+          <Input
+            id={`${prefixo}-responsavel`}
+            name="responsavelNome"
+            placeholder="Nome do pai, mãe ou responsável"
+            defaultValue={atleta?.aceiteResponsavel ?? ""}
+          />
+        </div>
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="aceiteImagem"
+            defaultChecked={!!atleta?.fotoUrl && !atleta.fotoUrl.startsWith("privado:")}
+            className="mt-1 size-4 shrink-0"
+          />
+          <span>
+            Autorizado o uso da imagem no perfil público, nos vídeos de gol e na transmissão do YouTube (
+            <a href={tenantSlug ? paths.privacidade(tenantSlug) : "#"} target="_blank" rel="noreferrer" className="text-accent underline">
+              política de privacidade
+            </a>
+            ).
+          </span>
+        </label>
+      </fieldset>
     </>
   );
 }
@@ -248,7 +281,6 @@ export function AtletaManager({
             <Label htmlFor="comprovanteEndereco">Comprovante de endereço</Label>
             <FotoInput id="comprovanteEndereco" name="comprovanteEndereco" accept="image/*,application/pdf" required />
           </div>
-
           <FormError message={state?.error} />
 
           <div className="grid grid-cols-2 gap-2 sm:flex">

@@ -43,6 +43,14 @@ export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] })
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 <a
+                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "foto")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={docLinkClass}
+                >
+                  Ver foto
+                </a>
+                <a
                   href={paths.documento(tenantSlug, "inscricao", inscricao.id, "documento")}
                   target="_blank"
                   rel="noopener noreferrer"
