@@ -8,11 +8,12 @@ export const paths = {
   artilharia: (t: string) => `/${t}/artilharia`,
   enquete: (t: string) => `/${t}/enquete`,
   notificacoes: (t: string) => `/${t}/notificacoes`,
+  privacidade: (t: string) => `/${t}/privacidade`,
   convite: (t: string, token: string) => `/${t}/convite/${token}`,
   atleta: (t: string, id: string) => `/${t}/atleta/${id}`,
   partida: (t: string, id: string) => `/${t}/partida/${id}`,
   /** Documento de atleta servido pela rota autenticada (nunca a URL do arquivo). */
-  documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante") =>
+  documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante" | "foto") =>
     `/api/${t}/documentos/${tipo}/${id}/${campo}`,
   admin: {
     root: (t: string) => `/${t}/admin`,
@@ -30,6 +31,7 @@ export const paths = {
     enquetes: (t: string) => `/${t}/admin/enquetes`,
     patrocinadores: (t: string) => `/${t}/admin/patrocinadores`,
     notificacoes: (t: string) => `/${t}/admin/notificacoes`,
+    privacidade: (t: string) => `/${t}/admin/privacidade`,
   },
   treinador: {
     root: (t: string) => `/${t}/treinador`,

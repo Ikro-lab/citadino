@@ -72,7 +72,10 @@ export default async function AtletaPage({
     }),
   ]);
 
-  const instagramHandle = atleta.instagram?.replace(/^@/, "").trim();
+  // Instagram de menor de idade não aparece: expõe o adolescente a contato de
+  // desconhecidos e pesa contra o melhor interesse (LGPD, art. 14).
+  const menor = atleta.dataNascimento ? calcularIdade(atleta.dataNascimento) < 18 : false;
+  const instagramHandle = menor ? null : atleta.instagram?.replace(/^@/, "").trim();
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">

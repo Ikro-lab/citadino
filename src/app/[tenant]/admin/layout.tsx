@@ -24,6 +24,7 @@ export default async function AdminLayout({
     { href: paths.admin.notificacoes(tenantSlug), label: "Avisos" },
     { href: paths.admin.categorias(tenantSlug), label: "Categorias" },
     { href: paths.admin.campeonatos(tenantSlug), label: "Campeonatos" },
+    { href: paths.admin.privacidade(tenantSlug), label: "Privacidade" },
   ];
 
   return (

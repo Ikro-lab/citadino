@@ -27,11 +27,32 @@ function mix(hex: string, ratio: number) {
   });
 }
 
-/** Preto ou branco — o que der mais contraste em cima da cor base (fórmula de luminância relativa, W3C). */
-function contrastForeground(hex: string) {
+const TEXTO_ESCURO = "#12141c";
+const TEXTO_CLARO = "#ffffff";
+
+/** Luminância relativa do WCAG 2.x (canais linearizados do sRGB). */
+function luminanciaRelativa(hex: string) {
   const { r, g, b } = hexToRgb(hex);
-  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return lum > 0.6 ? "#12141c" : "#ffffff";
+  const lin = (c: number) => {
+    const v = c / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+/** Razão de contraste do WCAG entre duas cores (1 a 21). */
+export function contrastRatio(a: string, b: string) {
+  const [l1, l2] = [luminanciaRelativa(a), luminanciaRelativa(b)].sort((x, y) => y - x);
+  return (l1 + 0.05) / (l2 + 0.05);
+}
+
+/**
+ * Texto escuro ou branco: o que tiver a maior razão de contraste WCAG sobre a
+ * cor base. Para quase todas as cores um dos dois passa de 4,5:1 (WCAG AA);
+ * os tons médios (ex.: #448855) ficam perto de 4,3:1, acima do 3:1 de texto grande.
+ */
+function contrastForeground(hex: string) {
+  return contrastRatio(hex, TEXTO_ESCURO) >= contrastRatio(hex, TEXTO_CLARO) ? TEXTO_ESCURO : TEXTO_CLARO;
 }
 
 export type ColorVariants = {

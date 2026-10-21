@@ -48,15 +48,32 @@ export default async function AdminInscricoesPage({
               {i.time.nome} · {i.time.categoria.nome}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
-                Foto
-              </a>
-              <a href={paths.documento(tenantSlug, "inscricao", i.id, "documento")} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
-                Documento
-              </a>
-              <a href={paths.documento(tenantSlug, "inscricao", i.id, "comprovante")} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
-                Comprovante
-              </a>
+              {(
+                [
+                  ["Foto", "foto", i.fotoUrl],
+                  ["Documento", "documento", i.documentoUrl],
+                  ["Comprovante", "comprovante", i.comprovanteEnderecoUrl],
+                ] as const
+              ).map(([rotulo, campo, ref]) =>
+                ref ? (
+                  <a
+                    key={campo}
+                    href={paths.documento(tenantSlug, "inscricao", i.id, campo)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border"
+                  >
+                    {rotulo}
+                  </a>
+                ) : (
+                  <span key={campo} className="inline-flex h-9 items-center rounded-full px-3.5 text-xs text-muted">
+                    {rotulo} apagado
+                  </span>
+                )
+              )}
+              {!i.imagemAutorizadaEm && (
+                <span className="inline-flex h-9 items-center rounded-full px-3.5 text-xs text-muted">Sem autorização de imagem</span>
+              )}
             </div>
           </div>
 

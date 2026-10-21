@@ -1,7 +1,7 @@
-import { writeFile, mkdir, readFile } from "fs/promises";
+import { writeFile, mkdir, readFile, unlink } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
-import { get, put } from "@vercel/blob";
+import { del, get, put } from "@vercel/blob";
 import sharp from "sharp";
 
 const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
@@ -190,6 +190,87 @@ async function lerArquivoLocal(root: string, relativo: string) {
   } catch {
     return null;
   }
+}
+
+/** Foto/arquivo de atleta guardado sem URL pública (`privado:...`). */
+export function ehRefPrivada(ref: string | null | undefined) {
+  return !!ref && ref.startsWith(PRIVATE_PREFIX);
+}
+
+/**
+ * Salva a foto do atleta no lugar certo para a autorização de imagem:
+ * pública (exibida no site) só com autorização; sem ela, privada.
+ */
+export async function saveFotoAtleta(file: File, subdir: string, publica: boolean) {
+  if (publica) return saveUpload(file, subdir);
+  return saveDocumentoPrivado(file, subdir);
+}
+
+function pathnameDe(ref: string) {
+  if (ref.startsWith(PRIVATE_PREFIX)) return ref.slice(PRIVATE_PREFIX.length);
+  if (ref.startsWith("/uploads/")) return ref.slice("/uploads/".length);
+  return decodeURIComponent(new URL(ref).pathname.replace(/^\//, ""));
+}
+
+/**
+ * Move um arquivo entre o armazenamento público e o privado (autorização de
+ * imagem dada ou revogada). Copia, e só depois apaga o original. Retorna a
+ * nova referência, ou a mesma se o arquivo já está onde deveria.
+ */
+export async function moverArquivo(ref: string, destino: "publico" | "privado"): Promise<string> {
+  if ((destino === "privado") === ehRefPrivada(ref)) return ref;
+  const lido = await lerDocumento(ref);
+  if (!lido) throw new Error("Arquivo original não encontrado.");
+  const buffer =
+    lido.body instanceof Uint8Array
+      ? Buffer.from(lido.body)
+      : Buffer.from(await new Response(lido.body).arrayBuffer());
+  const pathname = pathnameDe(ref);
+  const subdir = path.posix.dirname(pathname);
+  const filename = path.posix.basename(pathname);
+  const file = new File([buffer], filename, { type: lido.contentType });
+  const nova =
+    destino === "privado"
+      ? await saveDocumentoPrivado(file, subdir)
+      : await saveBuffer(buffer, lido.contentType, subdir, `${randomUUID()}${path.extname(filename)}`);
+  await apagarArquivos([ref]);
+  return nova;
+}
+
+/**
+ * Apaga arquivos salvos por este módulo: `privado:...` (store privado ou
+ * `.private-uploads`), `/uploads/...` (dev) e URLs do Blob público.
+ *
+ * Melhor esforço: um arquivo que já não existe ou uma falha de rede não
+ * interrompe quem chamou (a linha do banco já foi apagada); só registra no log.
+ * Quem chama garante que nenhuma outra linha ainda usa a referência.
+ */
+export async function apagarArquivos(refs: Iterable<string>) {
+  for (const ref of new Set(refs)) {
+    try {
+      if (ref.startsWith(PRIVATE_PREFIX)) {
+        const pathname = ref.slice(PRIVATE_PREFIX.length);
+        const credencial = credencialPrivada();
+        if (credencial) await del(pathname, credencial);
+        else await apagarArquivoLocal(PRIVATE_ROOT, pathname);
+      } else if (ref.startsWith("/uploads/")) {
+        await apagarArquivoLocal(UPLOAD_ROOT, ref.slice("/uploads/".length));
+      } else {
+        const url = new URL(ref);
+        if (url.protocol === "https:" && PUBLIC_BLOB_HOST.test(url.hostname)) await del(ref);
+      }
+    } catch (e) {
+      console.warn(`[storage] Não foi possível apagar ${ref.slice(0, 80)}:`, e instanceof Error ? e.message : e);
+    }
+  }
+}
+
+async function apagarArquivoLocal(root: string, relativo: string) {
+  const alvo = path.resolve(root, relativo);
+  if (!alvo.startsWith(path.resolve(root) + path.sep)) return; // bloqueia ../
+  await unlink(alvo).catch((e: NodeJS.ErrnoException) => {
+    if (e.code !== "ENOENT") throw e;
+  });
 }
 
 /**

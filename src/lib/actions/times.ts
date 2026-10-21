@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
+import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atleta";
 import { saveLogoUpload } from "@/lib/storage";
 import { auth } from "@/auth";
 
@@ -118,6 +119,12 @@ export async function removerEscudo(id: string) {
 export async function deleteTime(id: string) {
   const session = await requireAdmin();
   const db = getTenantPrisma(session.user.tenantId!);
+  // Atletas e inscrições caem em cascata; os arquivos deles saem junto.
+  const [atletas, inscricoes] = await Promise.all([
+    db.atleta.findMany({ where: { timeId: id }, select: selectArquivos }),
+    db.inscricaoAtleta.findMany({ where: { timeId: id }, select: selectArquivos }),
+  ]);
   await db.time.delete({ where: { id } });
+  await apagarArquivosSemUso(refsDe([...atletas, ...inscricoes]));
   revalidatePath(paths.admin.times(session.user.tenantSlug!));
 }

@@ -7,11 +7,13 @@ import { lerDocumento } from "@/lib/storage";
  * Entrega documento e comprovante de residência de atleta só para quem pode
  * ver: o ADMIN do campeonato (qualquer atleta ou inscrição do tenant) e o
  * TREINADOR dono do time, apenas nas inscrições que ele precisa aprovar —
- * o mesmo que as telas já mostravam a cada um.
+ * o mesmo que as telas já mostravam a cada um. Serve também a foto, que fica
+ * privada quando não há autorização de uso de imagem.
  */
 const CAMPOS = {
   documento: "documentoUrl",
   comprovante: "comprovanteEnderecoUrl",
+  foto: "fotoUrl",
 } as const;
 
 type Campo = keyof typeof CAMPOS;
@@ -40,6 +42,7 @@ export async function GET(
   const select = {
     documentoUrl: true,
     comprovanteEnderecoUrl: true,
+    fotoUrl: true,
     time: { select: { treinadorId: true } },
   } as const;
   const registro =

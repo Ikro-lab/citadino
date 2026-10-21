@@ -66,6 +66,10 @@ model Tenant {
   patrocinadoresAnimados Boolean @default(true)
   patrocinadoresTamanho  TamanhoPatrocinadores @default(MEDIO)
   patrocinadoresPosicao  PosicaoPatrocinadores @default(AMBOS)
+  /// Política de privacidade: órgão controlador (ex.: "Prefeitura de Cidreira, por meio da Secretaria de Esportes").
+  privacidadeOrgao       String?
+  /// E-mail institucional do encarregado de dados do controlador.
+  privacidadeEmail       String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -259,6 +263,19 @@ model Atleta {
   comprovanteEnderecoUrl String?
   dataNascimento DateTime?
   instagram     String?
+  /// Ciência da política de privacidade no formulário público (a base legal da
+  /// inscrição é a política pública, não o consentimento). Nulo em cadastros feitos
+  /// pelo admin/treinador e nos anteriores ao termo.
+  aceiteTermoEm          DateTime?
+  /// Versão da política vista (PRIVACIDADE_VERSAO em src/lib/privacidade.ts).
+  aceiteVersao           String?
+  /// ATLETA, RESPONSAVEL (menor de idade) ou DECLARADO (cadastro feito pelo admin/treinador).
+  aceiteOrigem           String?
+  /// Nome do pai, mãe ou responsável legal que autorizou o uso de imagem, quando o atleta é menor.
+  aceiteResponsavel      String?
+  /// Autorização específica de uso de imagem (perfil público, vídeos de gol, YouTube).
+  /// Sem ela a foto fica no armazenamento privado e o site mostra as iniciais.
+  imagemAutorizadaEm     DateTime?
   timeId        String
   time          Time     @relation(fields: [timeId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
@@ -289,13 +306,27 @@ model InscricaoAtleta {
   dataNascimento          DateTime
   instagram               String?
   fotoUrl                 String
-  documentoUrl            String
-  comprovanteEnderecoUrl  String
+  /// Nulos depois que a organização apaga os documentos (fim da temporada ou inscrição recusada).
+  documentoUrl            String?
+  comprovanteEnderecoUrl  String?
   status                  StatusInscricao @default(PENDENTE)
   atletaId                String?  @unique
   atleta                  Atleta?  @relation(fields: [atletaId], references: [id])
   createdAt               DateTime @default(now())
   revisadoEm              DateTime?
+  /// Ciência da política de privacidade no formulário público (a base legal da
+  /// inscrição é a política pública, não o consentimento). Nulo em cadastros feitos
+  /// pelo admin/treinador e nos anteriores ao termo.
+  aceiteTermoEm          DateTime?
+  /// Versão da política vista (PRIVACIDADE_VERSAO em src/lib/privacidade.ts).
+  aceiteVersao           String?
+  /// ATLETA, RESPONSAVEL (menor de idade) ou DECLARADO (cadastro feito pelo admin/treinador).
+  aceiteOrigem           String?
+  /// Nome do pai, mãe ou responsável legal que autorizou o uso de imagem, quando o atleta é menor.
+  aceiteResponsavel      String?
+  /// Autorização específica de uso de imagem (perfil público, vídeos de gol, YouTube).
+  /// Sem ela a foto fica no armazenamento privado e o site mostra as iniciais.
+  imagemAutorizadaEm     DateTime?
 
   @@index([tenantId])
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atleta";
 import { requireSuperAdmin } from "@/lib/require-role";
 import { isValidTenantSlug } from "@/lib/tenant";
 import { isValidHexColor } from "@/lib/color";
@@ -84,6 +85,10 @@ export async function excluirTenant(id: string, _prev: ExcluirTenantState, formD
   }
 
   const doTenant = { where: { tenantId: id } };
+  const [atletas, inscricoes] = await Promise.all([
+    prisma.atleta.findMany({ ...doTenant, select: selectArquivos }),
+    prisma.inscricaoAtleta.findMany({ ...doTenant, select: selectArquivos }),
+  ]);
   await prisma.$transaction([
     prisma.enqueteVoto.deleteMany(doTenant),
     prisma.enqueteOpcao.deleteMany(doTenant),
@@ -102,6 +107,7 @@ export async function excluirTenant(id: string, _prev: ExcluirTenantState, formD
     prisma.user.deleteMany(doTenant),
     prisma.tenant.delete({ where: { id } }),
   ]);
+  await apagarArquivosSemUso(refsDe([...atletas, ...inscricoes]));
 
   revalidatePath("/super-admin");
   revalidatePath("/");

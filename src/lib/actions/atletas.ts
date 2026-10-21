@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
-import { saveDocumentoPrivado, saveUpload } from "@/lib/storage";
+import { ehRefPrivada, moverArquivo, saveDocumentoPrivado, saveFotoAtleta } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
+import { ehMenorDeIdade } from "@/lib/privacidade";
+import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atleta";
 import type { Posicao } from "@prisma/client";
 
 async function assertCanManageTime(timeId: string) {
@@ -21,6 +23,19 @@ async function assertCanManageTime(timeId: string) {
     throw new Error("Você não tem permissão para gerenciar este time.");
   }
   return db;
+}
+
+/**
+ * Autorização de imagem marcada por quem cadastra (admin/treinador), com base
+ * na autorização por escrito do atleta ou do responsável legal, se menor.
+ */
+function lerAutorizacaoImagem(formData: FormData, dataNascimento: Date | null) {
+  const autoriza = formData.get("aceiteImagem") === "on";
+  const responsavel = String(formData.get("responsavelNome") || "").trim() || null;
+  if (autoriza && dataNascimento && ehMenorDeIdade(dataNascimento) && (!responsavel || responsavel.length < 5)) {
+    return { error: "Atleta menor de idade: informe o responsável legal que autorizou o uso da imagem." } as const;
+  }
+  return { autoriza, responsavel };
 }
 
 function revalidateTimeViews(tenantSlug: string, timeId: string) {
@@ -48,6 +63,12 @@ export async function createAtleta(
   if (!nome || !numero || Number.isNaN(numero)) {
     return { error: "Preencha o nome e o número corretamente." };
   }
+  if (dataNascimento && Number.isNaN(dataNascimento.getTime())) {
+    return { error: "Data de nascimento inválida." };
+  }
+
+  const imagem = lerAutorizacaoImagem(formData, dataNascimento);
+  if ("error" in imagem) return { error: imagem.error };
 
   const foto = formData.get("foto");
   const documento = formData.get("documento");
@@ -66,7 +87,7 @@ export async function createAtleta(
   let documentoUrl: string;
   let comprovanteEnderecoUrl: string;
   try {
-    fotoUrl = await saveUpload(foto, `atletas/${timeId}`);
+    fotoUrl = await saveFotoAtleta(foto, `atletas/${timeId}`, imagem.autoriza);
     documentoUrl = await saveDocumentoPrivado(documento, `atletas/${timeId}`);
     comprovanteEnderecoUrl = await saveDocumentoPrivado(comprovante, `atletas/${timeId}`);
   } catch (e) {
@@ -85,6 +106,9 @@ export async function createAtleta(
       fotoUrl,
       documentoUrl,
       comprovanteEnderecoUrl,
+      aceiteOrigem: "DECLARADO",
+      aceiteResponsavel: imagem.responsavel,
+      imagemAutorizadaEm: imagem.autoriza ? new Date() : null,
     },
   });
   revalidateTimeViews(tenantSlug, timeId);
@@ -112,24 +136,61 @@ export async function updateAtleta(
     return { error: "Preencha o nome e o número corretamente." };
   }
 
-  // Foto só muda quando uma nova é enviada; sem arquivo, mantém a atual.
-  let fotoUrl: string | undefined;
-  const foto = formData.get("foto");
-  if (foto instanceof File && foto.size > 0) {
-    if (!foto.type.startsWith("image/")) return { error: "A foto precisa ser uma imagem." };
-    try {
-      fotoUrl = await saveUpload(foto, `atletas/${timeId}`);
-    } catch (e) {
-      return { error: e instanceof Error ? e.message : "Falha ao enviar a foto." };
-    }
+  if (dataNascimento && Number.isNaN(dataNascimento.getTime())) {
+    return { error: "Data de nascimento inválida." };
   }
+  const imagem = lerAutorizacaoImagem(formData, dataNascimento);
+  if ("error" in imagem) return { error: imagem.error };
 
   // timeId no where: o treinador só edita atletas do próprio time.
-  const { count } = await db.atleta.updateMany({
+  const atual = await db.atleta.findFirst({
     where: { id: atletaId, timeId },
-    data: { nome, numero, posicao, instagram, dataNascimento, ...(fotoUrl && { fotoUrl }) },
+    select: { fotoUrl: true, imagemAutorizadaEm: true },
   });
-  if (count === 0) return { error: "Atleta não encontrado neste time." };
+  if (!atual) return { error: "Atleta não encontrado neste time." };
+
+  // Foto: uma nova substitui a atual; sem arquivo novo, a atual só muda de
+  // lugar se a autorização de imagem foi dada ou revogada.
+  let fotoUrl = atual.fotoUrl;
+  const antiga = atual.fotoUrl;
+  const foto = formData.get("foto");
+  try {
+    if (foto instanceof File && foto.size > 0) {
+      if (!foto.type.startsWith("image/")) return { error: "A foto precisa ser uma imagem." };
+      fotoUrl = await saveFotoAtleta(foto, `atletas/${timeId}`, imagem.autoriza);
+    } else if (fotoUrl) {
+      fotoUrl = await moverArquivo(fotoUrl, imagem.autoriza ? "publico" : "privado");
+    }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Falha ao salvar a foto." };
+  }
+
+  const autorizadaAntes = !!antiga && !ehRefPrivada(antiga);
+  await db.atleta.update({
+    where: { id: atletaId },
+    data: {
+      nome,
+      numero,
+      posicao,
+      instagram,
+      dataNascimento,
+      fotoUrl,
+      aceiteResponsavel: imagem.responsavel,
+      imagemAutorizadaEm: imagem.autoriza ? (autorizadaAntes ? atual.imagemAutorizadaEm ?? new Date() : new Date()) : null,
+    },
+  });
+
+  // Foto que só mudou de lugar: a inscrição de origem aponta para o mesmo arquivo.
+  const novaFoto = foto instanceof File && foto.size > 0;
+  if (antiga && fotoUrl && antiga !== fotoUrl && !novaFoto) {
+    await db.inscricaoAtleta.updateMany({ where: { fotoUrl: antiga }, data: { fotoUrl } });
+  }
+
+  // A foto trocada por um arquivo novo sai do armazenamento, se a inscrição
+  // de origem não a usa mais. (Quando só mudou de lugar, moverArquivo já apagou.)
+  if (antiga && antiga !== fotoUrl && novaFoto) {
+    await apagarArquivosSemUso(new Set([antiga]));
+  }
 
   revalidateTimeViews(tenantSlug, timeId);
   revalidatePath(paths.atleta(tenantSlug, atletaId));
@@ -140,6 +201,17 @@ export async function deleteAtleta(atletaId: string, timeId: string) {
   const db = await assertCanManageTime(timeId);
   const session = await auth();
   const tenantSlug = session!.user.tenantSlug!;
-  await db.atleta.delete({ where: { id: atletaId } });
+  const atleta = await db.atleta.findFirst({ where: { id: atletaId, timeId }, select: selectArquivos });
+  if (!atleta) return;
+
+  // Apagar o atleta apaga também a inscrição de origem e os arquivos dele
+  // (foto, documento, comprovante), que a inscrição compartilha.
+  const refs = await db.$transaction(async (tx) => {
+    const inscricoes = await tx.inscricaoAtleta.findMany({ where: { atletaId }, select: selectArquivos });
+    await tx.inscricaoAtleta.deleteMany({ where: { atletaId } });
+    await tx.atleta.delete({ where: { id: atletaId } });
+    return refsDe([atleta, ...inscricoes]);
+  });
+  await apagarArquivosSemUso(refs);
   revalidateTimeViews(tenantSlug, timeId);
 }
