@@ -63,9 +63,11 @@ export default async function ClassificacaoPage({
       : Promise.resolve([]),
   ]);
 
+  // O admin cria os grupos antes de distribuir os times: grupo vazio ainda não
+  // foi sorteado e não aparece (sem nenhum, a página mostra o aviso de sorteio).
   const linhasPorGrupo = isGruposMataMata
     ? await Promise.all(
-        (categoria?.grupos ?? []).map(async (g) => ({
+        (categoria?.grupos ?? []).filter((g) => g.times.length > 0).map(async (g) => ({
           grupo: g,
           linhas: await getClassificacao(tenant.id, categoriaId!, {
             timeIds: g.times.map((t) => t.id),
