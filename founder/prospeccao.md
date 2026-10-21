@@ -134,7 +134,7 @@ No Litoral Norte gaúcho, as ligas privadas não aparecem em busca pública: fic
 
 ### A ordem desta e da próxima semana
 1. **Antes de qualquer contato:** autorização por escrito de Cidreira para ser citada (`founder/launch.md`).
-2. **Semana de 16/11:** Capão da Canoa e Tramandaí primeiro, por telefone e com visita, porque são médios e vizinhos. Depois Arroio do Sal e Capivari do Sul.
+2. **Semana de 16/11:** Capão da Canoa, Tramandaí e **Osório** primeiro, por telefone e com visita, porque são médios e vizinhos. Osório foi antecipado: a edição de 2027 só começa em agosto, mas o contato agora entra no planejamento do ano, e a transmissão no YouTube que eles já contratam é o melhor gancho da lista. Depois Arroio do Sal e Capivari do Sul.
 3. **Na mesma semana, por DM:** Alto do Taquari, antes da reunião de sorteio de dezembro, e o Citadino de Livramento.
 4. **Dezembro:** Mostardas, Santo Antônio da Patrulha e o planejamento de 2027 de quem disse "agora não".
 5. **Janeiro a março:** Balneário Pinhal, antes da renovação com a Placarsoft, e o Torneio de Verão de Rio do Sul.
