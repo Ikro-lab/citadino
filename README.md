@@ -183,12 +183,30 @@ adapter `@prisma/adapter-libsql`; caso contrário (`file:...`), usam
    - `DATABASE_URL` = a URL `libsql://...` do passo 4
    - `DATABASE_AUTH_TOKEN` = o token do passo 4
    - `AUTH_SECRET`, `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (mesmos valores do `.env`, ou gere novos)
-6. Aplique o schema no banco remoto (rode localmente, apontando para o Turso):
+6. Aplique o schema no banco remoto (rode localmente, com `DATABASE_URL` e
+   `DATABASE_AUTH_TOKEN` do Turso em `.env.production.local`):
    ```bash
-   DATABASE_URL="libsql://..." DATABASE_AUTH_TOKEN="..." npx prisma migrate deploy
+   npx tsx scripts/migrar-producao.ts --aplicar
    DATABASE_URL="libsql://..." DATABASE_AUTH_TOKEN="..." npm run db:seed   # opcional, dados de exemplo
    ```
+   `npx prisma migrate deploy` não serve aqui: o Prisma 7 recusa URL `libsql://`.
 7. Redeploy o projeto na Vercel para o build pegar as novas variáveis.
+
+### Migrations novas em produção
+
+O deploy da Vercel **não aplica migrations**. Se o código que usa uma coluna
+nova chega à master antes da migration chegar ao Turso, o site inteiro dá
+erro 500. Para cada migration nova, **antes do push na master**:
+
+```bash
+npx tsx scripts/migrar-producao.ts             # lista o que falta (não altera nada)
+npx tsx scripts/backup-banco.ts                # com as variáveis do Turso: cópia de segurança
+npx tsx scripts/migrar-producao.ts --aplicar   # aplica e registra em _prisma_migrations
+```
+
+Prefira migrations que só adicionam (coluna opcional, tabela nova): assim o
+código antigo, ainda no ar até o deploy terminar, continua funcionando com o
+banco já migrado.
 
 **Uploads continuam sem funcionar em produção** (documentos de inscrição,
 PDFs de regulamento) pelo mesmo motivo de filesystem somente-leitura — o Turso
