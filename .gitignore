@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# documentos de atleta em dev local (identidade, comprovante): nunca versionar
+/.private-uploads/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

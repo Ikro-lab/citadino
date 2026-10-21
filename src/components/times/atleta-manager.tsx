@@ -23,23 +23,24 @@ type Atleta = {
   fotoUrl: string | null;
   instagram?: string | null;
   dataNascimento?: Date | null;
-  documentoUrl?: string | null;
-  comprovanteEnderecoUrl?: string | null;
+  /** Só o fato de existir: a referência do arquivo nunca vai para o navegador. */
+  temDocumento?: boolean;
+  temComprovante?: boolean;
 };
 
 /** Links de verificação dos anexos — só renderizado para o admin. */
-function AnexosAtleta({ atleta }: { atleta: Atleta }) {
+function AnexosAtleta({ atleta, tenantSlug }: { atleta: Atleta; tenantSlug: string }) {
   const itens = [
-    { rotulo: "Documento", url: atleta.documentoUrl },
-    { rotulo: "Comprovante", url: atleta.comprovanteEnderecoUrl },
+    { rotulo: "Documento", existe: atleta.temDocumento, campo: "documento" as const },
+    { rotulo: "Comprovante", existe: atleta.temComprovante, campo: "comprovante" as const },
   ];
   return (
     <div className="mt-1 flex flex-wrap gap-1.5">
-      {itens.map(({ rotulo, url }) =>
-        url ? (
+      {itens.map(({ rotulo, existe, campo }) =>
+        existe ? (
           <a
             key={rotulo}
-            href={url}
+            href={paths.documento(tenantSlug, "atleta", atleta.id, campo)}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-md bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent hover:underline"
@@ -185,7 +186,7 @@ function AtletaRow({
             </p>
             <p className="text-xs text-muted">{posicaoLabel[atleta.posicao]}</p>
           </Link>
-          {mostrarAnexos && <AnexosAtleta atleta={atleta} />}
+          {mostrarAnexos && <AnexosAtleta atleta={atleta} tenantSlug={tenantSlug} />}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-1">

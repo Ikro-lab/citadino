@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
-import { saveUpload } from "@/lib/storage";
+import { saveDocumentoPrivado, saveUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
 import type { Posicao } from "@prisma/client";
 
@@ -67,8 +67,8 @@ export async function createAtleta(
   let comprovanteEnderecoUrl: string;
   try {
     fotoUrl = await saveUpload(foto, `atletas/${timeId}`);
-    documentoUrl = await saveUpload(documento, `atletas/${timeId}`);
-    comprovanteEnderecoUrl = await saveUpload(comprovante, `atletas/${timeId}`);
+    documentoUrl = await saveDocumentoPrivado(documento, `atletas/${timeId}`);
+    comprovanteEnderecoUrl = await saveDocumentoPrivado(comprovante, `atletas/${timeId}`);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
   }

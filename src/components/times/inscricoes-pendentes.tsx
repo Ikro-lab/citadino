@@ -1,6 +1,8 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
+import { paths } from "@/lib/tenant-path";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { calcularIdade } from "@/lib/utils";
@@ -12,14 +14,13 @@ type Inscricao = {
   nome: string;
   dataNascimento: Date;
   instagram: string | null;
-  documentoUrl: string;
-  comprovanteEnderecoUrl: string;
 };
 
 const docLinkClass =
   "inline-flex h-9 items-center rounded-lg border border-border px-3 text-xs font-semibold hover:bg-field";
 
 export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] }) {
+  const { tenant: tenantSlug } = useParams<{ tenant: string }>();
   if (inscricoes.length === 0) return null;
 
   return (
@@ -41,11 +42,16 @@ export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] })
                 {inscricao.instagram && `, @${inscricao.instagram.replace(/^@/, "")}`}
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
-                <a href={inscricao.documentoUrl} target="_blank" rel="noopener noreferrer" className={docLinkClass}>
+                <a
+                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "documento")}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={docLinkClass}
+                >
                   Ver documento
                 </a>
                 <a
-                  href={inscricao.comprovanteEnderecoUrl}
+                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "comprovante")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={docLinkClass}

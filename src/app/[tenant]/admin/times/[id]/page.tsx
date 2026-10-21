@@ -92,7 +92,15 @@ export default async function EditarTimePage({
         </form>
       </Card>
 
-      <AtletaManager timeId={time.id} atletas={time.atletas} mostrarAnexos />
+      <AtletaManager
+        timeId={time.id}
+        atletas={time.atletas.map(({ documentoUrl, comprovanteEnderecoUrl, ...a }) => ({
+          ...a,
+          temDocumento: Boolean(documentoUrl),
+          temComprovante: Boolean(comprovanteEnderecoUrl),
+        }))}
+        mostrarAnexos
+      />
     </div>
   );
 }

@@ -26,10 +26,12 @@ export default async function TreinadorPage({
         categoria: {
           select: { nome: true, campeonato: { select: { inscricoesAbertas: true, inscricoesEncerramEm: true } } },
         },
-        atletas: { orderBy: { numero: "asc" } },
+        // Documento e comprovante só pela rota autenticada: a referência não vai para a página.
+        atletas: { orderBy: { numero: "asc" }, omit: { documentoUrl: true, comprovanteEnderecoUrl: true } },
         inscricoes: {
           where: { status: "PENDENTE" },
           orderBy: { createdAt: "asc" },
+          omit: { documentoUrl: true, comprovanteEnderecoUrl: true },
         },
       },
       orderBy: { createdAt: "asc" },
@@ -94,7 +96,7 @@ export default async function TreinadorPage({
           />
           <AtletaManager
             timeId={time.id}
-            atletas={time.atletas.map((a) => ({ ...a, documentoUrl: null, comprovanteEnderecoUrl: null }))}
+            atletas={time.atletas}
           />
         </div>
       ))}

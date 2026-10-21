@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { calcularIdade } from "@/lib/utils";
 import { revogarInscricao } from "@/lib/actions/inscricoes";
+import { paths } from "@/lib/tenant-path";
 
 const statusLabel = {
   PENDENTE: "Pendente",
@@ -50,10 +51,10 @@ export default async function AdminInscricoesPage({
               <a href={i.fotoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
                 Foto
               </a>
-              <a href={i.documentoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
+              <a href={paths.documento(tenantSlug, "inscricao", i.id, "documento")} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
                 Documento
               </a>
-              <a href={i.comprovanteEnderecoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
+              <a href={paths.documento(tenantSlug, "inscricao", i.id, "comprovante")} target="_blank" rel="noopener noreferrer" className="inline-flex h-9 items-center rounded-full bg-field px-3.5 text-xs font-semibold hover:bg-border">
                 Comprovante
               </a>
             </div>

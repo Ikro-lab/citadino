@@ -5,7 +5,7 @@ import * as z from "zod";
 import { prisma } from "@/lib/prisma";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
-import { saveUpload } from "@/lib/storage";
+import { saveDocumentoPrivado, saveUpload } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
 import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
 import type { Posicao } from "@prisma/client";
@@ -63,8 +63,8 @@ export async function criarInscricao(
   let comprovanteEnderecoUrl: string;
   try {
     fotoUrl = await saveUpload(foto, `inscricoes/${time.id}`);
-    documentoUrl = await saveUpload(documento, `inscricoes/${time.id}`);
-    comprovanteEnderecoUrl = await saveUpload(comprovante, `inscricoes/${time.id}`);
+    documentoUrl = await saveDocumentoPrivado(documento, `inscricoes/${time.id}`);
+    comprovanteEnderecoUrl = await saveDocumentoPrivado(comprovante, `inscricoes/${time.id}`);
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
   }

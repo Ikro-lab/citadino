@@ -19,8 +19,8 @@ export default async function TreinadorSumulaPage({
     where: { id },
     include: {
       categoria: { select: { nome: true } },
-      timeCasa: { include: { atletas: { orderBy: { numero: "asc" } } } },
-      timeFora: { include: { atletas: { orderBy: { numero: "asc" } } } },
+      timeCasa: { include: { atletas: { orderBy: { numero: "asc" }, omit: { documentoUrl: true, comprovanteEnderecoUrl: true } } } },
+      timeFora: { include: { atletas: { orderBy: { numero: "asc" }, omit: { documentoUrl: true, comprovanteEnderecoUrl: true } } } },
       eventos: {
         orderBy: { minuto: "asc" },
         include: { atleta: true, time: { select: { nome: true } } },

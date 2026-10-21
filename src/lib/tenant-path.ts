@@ -11,6 +11,9 @@ export const paths = {
   convite: (t: string, token: string) => `/${t}/convite/${token}`,
   atleta: (t: string, id: string) => `/${t}/atleta/${id}`,
   partida: (t: string, id: string) => `/${t}/partida/${id}`,
+  /** Documento de atleta servido pela rota autenticada (nunca a URL do arquivo). */
+  documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante") =>
+    `/api/${t}/documentos/${tipo}/${id}/${campo}`,
   admin: {
     root: (t: string) => `/${t}/admin`,
     campeonatos: (t: string) => `/${t}/admin/campeonatos`,
