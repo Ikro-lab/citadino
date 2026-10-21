@@ -3,10 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { auth } from "@/auth";
-import { ehRefPrivada, moverArquivo, saveDocumentoPrivado, saveFotoAtleta } from "@/lib/storage";
+import { apagarArquivos, ehRefPrivada, moverArquivo, saveDocumentoPrivado, saveFotoAtleta } from "@/lib/storage";
 import { paths } from "@/lib/tenant-path";
 import { ehMenorDeIdade } from "@/lib/privacidade";
 import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atleta";
+import { MENSAGEM_NUMERO_REPETIDO, ehNumeroRepetido, numeroOcupado } from "@/lib/numero-camisa";
 import type { Posicao } from "@prisma/client";
 
 async function assertCanManageTime(timeId: string) {
@@ -43,7 +44,7 @@ function revalidateTimeViews(tenantSlug: string, timeId: string) {
   revalidatePath(paths.treinador.root(tenantSlug));
 }
 
-export type CreateAtletaState = { error?: string } | undefined;
+export type CreateAtletaState = { error?: string; ok?: boolean } | undefined;
 
 export async function createAtleta(
   timeId: string,
@@ -70,6 +71,10 @@ export async function createAtleta(
   const imagem = lerAutorizacaoImagem(formData, dataNascimento);
   if ("error" in imagem) return { error: imagem.error };
 
+  // Antes do upload, para não subir arquivos de um cadastro que vai ser recusado.
+  const ocupado = await numeroOcupado(db, timeId, numero);
+  if (ocupado) return { error: ocupado };
+
   const foto = formData.get("foto");
   const documento = formData.get("documento");
   const comprovante = formData.get("comprovanteEndereco");
@@ -94,24 +99,31 @@ export async function createAtleta(
     return { error: e instanceof Error ? e.message : "Falha ao enviar arquivos." };
   }
 
-  await db.atleta.create({
-    data: {
-      tenantId: session!.user.tenantId!,
-      nome,
-      numero,
-      posicao,
-      instagram,
-      dataNascimento,
-      timeId,
-      fotoUrl,
-      documentoUrl,
-      comprovanteEnderecoUrl,
-      aceiteOrigem: "DECLARADO",
-      aceiteResponsavel: imagem.responsavel,
-      imagemAutorizadaEm: imagem.autoriza ? new Date() : null,
-    },
-  });
+  try {
+    await db.atleta.create({
+      data: {
+        tenantId: session!.user.tenantId!,
+        nome,
+        numero,
+        posicao,
+        instagram,
+        dataNascimento,
+        timeId,
+        fotoUrl,
+        documentoUrl,
+        comprovanteEnderecoUrl,
+        aceiteOrigem: "DECLARADO",
+        aceiteResponsavel: imagem.responsavel,
+        imagemAutorizadaEm: imagem.autoriza ? new Date() : null,
+      },
+    });
+  } catch (e) {
+    await apagarArquivos([fotoUrl, documentoUrl, comprovanteEnderecoUrl]);
+    if (ehNumeroRepetido(e)) return { error: MENSAGEM_NUMERO_REPETIDO };
+    throw e;
+  }
   revalidateTimeViews(tenantSlug, timeId);
+  return { ok: true };
 }
 
 export type UpdateAtletaState = { error?: string; ok?: boolean } | undefined;
@@ -148,6 +160,8 @@ export async function updateAtleta(
     select: { fotoUrl: true, imagemAutorizadaEm: true },
   });
   if (!atual) return { error: "Atleta não encontrado neste time." };
+  const ocupado = await numeroOcupado(db, timeId, numero, atletaId);
+  if (ocupado) return { error: ocupado };
 
   // Foto: uma nova substitui a atual; sem arquivo novo, a atual só muda de
   // lugar se a autorização de imagem foi dada ou revogada.
@@ -166,19 +180,24 @@ export async function updateAtleta(
   }
 
   const autorizadaAntes = !!antiga && !ehRefPrivada(antiga);
-  await db.atleta.update({
-    where: { id: atletaId },
-    data: {
-      nome,
-      numero,
-      posicao,
-      instagram,
-      dataNascimento,
-      fotoUrl,
-      aceiteResponsavel: imagem.responsavel,
-      imagemAutorizadaEm: imagem.autoriza ? (autorizadaAntes ? atual.imagemAutorizadaEm ?? new Date() : new Date()) : null,
-    },
-  });
+  try {
+    await db.atleta.update({
+      where: { id: atletaId },
+      data: {
+        nome,
+        numero,
+        posicao,
+        instagram,
+        dataNascimento,
+        fotoUrl,
+        aceiteResponsavel: imagem.responsavel,
+        imagemAutorizadaEm: imagem.autoriza ? (autorizadaAntes ? atual.imagemAutorizadaEm ?? new Date() : new Date()) : null,
+      },
+    });
+  } catch (e) {
+    if (ehNumeroRepetido(e)) return { error: MENSAGEM_NUMERO_REPETIDO };
+    throw e;
+  }
 
   // Foto que só mudou de lugar: a inscrição de origem aponta para o mesmo arquivo.
   const novaFoto = foto instanceof File && foto.size > 0;

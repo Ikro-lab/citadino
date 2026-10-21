@@ -1,13 +1,15 @@
 "use client";
 
+import { useActionState } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { paths } from "@/lib/tenant-path";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FormError } from "@/components/ui/form-error";
 import { calcularIdade } from "@/lib/utils";
 import { posicaoLabel, posicoes } from "@/lib/labels";
-import { aprovarInscricao, recusarInscricao } from "@/lib/actions/inscricoes";
+import { aprovarInscricao, recusarInscricao, type AprovarInscricaoState } from "@/lib/actions/inscricoes";
 
 type Inscricao = {
   id: string;
@@ -30,71 +32,85 @@ export function InscricoesPendentes({ inscricoes }: { inscricoes: Inscricao[] })
       </h2>
       <div className="flex flex-col gap-3">
         {inscricoes.map((inscricao) => (
-          <form
-            key={inscricao.id}
-            action={aprovarInscricao.bind(null, inscricao.id)}
-            className="flex flex-col gap-3 rounded-xl border border-border bg-field p-3"
-          >
-            <div>
-              <p className="font-medium">{inscricao.nome}</p>
-              <p className="text-xs text-muted">
-                {calcularIdade(inscricao.dataNascimento)} anos
-                {inscricao.instagram && `, @${inscricao.instagram.replace(/^@/, "")}`}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <a
-                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "foto")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={docLinkClass}
-                >
-                  Ver foto
-                </a>
-                <a
-                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "documento")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={docLinkClass}
-                >
-                  Ver documento
-                </a>
-                <a
-                  href={paths.documento(tenantSlug, "inscricao", inscricao.id, "comprovante")}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={docLinkClass}
-                >
-                  Ver comprovante
-                </a>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-[5rem_1fr] gap-3">
-              <div>
-                <Label htmlFor={`numero-${inscricao.id}`}>Nº</Label>
-                <Input id={`numero-${inscricao.id}`} name="numero" type="number" min={0} required />
-              </div>
-              <div>
-                <Label htmlFor={`posicao-${inscricao.id}`}>Posição</Label>
-                <Select id={`posicao-${inscricao.id}`} name="posicao" defaultValue="LINHA">
-                  {posicoes.map((p) => (
-                    <option key={p} value={p}>
-                      {posicaoLabel[p]}
-                    </option>
-                  ))}
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 sm:flex">
-              <Button type="submit">Aprovar</Button>
-              <Button type="button" variant="secondary" onClick={() => recusarInscricao(inscricao.id)}>
-                Recusar
-              </Button>
-            </div>
-          </form>
+          <InscricaoPendente key={inscricao.id} inscricao={inscricao} tenantSlug={tenantSlug} />
         ))}
       </div>
     </Card>
+  );
+}
+
+function InscricaoPendente({ inscricao, tenantSlug }: { inscricao: Inscricao; tenantSlug: string }) {
+  const [state, formAction, pending] = useActionState<AprovarInscricaoState, FormData>(
+    aprovarInscricao.bind(null, inscricao.id),
+    undefined
+  );
+
+  return (
+    <form
+      action={formAction}
+      className="flex flex-col gap-3 rounded-xl border border-border bg-field p-3"
+    >
+      <div>
+        <p className="font-medium">{inscricao.nome}</p>
+        <p className="text-xs text-muted">
+          {calcularIdade(inscricao.dataNascimento)} anos
+          {inscricao.instagram && `, @${inscricao.instagram.replace(/^@/, "")}`}
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <a
+            href={paths.documento(tenantSlug, "inscricao", inscricao.id, "foto")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={docLinkClass}
+          >
+            Ver foto
+          </a>
+          <a
+            href={paths.documento(tenantSlug, "inscricao", inscricao.id, "documento")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={docLinkClass}
+          >
+            Ver documento
+          </a>
+          <a
+            href={paths.documento(tenantSlug, "inscricao", inscricao.id, "comprovante")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={docLinkClass}
+          >
+            Ver comprovante
+          </a>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-[5rem_1fr] gap-3">
+        <div>
+          <Label htmlFor={`numero-${inscricao.id}`}>Nº</Label>
+          <Input id={`numero-${inscricao.id}`} name="numero" type="number" min={0} required />
+        </div>
+        <div>
+          <Label htmlFor={`posicao-${inscricao.id}`}>Posição</Label>
+          <Select id={`posicao-${inscricao.id}`} name="posicao" defaultValue="LINHA">
+            {posicoes.map((p) => (
+              <option key={p} value={p}>
+                {posicaoLabel[p]}
+              </option>
+            ))}
+          </Select>
+        </div>
+      </div>
+
+      <FormError message={state?.error} />
+
+      <div className="grid grid-cols-2 gap-2 sm:flex">
+        <Button type="submit" disabled={pending}>
+          {pending ? "Aprovando..." : "Aprovar"}
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => recusarInscricao(inscricao.id)}>
+          Recusar
+        </Button>
+      </div>
+    </form>
   );
 }

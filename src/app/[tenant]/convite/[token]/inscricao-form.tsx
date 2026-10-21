@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FotoInput } from "@/components/ui/foto-input";
 import { FieldError, FormError } from "@/components/ui/form-error";
 import { criarInscricao } from "@/lib/actions/inscricoes";
+import { enviarSemLimpar } from "@/lib/enviar-sem-limpar";
 import { ehMenorDeIdade } from "@/lib/privacidade";
 import { paths } from "@/lib/tenant-path";
 
@@ -33,7 +34,7 @@ export default function InscricaoForm({ conviteToken, tenantSlug }: { conviteTok
 
   return (
     <Card>
-      <form action={formAction} className="flex flex-col gap-4">
+      <form onSubmit={enviarSemLimpar(formAction)} className="flex flex-col gap-4">
         <div>
           <Label htmlFor="nome">Nome completo</Label>
           <Input id="nome" name="nome" autoComplete="name" required />

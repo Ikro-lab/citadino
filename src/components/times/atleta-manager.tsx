@@ -9,9 +9,16 @@ import { Button } from "@/components/ui/button";
 import { FotoInput } from "@/components/ui/foto-input";
 import { DeleteButton } from "@/components/ui/delete-button";
 import { FormError } from "@/components/ui/form-error";
-import { createAtleta, updateAtleta, deleteAtleta, type UpdateAtletaState } from "@/lib/actions/atletas";
+import {
+  createAtleta,
+  updateAtleta,
+  deleteAtleta,
+  type CreateAtletaState,
+  type UpdateAtletaState,
+} from "@/lib/actions/atletas";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { paths } from "@/lib/tenant-path";
+import { enviarSemLimpar } from "@/lib/enviar-sem-limpar";
 import { posicaoLabel, posicoes } from "@/lib/labels";
 import type { Posicao } from "@prisma/client";
 
@@ -162,7 +169,7 @@ function EditarAtleta({ atleta, timeId, onFechar }: { atleta: Atleta; timeId: st
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-field p-3">
+    <form onSubmit={enviarSemLimpar(formAction)} className="flex flex-col gap-3 rounded-xl border border-accent/40 bg-field p-3">
       <CamposAtleta prefixo={atleta.id} atleta={atleta} />
       <div>
         <Label htmlFor={`${atleta.id}-foto`}>Foto de perfil</Label>
@@ -247,11 +254,15 @@ export function AtletaManager({
   mostrarAnexos?: boolean;
 }) {
   const { tenant: tenantSlug } = useParams<{ tenant: string }>();
+  const [adicionando, setAdicionando] = useState(false);
   const [state, formAction, pending] = useActionState(
-    createAtleta.bind(null, timeId),
+    async (prev: CreateAtletaState, formData: FormData) => {
+      const res = await createAtleta(timeId, prev, formData);
+      if (res?.ok) setAdicionando(false);
+      return res;
+    },
     undefined
   );
-  const [adicionando, setAdicionando] = useState(false);
 
   return (
     <Card>
@@ -267,7 +278,7 @@ export function AtletaManager({
       </div>
 
       {adicionando && (
-        <form action={formAction} className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-field p-3">
+        <form onSubmit={enviarSemLimpar(formAction)} className="mb-4 flex flex-col gap-3 rounded-xl border border-border bg-field p-3">
           <CamposAtleta prefixo="novo" />
           <div>
             <Label htmlFor="foto">Foto do atleta</Label>

@@ -9,6 +9,7 @@ import { saveDocumentoPrivado, saveFotoAtleta } from "@/lib/storage";
 import { apagarArquivosSemUso, refsDe } from "@/lib/arquivos-atleta";
 import { paths } from "@/lib/tenant-path";
 import { inscricoesEncerradas } from "@/lib/prazo-inscricoes";
+import { MENSAGEM_NUMERO_REPETIDO, ehNumeroRepetido, numeroOcupado } from "@/lib/numero-camisa";
 import { PRIVACIDADE_VERSAO, ehMenorDeIdade } from "@/lib/privacidade";
 import type { Posicao } from "@prisma/client";
 
@@ -132,7 +133,13 @@ async function assertPodeGerenciarTime(timeId: string) {
   return db;
 }
 
-export async function aprovarInscricao(id: string, formData: FormData) {
+export type AprovarInscricaoState = { error?: string } | undefined;
+
+export async function aprovarInscricao(
+  id: string,
+  _prevState: AprovarInscricaoState,
+  formData: FormData
+): Promise<AprovarInscricaoState> {
   const session = await auth();
   if (!session?.user) throw new Error("Não autenticado.");
   const db = getTenantPrisma(session.user.tenantId!);
@@ -145,34 +152,43 @@ export async function aprovarInscricao(id: string, formData: FormData) {
 
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "") as Posicao;
-  if (!numero || Number.isNaN(numero) || !posicao) return;
+  if (!numero || Number.isNaN(numero) || !posicao) {
+    return { error: "Informe o número e a posição do atleta." };
+  }
+  const ocupado = await numeroOcupado(db, inscricao.timeId, numero);
+  if (ocupado) return { error: ocupado };
 
-  await db.$transaction(async (tx) => {
-    const atleta = await tx.atleta.create({
-      data: {
-        tenantId: session.user.tenantId!,
-        nome: inscricao.nome,
-        numero,
-        posicao,
-        dataNascimento: inscricao.dataNascimento,
-        instagram: inscricao.instagram,
-        fotoUrl: inscricao.fotoUrl,
-        documentoUrl: inscricao.documentoUrl,
-        comprovanteEnderecoUrl: inscricao.comprovanteEnderecoUrl,
-        aceiteTermoEm: inscricao.aceiteTermoEm,
-        aceiteVersao: inscricao.aceiteVersao,
-        aceiteOrigem: inscricao.aceiteOrigem,
-        aceiteResponsavel: inscricao.aceiteResponsavel,
-        imagemAutorizadaEm: inscricao.imagemAutorizadaEm,
-        timeId: inscricao.timeId,
-      },
-    });
+  try {
+    await db.$transaction(async (tx) => {
+      const atleta = await tx.atleta.create({
+        data: {
+          tenantId: session.user.tenantId!,
+          nome: inscricao.nome,
+          numero,
+          posicao,
+          dataNascimento: inscricao.dataNascimento,
+          instagram: inscricao.instagram,
+          fotoUrl: inscricao.fotoUrl,
+          documentoUrl: inscricao.documentoUrl,
+          comprovanteEnderecoUrl: inscricao.comprovanteEnderecoUrl,
+          aceiteTermoEm: inscricao.aceiteTermoEm,
+          aceiteVersao: inscricao.aceiteVersao,
+          aceiteOrigem: inscricao.aceiteOrigem,
+          aceiteResponsavel: inscricao.aceiteResponsavel,
+          imagemAutorizadaEm: inscricao.imagemAutorizadaEm,
+          timeId: inscricao.timeId,
+        },
+      });
 
-    await tx.inscricaoAtleta.update({
-      where: { id },
-      data: { status: "APROVADA", atletaId: atleta.id, revisadoEm: new Date() },
+      await tx.inscricaoAtleta.update({
+        where: { id },
+        data: { status: "APROVADA", atletaId: atleta.id, revisadoEm: new Date() },
+      });
     });
-  });
+  } catch (e) {
+    if (ehNumeroRepetido(e)) return { error: MENSAGEM_NUMERO_REPETIDO };
+    throw e;
+  }
 
   revalidatePath(paths.treinador.root(tenantSlug));
   revalidatePath(paths.admin.inscricoes(tenantSlug));
