@@ -16,6 +16,23 @@ const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
  * autenticada /api/[tenant]/documentos/..., nunca o navegador direto.
  */
 const PRIVATE_ROOT = path.join(process.cwd(), ".private-uploads");
+
+/**
+ * Credencial do store privado. Duas formas, porque a Vercel conecta stores
+ * novos por OIDC (só o ID do store, sem token):
+ * - BLOB_PRIVATE_READ_WRITE_TOKEN: token de leitura e escrita do store privado;
+ * - BLOB_PRIVATE_STORE_ID: ID do store privado, autenticado por OIDC
+ *   (VERCEL_OIDC_TOKEN, presente nos deploys da Vercel).
+ * Passar `token` ou `storeId` explicitamente faz o SDK usar o store privado
+ * mesmo com BLOB_STORE_ID / BLOB_READ_WRITE_TOKEN do store público no ambiente.
+ */
+function credencialPrivada(): { token: string } | { storeId: string } | null {
+  const token = process.env.BLOB_PRIVATE_READ_WRITE_TOKEN?.trim();
+  if (token) return { token };
+  const storeId = process.env.BLOB_PRIVATE_STORE_ID?.trim();
+  if (storeId) return { storeId };
+  return null;
+}
 const PRIVATE_PREFIX = "privado:";
 const PUBLIC_BLOB_HOST = /\.public\.blob\.vercel-storage\.com$/;
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
@@ -77,7 +94,7 @@ export async function saveUpload(file: File, subdir: string): Promise<string> {
 /**
  * Salva um documento sensível (identidade, comprovante) sem URL pública.
  *
- * - Com BLOB_PRIVATE_READ_WRITE_TOKEN (store privado): grava no Blob privado.
+ * - Com o store privado configurado (ver `credencialPrivada`): grava no Blob privado.
  * - Sem token nenhum (dev local): grava em `.private-uploads/`, fora de `public/`.
  * - Só com o token do store público (produção ainda não configurada): mantém o
  *   comportamento antigo, público, e avisa no log — para o cadastro não parar
@@ -96,21 +113,21 @@ export async function saveDocumentoPrivado(file: File, subdir: string): Promise<
   const contentType = file.type || "application/octet-stream";
   const pathname = `${subdir}/${filename}`;
 
-  const privateToken = process.env.BLOB_PRIVATE_READ_WRITE_TOKEN;
-  if (privateToken) {
+  const credencial = credencialPrivada();
+  if (credencial) {
     const blob = await put(pathname, buffer, {
       access: "private",
       contentType,
       addRandomSuffix: false,
-      token: privateToken,
+      ...credencial,
     });
     return `${PRIVATE_PREFIX}${blob.pathname}`;
   }
 
-  if (process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
     console.warn(
-      "[storage] BLOB_PRIVATE_READ_WRITE_TOKEN não configurado: documento salvo em store PÚBLICO. " +
-        "Crie um Blob store privado e configure o token."
+      "[storage] Store privado não configurado (BLOB_PRIVATE_STORE_ID ou BLOB_PRIVATE_READ_WRITE_TOKEN): " +
+        "documento salvo em store PÚBLICO."
     );
     return saveBufferToBlob(buffer, contentType, subdir, filename);
   }
@@ -136,9 +153,9 @@ export async function lerDocumento(
 ): Promise<{ body: ReadableStream<Uint8Array> | Uint8Array; contentType: string } | null> {
   if (ref.startsWith(PRIVATE_PREFIX)) {
     const pathname = ref.slice(PRIVATE_PREFIX.length);
-    const privateToken = process.env.BLOB_PRIVATE_READ_WRITE_TOKEN;
-    if (privateToken) {
-      const result = await get(pathname, { access: "private", token: privateToken });
+    const credencial = credencialPrivada();
+    if (credencial) {
+      const result = await get(pathname, { access: "private", ...credencial });
       if (!result || result.statusCode !== 200) return null;
       return { body: result.stream, contentType: result.blob.contentType };
     }

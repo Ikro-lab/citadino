@@ -9,8 +9,11 @@
  *        # idem e depois apaga os arquivos públicos (faça só depois de conferir
  *        # que os documentos abrem pela tela do admin)
  *
- * Precisa de DATABASE_URL (+ DATABASE_AUTH_TOKEN), BLOB_PRIVATE_READ_WRITE_TOKEN
- * e, para --apagar-publicos, BLOB_READ_WRITE_TOKEN (o do store público).
+ * Precisa de DATABASE_URL (+ DATABASE_AUTH_TOKEN) e da credencial do store privado:
+ *   BLOB_PRIVATE_READ_WRITE_TOKEN, ou BLOB_PRIVATE_STORE_ID + VERCEL_OIDC_TOKEN
+ *   (rode `vercel env pull` para ter um VERCEL_OIDC_TOKEN válido por algumas horas).
+ * Para --apagar-publicos, também a credencial do store público (BLOB_READ_WRITE_TOKEN,
+ * ou BLOB_STORE_ID + VERCEL_OIDC_TOKEN).
  * Faça um backup do banco antes de rodar com --aplicar.
  */
 import "dotenv/config";
@@ -42,10 +45,17 @@ function ehBlobPublico(valor: string | null): valor is string {
 }
 
 async function main() {
-  const privateToken = process.env.BLOB_PRIVATE_READ_WRITE_TOKEN;
-  if (aplicar && !privateToken) throw new Error("Defina BLOB_PRIVATE_READ_WRITE_TOKEN antes de usar --aplicar.");
-  if (apagarPublicos && !process.env.BLOB_READ_WRITE_TOKEN) {
-    throw new Error("Defina BLOB_READ_WRITE_TOKEN (store público) para usar --apagar-publicos.");
+  const privateToken = process.env.BLOB_PRIVATE_READ_WRITE_TOKEN?.trim();
+  const privateStoreId = process.env.BLOB_PRIVATE_STORE_ID?.trim();
+  const credencialPrivada = privateToken ? { token: privateToken } : privateStoreId ? { storeId: privateStoreId } : null;
+  if (aplicar && !credencialPrivada) {
+    throw new Error("Defina BLOB_PRIVATE_READ_WRITE_TOKEN ou BLOB_PRIVATE_STORE_ID antes de usar --aplicar.");
+  }
+  if (privateStoreId && !privateToken && !process.env.VERCEL_OIDC_TOKEN) {
+    throw new Error("BLOB_PRIVATE_STORE_ID precisa de VERCEL_OIDC_TOKEN: rode `vercel env pull` antes.");
+  }
+  if (apagarPublicos && !process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) {
+    throw new Error("Defina a credencial do store público para usar --apagar-publicos.");
   }
 
   const [atletas, inscricoes] = await Promise.all([
@@ -79,7 +89,7 @@ async function main() {
         contentType: res.headers.get("content-type") ?? "application/octet-stream",
         addRandomSuffix: false,
         allowOverwrite: true,
-        token: privateToken,
+        ...credencialPrivada!,
       });
       const ref = `privado:${blob.pathname}`;
 
@@ -93,7 +103,7 @@ async function main() {
         }),
       ]);
 
-      if (apagarPublicos) await del(url, { token: process.env.BLOB_READ_WRITE_TOKEN });
+      if (apagarPublicos) await del(url); // credencial do store público vinda do ambiente
       migrados++;
     } catch (e) {
       falhas.push(`${url}: ${e instanceof Error ? e.message : String(e)}`);
