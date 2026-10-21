@@ -1,0 +1,13 @@
+{
+  "id": "P041",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "R$ 6 mil cabe fácil na verba, o problema não é dinheiro. Eu não vou colocar meu nome num contrato de 12 meses com algo que nenhuma prefeitura que eu conheço usa e que parece depender de uma pessoa só; se cair no meio do campeonato, quem leva a bronca no WhatsApp e do secretário sou eu, e a planilha nunca me deixou na mão.",
+  "objection": "É uma pessoa só por trás disso. Se o cara sumir ou o site sair do ar na final, eu fico sem tabela, sem súmula e com 12 meses de contrato assinado pra explicar pro secretário e pro controle interno.",
+  "would_change_my_mind": "Ver funcionando de verdade numa prefeitura vizinha, com o contato do coordenador de lá pra eu ligar, e poder testar um campeonato inteiro antes de assinar 12 meses, ou contrato só pela temporada do campeonato.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 800,
+  "price_too_expensive": 1500
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "need",
+  "reason": "Seis mil por ano não é o problema, minha verba aguenta. O problema é que isso resolve só o futsal, e eu toco futebol de campo, vôlei, corrida de rua, jogos escolares; já cotei sistema que cobre a secretaria inteira e não vou abrir mais um processo na TI e na procuradoria por um pedaço do que eu preciso.",
+  "objection": "Documento e comprovante de residência de atleta, muitos menores de idade, guardados no site de uma empresa que eu nunca ouvi falar: a TI vai perguntar onde fica esse dado, quem acessa, o que acontece se vocês fecharem, e a procuradoria vai travar um contrato de 12 meses sem resposta pra isso.",
+  "would_change_my_mind": "Cobrir as outras modalidades da secretaria (campo, vôlei, basquete, jogos escolares) e vir com termo de tratamento de dados pronto pra passar na TI e na procuradoria; aí eu levo pro prefeito como vitrine da secretaria.",
+  "price_too_cheap": 150,
+  "price_cheap": 350,
+  "price_expensive": 900,
+  "price_too_expensive": 2000
+}

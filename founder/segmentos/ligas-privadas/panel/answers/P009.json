@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Minha liga existe pra encher horário da quadra, não pra virar Champions League. O Copa Fácil grátis já monta tabela e classificação, e o pessoal aceita o anúncio; não vou tirar R$ 800 do caixa por coisa que hoje sai de graça.",
+  "objection": "Patrocinador local não liga para site, liga para a faixa na quadra. Então a cota de patrocínio no site não paga os R$ 800, e o resto é luxo que os times não me pedem.",
+  "would_change_my_mind": "Se o sistema cobrasse a inscrição por Pix e me mostrasse quem está devendo, cortando o time inadimplente da súmula automaticamente, aí resolve minha dor de verdade e eu pagaria.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

@@ -1,0 +1,19 @@
+id,segmento,comportamento,too_cheap,cheap,expensive,too_expensive
+P001,grande,Cauteloso com compras,500,1200,4000,10000
+P002,grande,Cliente de fornecedor de gestão esportiva,400,1200,6000,12000
+P008,grande,Cliente de fornecedor de gestão esportiva,600,1400,4800,10000
+P012,grande,Planilha e WhatsApp,600,1200,3600,6000
+P013,grande,Planilha e WhatsApp,600,1400,3600,8000
+P014,grande,Entusiasta de tecnologia,400,1200,6000,12000
+P030,grande,Político de resultado,1200,2400,10000,20000
+P048,grande,Já usa app grátis,600,1400,4800,10000
+P051,grande,Cauteloso com compras,600,1600,6000,12000
+P073,grande,Planilha e WhatsApp,500,1333,5000,10000
+P078,grande,Já usa app grátis,600,1400,4800,10000
+P079,grande,Cliente de fornecedor de gestão esportiva,500,1333,4000,8333
+P081,grande,Planilha e WhatsApp,600,1600,6000,14000
+P088,grande,Já usa app grátis,600,1600,6000,14000
+P091,grande,Planilha e WhatsApp,500,1167,5000,11667
+P002,grande,Entusiasta de tecnologia,500,1500,12000,30000
+P015,grande,Já usa app grátis,500,2000,15000,40000
+P016,grande,Entusiasta de tecnologia,800,2500,18000,45000

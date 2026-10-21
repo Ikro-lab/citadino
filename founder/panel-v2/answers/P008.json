@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason": "O piloto grátis eu topo, porque não me custa nada e a tabela que recalcula sozinha resolve a dor do WO. Mas pagar no primeiro mês, não: quero ver uma categoria rodando inteira ao lado da minha planilha e passar isso pela procuradoria antes de botar dinheiro público.",
+  "reason_code": "trust",
+  "objection": "O suporte é uma pessoa só. Se esse desenvolvedor sumir, ficar doente ou largar o projeto no meio do campeonato, sou eu que fico com a cara no grupo dos treinadores e no Instagram da prefeitura. E o ginásio aqui não tem sinal, então o papel volta a ser o sistema.",
+  "would_change_my_mind": "O piloto rodar uma rodada inteira sem eu precisar corrigir nada à mão, e conversar com o secretário da prefeitura que já contratou para saber se o suporte respondeu mesmo em dia de jogo.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 4000,
+  "price_too_expensive": 8000
+}

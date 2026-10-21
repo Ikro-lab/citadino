@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga Placarsoft para gestão esportiva e o contrato está em vigor. Para trocar ou somar mais um fornecedor eu preciso levar justificativa ao secretário e ao setor de compras, e pelo que li aqui não consigo explicar o que o Citadino faz que o sistema atual não faz, só que é mais bonito no celular.",
+  "objection": "Não é o preço, R$ 6 mil por ano cabe na dispensa e no meu orçamento. O problema é defender dois sistemas de campeonato, ou cancelar o que já tenho, na frente do secretário e do compras sem nunca ter visto isso funcionando num campeonato de verdade.",
+  "would_change_my_mind": "Rodar um campeonato inteiro da minha cidade como piloto, sem contrato de 12 meses, para eu mostrar ao secretário o site no ar com a cara da prefeitura e o torcedor recebendo notificação. Se o Instagram da secretaria parar de depender do meu card no Canva, aí eu tenho argumento para o compras.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 800,
+  "price_too_expensive": 1200
+}

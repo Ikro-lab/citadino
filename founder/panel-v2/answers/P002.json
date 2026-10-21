@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "convenience",
+  "reason": "Começo pelo piloto grátis numa categoria e, se o torcedor abrir o app e o gol aparecer em vídeo, fecho a temporada de R$ 2 mil sem pensar duas vezes: é troco perto da minha verba e cabe fácil na dispensa. Quero ser a primeira cidade da região com o jogo ao vivo no celular, e o kit de compras e o termo de LGPD me poupam a briga com TI e procuradoria.",
+  "objection": "O suporte é de um desenvolvedor só. Numa cidade do meu tamanho, com várias categorias jogando no mesmo fim de semana, se ele ficar doente ou sumir eu fico com o campeonato parado e a cara da prefeitura exposta. E a planilha de graça já funciona, então o ganho precisa aparecer no piloto.",
+  "would_change_my_mind": "Se o piloto falhar num dia de jogo cheio, com súmula travando ou suporte demorando, eu largo e volto para a planilha.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 12000,
+  "price_too_expensive": 30000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já tem contrato de gestão esportiva com um fornecedor conhecido; trocar por um site de futsal que eu nunca vi rodando em outra cidade significa abrir justificativa para compras, TI e procuradoria por R$ 6 mil que não resolvem um problema que eu tenha hoje.",
+  "objection": "Já vi sistema contratado ficar sem suporte depois de seis meses, e aqui o suporte é 'WhatsApp durante o campeonato', de uma empresa de que ninguém ouviu falar. E a súmula ao vivo depende do meu mesário, que mal usa o celular; se ninguém lançar, o site vira uma página parada com a cara da prefeitura.",
+  "would_change_my_mind": "Ver o sistema rodando uma temporada inteira numa cidade do meu porte, com o secretário de lá me dizendo que o suporte continuou depois do campeonato e que os mesários conseguiram operar a súmula.",
+  "price_too_cheap": 150,
+  "price_cheap": 350,
+  "price_expensive": 1200,
+  "price_too_expensive": 2500
+}

@@ -26,6 +26,9 @@ const aplicar = process.argv.includes("--aplicar");
 const apagarPublicos = process.argv.includes("--apagar-publicos");
 
 const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+if (/SENSITIVE/.test(databaseUrl) || /SENSITIVE/.test(process.env.DATABASE_AUTH_TOKEN ?? "")) {
+  throw new Error("DATABASE_URL/DATABASE_AUTH_TOKEN ainda estão com o marcador [SENSITIVE]: cole os valores reais.");
+}
 const isRemote = databaseUrl.startsWith("libsql:") || databaseUrl.startsWith("https:");
 const adapter = isRemote
   ? new PrismaLibSql({ url: databaseUrl, authToken: process.env.DATABASE_AUTH_TOKEN })

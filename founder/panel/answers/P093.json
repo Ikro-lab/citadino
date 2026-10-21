@@ -1,0 +1,13 @@
+{
+  "id": "P093",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga a Placarsoft para gestão esportiva e o campeonato roda na planilha sem custo extra. Botar mais R$ 6 mil num segundo fornecedor para um único campeonato eu não consigo justificar pro prefeito nem pro setor de compras.",
+  "objection": "Já tenho fornecedor contratado e uma verba curta; seria pagar duas vezes por algo parecido, e se essa empresa nova sumir no meio do campeonato eu fico na mão no sábado à noite.",
+  "would_change_my_mind": "Se custasse bem menos ou fosse cobrado só nos meses do campeonato, e se eu pudesse testar de graça numa categoria antes, mostrando que substitui o que a Placarsoft faz para eu cancelar um dos dois.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

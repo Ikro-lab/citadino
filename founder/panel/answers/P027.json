@@ -1,0 +1,13 @@
+{
+  "id": "P027",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Meu campeonato dura uns três meses e a verba de eventos inteira é pouca; pagar R$ 6 mil num contrato de 12 meses é tirar dinheiro de bola, arbitragem e troféu pra trocar uma planilha que já funciona. Dá trabalho, mas eu e o grupo do WhatsApp damos conta.",
+  "objection": "Contrato de 12 meses pra um campeonato que roda três meses no ano, sendo que tem app grátis que faz tabela. E vou ter que explicar pro prefeito e pro controle interno por que gastei R$ 6 mil num site em vez de material esportivo.",
+  "would_change_my_mind": "Cobrar só pelos meses do campeonato, tipo R$ 1.500 a R$ 2.000 pela temporada, e gerar sozinho o card de resultado pronto pro Instagram da prefeitura, que é o que me come a semana.",
+  "price_too_cheap": 300,
+  "price_cheap": 1200,
+  "price_expensive": 2500,
+  "price_too_expensive": 4000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Hoje eu monto tabela e classificação de graça no Copa Fácil. R$ 800 por edição é quase a inscrição de um time inteiro, e numa liga de 10, 12 times com premiação pequena isso sai do caixa ou eu tenho que repassar, e os times vão chiar.",
+  "objection": "Se eu pagar, vou ter que repassar para os times, e eles reclamam. E não sei se consigo vender cota de patrocínio suficiente para cobrir os R$ 800 no bairro.",
+  "would_change_my_mind": "Um preço por volta de R$ 250 a R$ 300 por edição, ou ter um patrocinador fechado que pague o sistema antes de eu tirar dinheiro do caixa.",
+  "price_too_cheap": 30,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

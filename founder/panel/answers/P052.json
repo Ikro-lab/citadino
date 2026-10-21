@@ -1,0 +1,13 @@
+{
+  "id": "P052",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga um sistema de gestão esportiva e o campeonato começa em duas semanas; trocar agora significa justificar pro secretário e pro compras por que estou pagando duas coisas que fazem quase o mesmo serviço. Pode até ser mais bonito pro torcedor, mas não é isso que me tira o sono.",
+  "objection": "Já tenho fornecedor contratado. Se eu assinar mais R$ 6 mil por ano de algo parecido, alguém vai perguntar por que não usei o que já pago, e se der pau no meio do campeonato com uma empresa nova, quem leva a culpa sou eu.",
+  "would_change_my_mind": "Um teste grátis numa categoria só (tipo o veterano) neste campeonato, sem contrato, pra eu ver funcionando na beira da quadra; se der certo, troco o fornecedor atual na renovação.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 600,
+  "price_too_expensive": 1000
+}

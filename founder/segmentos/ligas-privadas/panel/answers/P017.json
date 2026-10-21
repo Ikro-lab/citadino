@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "O que me pega é o espaço de patrocinador com master e apoio: com site bonito e torcida recebendo notificação, consigo vender uma cota a mais que paga os R$ 800 e ainda sobra. E a inscrição com documento aprovado por mim evita eu ter que anular jogo de novo por atleta irregular.",
+  "objection": "R$ 800 é a inscrição de um time inteiro, e minha margem é pequena. Se o patrocinador não enxergar valor nesse site, eu tiro do meu bolso. E é um desenvolvedor sozinho: se ele sumir no meio do campeonato, fico na mão.",
+  "would_change_my_mind": "",
+  "price_too_cheap": 100,
+  "price_cheap": 350,
+  "price_expensive": 800,
+  "price_too_expensive": 1200
+}

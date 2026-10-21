@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Minha liga tem 12 times pagando uns R$ 500, e isso mal cobre quadra, arbitragem e troféu. Tirar R$ 800 do caixa pra trocar uma planilha e um grupo de WhatsApp que já funcionam, de graça, não fecha a conta pra mim.",
+  "objection": "Os capitães não vão cadastrar atleta com documento pelo link, vão mandar foto do RG no meu WhatsApp do mesmo jeito, e eu vou acabar fazendo o cadastro de todo mundo. E mesário com celular na beira da quadra lançando súmula, na várzea, eu duvido.",
+  "would_change_my_mind": "Um patrocinador do bairro pagar o sistema por mim por causa do espaço de patrocínio no site, ou um preço por volta de R$ 300 com uma edição de teste pra eu ver os capitães usando de verdade.",
+  "price_too_cheap": 50,
+  "price_cheap": 200,
+  "price_expensive": 450,
+  "price_too_expensive": 700
+}

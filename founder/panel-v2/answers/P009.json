@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu ganho por evento e ferramenta sai do meu bolso; R$ 2.000 por temporada come uma fatia boa do que eu tiro no campeonato, e a planilha com o grupo do WhatsApp já resolve. O piloto grátis eu até topo, mas pagar do meu bolso não.",
+  "objection": "Quem paga sou eu, não a prefeitura. Se o secretário não bancar isso no contrato dele, eu fico com o custo e com o trabalho de ensinar treinador a usar mais uma coisa, e a torcida continua cobrando de mim quando der problema.",
+  "would_change_my_mind": "A prefeitura pagar direto, usando o kit de contratação, ou o piloto mostrar que o relatório pro prefeito me garante a renovação do contrato no ano que vem.",
+  "price_too_cheap": 200,
+  "price_cheap": 600,
+  "price_expensive": 1500,
+  "price_too_expensive": 2500
+}

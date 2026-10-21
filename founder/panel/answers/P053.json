@@ -1,0 +1,13 @@
+{
+  "id": "P053",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu já monto o campeonato no Copa Fácil de graça. Tem anúncio e às vezes atrasa, e já refiz classificação na mão por causa de WO, mas R$ 6 mil por ano sai da mesma verba que paga arbitragem, troféu e lanche, e isso eu não consigo justificar para o prefeito.",
+  "objection": "Pagar R$ 6 mil por ano, com contrato de 12 meses, por uma coisa que o app grátis já faz quase toda, e o campeonato só dura uns poucos meses do ano.",
+  "would_change_my_mind": "Um preço por campeonato, de uns R$ 1.500 a R$ 2.000 só nos meses em que tem jogo, sem fidelidade de 12 meses, e ver funcionando numa cidade do meu tamanho aqui da região.",
+  "price_too_cheap": 50,
+  "price_cheap": 120,
+  "price_expensive": 250,
+  "price_too_expensive": 400
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P069",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Meu campeonato roda no Copa Fácil de graça e o povo já acompanha por lá. R$ 6 mil é quase 10% da minha verba de eventos, dinheiro que vai pra arbitragem, troféu e medalha, e eu não justifico isso na Câmara por causa de anúncio e resultado que demora.",
+  "objection": "Pagar R$ 6 mil por ano, com contrato de 12 meses, por uma coisa que o app grátis já faz quase igual, sendo que o campeonato dura poucos meses.",
+  "would_change_my_mind": "Um preço por temporada, uns R$ 1.500 a R$ 2 mil pelo campeonato, sem fidelidade de 12 meses, e um teste grátis numa rodada pra eu ver funcionando no ginásio.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

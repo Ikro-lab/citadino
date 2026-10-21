@@ -1,0 +1,13 @@
+{
+  "id": "P030",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "R$ 6 mil por ano não é o problema, isso cabe fácil na verba. O problema é colocar o campeonato da cidade inteira na mão de um fornecedor que parece ser uma pessoa só: se o site cai numa final, quem leva a reclamação no WhatsApp e a foto feia pro prefeito sou eu.",
+  "objection": "Se o cara sumir ou ficar doente no meio do campeonato, eu fico com tabela parada, treinador reclamando e nenhuma empresa pra cobrar. A TI e a procuradoria vão perguntar quem é a empresa, se tem CNPJ estruturado, onde ficam os dados dos atletas com documento anexado, e eu não tenho essa resposta.",
+  "would_change_my_mind": "Ver outra prefeitura do nosso porte usando num campeonato inteiro sem problema, com o secretário de lá me confirmando, mais um contrato com garantia de continuidade e cláusula de entrega dos dados se o serviço acabar.",
+  "price_too_cheap": 300,
+  "price_cheap": 600,
+  "price_expensive": 2500,
+  "price_too_expensive": 5000
+}

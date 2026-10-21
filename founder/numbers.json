@@ -1,0 +1,72 @@
+{
+  "business": "Citadino - Temporada Ao Vivo",
+  "unit": "cidade-mês de campeonato novo (preço médio da tabela por porte: R$ 3.460 por temporada de 4 meses)",
+  "price": 865,
+  "variable": [
+    {
+      "label": "Suporte em dia de jogo: 4 h/mês x R$ 50 (estimativa)",
+      "cost": 200
+    },
+    {
+      "label": "Implantação, treinamento, 1ª rodada, relatório e exportação: 11 h x R$ 50 por temporada, rateado em 4 meses (estimativa)",
+      "cost": 137.5
+    },
+    {
+      "label": "Piloto grátis que não converte: 1 a cada temporada vendida, 6 h x R$ 50, rateado em 4 meses (estimativa)",
+      "cost": 75
+    },
+    {
+      "label": "Imposto sobre a nota, Simples Nacional da ME da empresa ~6% (estimativa: a alíquota real depende do faturamento de 12 meses da empresa)",
+      "cost": 51.9
+    }
+  ],
+  "fixed_monthly": [
+    {
+      "label": "Vercel Pro, US$ 20 x R$ 5,50 (obrigatório para uso comercial)",
+      "cost": 110
+    },
+    {
+      "label": "Turso, plano gratuito atual",
+      "cost": 0
+    },
+    {
+      "label": "Domínio, ~R$ 40/ano",
+      "cost": 3.5
+    },
+    {
+      "label": "Contrato atual (R$ 6.000/ano) menos imposto e horas: 6.000 - 360 - 1.350 = 4.290/ano (estimativa), entra como custo negativo",
+      "cost": -357.5
+    }
+  ],
+  "startup": [
+    {
+      "label": "Revisão do contrato e do termo de LGPD por advogado (estimativa)",
+      "cost": 1500
+    },
+    {
+      "label": "Kit de contratação e modelo de relatório: 10 h x R$ 50",
+      "cost": 500
+    },
+    {
+      "label": "Visitas a cidades vizinhas para pilotos (combustível, estimativa)",
+      "cost": 800
+    }
+  ],
+  "days_per_month": 1,
+  "capacity_per_day": 6,
+  "plan_per_day": 4,
+  "ramp_per_day": [
+    0,
+    0,
+    0,
+    1,
+    2,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    3
+  ]
+}

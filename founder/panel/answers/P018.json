@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Seis mil por ano é um pedaço grande da minha verba de eventos e eu não assino nada sem três orçamentos e o nome de outra prefeitura que já usa. Não vi referência nenhuma, e doze meses de contrato pra um campeonato que dura quatro.",
+  "objection": "Quem vai lançar a súmula ao vivo no ginásio? Meu mesário mal usa o celular, e se o site ficar desatualizado a torcida reclama comigo, não com a empresa. E o controle interno vai perguntar por que paguei doze meses de um serviço que só uso em quatro.",
+  "would_change_my_mind": "Um secretário de outra cidade do tamanho da minha me dizer que usou numa edição inteira, o mesário dele deu conta, e o contrato passou no controle interno sem apontamento. E poder contratar só pelos meses do campeonato.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 350,
+  "price_too_expensive": 500
+}

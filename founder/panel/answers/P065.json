@@ -1,0 +1,13 @@
+{
+  "id": "P065",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A Placarsoft já atende a prefeitura, e eu não troco um fornecedor que funciona por uma empresa nova sem referência de outra prefeitura. Pelos R$ 6 mil eu até pagaria, mas não quero explicar pro controle interno por que contratei por dispensa um sistema que ninguém aqui conhece.",
+  "objection": "Já vi sistema contratado ficar sem suporte depois de seis meses. Suporte por WhatsApp só durante o campeonato me preocupa: e se a empresa sumir no meio do contrato de 12 meses?",
+  "would_change_my_mind": "Uma prefeitura do mesmo porte usando há pelo menos uma temporada, com o secretário de lá me confirmando por telefone, mais um contrato com cláusula de suporte e multa se o site sair do ar.",
+  "price_too_cheap": 150,
+  "price_cheap": 300,
+  "price_expensive": 700,
+  "price_too_expensive": 1200
+}

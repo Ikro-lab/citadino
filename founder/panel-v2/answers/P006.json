@@ -1,0 +1,13 @@
+{
+  "id": "P006",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Hoje eu rodo o campeonato no app grátis e ninguém na cidade reclama a ponto de eu gastar R$ 2 mil de dinheiro público. O suporte ser uma pessoa só me lembra o sistema que a prefeitura contratou e morreu em seis meses; eu até toparia o piloto grátis de uma categoria, mas pagar agora, com o campeonato começando em duas semanas, não.",
+  "objection": "Se o desenvolvedor sumir, ficar doente ou largar o projeto no meio da temporada, quem me atende no sábado de jogo? Eu é que fico com a cara queimada na frente do prefeito e dos times.",
+  "would_change_my_mind": "Ver o piloto funcionando de verdade numa rodada nossa, com sinal ruim no ginásio, e falar com o secretário da outra prefeitura que já contratou pra saber se o suporte respondeu mesmo.",
+  "price_too_cheap": 300,
+  "price_cheap": 800,
+  "price_expensive": 2000,
+  "price_too_expensive": 4000
+}

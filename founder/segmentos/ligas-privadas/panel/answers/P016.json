@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Minha liga existe pra encher horário da quadra, não pra dar lucro com site. R$ 800 por edição sai do meu caixa ou eu repasso pros times, e aí eles reclamam; tem app de campeonato de graça que resolve tabela e artilharia.",
+  "objection": "Não sei se a farmácia e a loja de material vão pagar a mais só porque o logo aparece num site. Se o patrocínio não cobrir os R$ 800 nesse mesmo campeonato, é prejuízo meu.",
+  "would_change_my_mind": "Se o preço fosse cobrado só depois que eu vendesse a cota no site, ou se viesse um patrocinador já fechado pagando por ele, aí o dinheiro volta no mesmo campeonato.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

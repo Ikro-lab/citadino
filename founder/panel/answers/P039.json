@@ -1,0 +1,13 @@
+{
+  "id": "P039",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu sou terceirizada, ganho por evento e pago ferramenta do meu bolso; R$ 6.000 por ano come boa parte do que eu tiro com o campeonato, e o Copa Fácil grátis já resolve, mesmo com anúncio. O contrato é com a prefeitura, mas quem teria que vender isso pro secretário sou eu, e ele vai perguntar por que pagar se já funciona de graça.",
+  "objection": "Isso passa no setor de compras? Preciso de três orçamentos e CNPJ com referência, e eu não vou gastar meu capital político com o secretário por um site quando o grátis já está rodando. E se a prefeitura não quiser pagar, sobra pra mim, que não tenho como bancar R$ 500 por mês.",
+  "would_change_my_mind": "Se a prefeitura pagar direto, sem sair do meu cachê, e vocês me entregarem pronta a documentação de dispensa (proposta, CNPJ, atestado de outra prefeitura que já usa) para eu só levar ao secretário.",
+  "price_too_cheap": 30,
+  "price_cheap": 80,
+  "price_expensive": 200,
+  "price_too_expensive": 350
+}

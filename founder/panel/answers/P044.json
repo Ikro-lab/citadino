@@ -1,0 +1,13 @@
+{
+  "id": "P044",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu adoraria ser a primeira da região com o jogo ao vivo no celular, mas sou terceirizada e pago ferramenta do meu bolso: R$ 6.000 travados em 12 meses para um campeonato que dura poucos meses come boa parte do que eu ganho por evento. E a prefeitura já paga a Placarsoft, então não vou conseguir empurrar esse custo para a secretaria fácil.",
+  "objection": "O contrato é com a prefeitura e de 12 meses, mas quem toca o campeonato sou eu, por evento. Se eu perder o contrato no ano que vem, fico pagando um sistema que não uso, e ainda tenho que explicar ao secretário por que um segundo sistema se a Placarsoft já atende.",
+  "would_change_my_mind": "Um plano por temporada ou por campeonato, sem fidelidade de 12 meses, que eu possa contratar no meu CNPJ e testar sozinha antes, com algo que a Placarsoft não tem (súmula ao vivo e notificação de gol) para mostrar ao prefeito.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 400,
+  "price_too_expensive": 700
+}

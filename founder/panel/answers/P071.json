@@ -1,0 +1,13 @@
+{
+  "id": "P071",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O preço é pouco perto da minha verba, mas não sou eu que vou levar na cara se travar: no sábado à noite o sinal do ginásio cai, a súmula não atualiza, a classificação sai errada e o treinador vem reclamar comigo. Também não vejo ali o que o prefeito quer ver, que é vídeo, foto e abertura bonita; é tabela e placar.",
+  "objection": "Se a internet do ginásio cair no meio do jogo, o site fica parado e a torcida e os times reclamam comigo. E é empresa que eu não conheço, sem nenhuma cidade parecida usando para eu mostrar ao secretário.",
+  "would_change_my_mind": "Ver funcionando de verdade em outra cidade do nosso tamanho, ou um teste de graça numa rodada do nosso campeonato, mostrando que a súmula funciona mesmo sem sinal e sobe sozinha quando a internet volta.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 900,
+  "price_too_expensive": 1500
+}

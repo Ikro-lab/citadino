@@ -1,0 +1,37 @@
+{
+  "business": "Citadino para ligas privadas: plataforma que roda o campeonato amador de futsal/society de ponta a ponta (inscrição de atletas com documento, súmula ao vivo no celular, tabela e suspensões automáticas, gol em vídeo, notificação para a torcida, espaço de patrocinadores), cobrada por edição",
+  "target": "Organizador privado de campeonato amador pago de futsal ou society no Brasil (pessoa física, associação ou liga), que cobra inscrição dos times e vende patrocínio. Os valores são em reais (R$). O salário acima é a sua renda anual total; o software sai do caixa da liga (inscrições e patrocínio)",
+  "where": "Brasil, cidades médias e grandes e região metropolitana",
+  "age": [24, 60],
+  "segments": [
+    {"name": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local", "share": 0.35, "income": [48000, 150000]},
+    {"name": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão", "share": 0.35, "income": [30000, 80000]},
+    {"name": "Organizador de copa curta (verão, feriado, fim de semana): 8 a 24 times, inscrição de R$ 500 a R$ 1.500, dura de 1 a 6 semanas", "share": 0.15, "income": [40000, 120000]},
+    {"name": "Arena ou complexo esportivo que organiza a própria liga para encher horário: cobra R$ 45 a R$ 80 por jogo por time", "share": 0.15, "income": [60000, 200000]}
+  ],
+  "behaviours": [
+    {"name": "Já usa Copa Fácil ou iFut grátis", "share": 0.30, "how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje."},
+    {"name": "Planilha e WhatsApp", "share": 0.20, "how": "Faz tudo no Excel e no grupo dos capitães. Cobra a inscrição por Pix e confere atleta pela lista impressa."},
+    {"name": "Vive de patrocínio", "share": 0.15, "how": "A conta da liga só fecha com patrocinador. Procura qualquer coisa que dê mais exposição para vender cota."},
+    {"name": "Profissionalizado", "share": 0.10, "how": "Tem site ou Instagram forte, regulamento em PDF, árbitro pago e transmissão no YouTube. Quer parecer liga de verdade."},
+    {"name": "Cansado de briga por elegibilidade", "share": 0.15, "how": "Já perdeu um fim de semana inteiro resolvendo atleta irregular, gato e cartão que ninguém anotou."},
+    {"name": "Desconfiado de pagar app", "share": 0.10, "how": "Acha que app de campeonato tem que ser de graça. Só paga se ver o dinheiro voltar no mesmo campeonato."}
+  ],
+  "objections": [
+    "O Copa Fácil é de graça e faz tabela. Por que eu pagaria?",
+    "Minha margem é pequena: a inscrição mal cobre arbitragem e premiação.",
+    "Quem vai lançar a súmula? Meu mesário é o filho do dono da quadra.",
+    "Se eu pagar, vou ter que repassar para os times, e eles reclamam.",
+    "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+    "É uma pessoa só por trás do sistema. E se sair do ar na final?",
+    "Patrocinador local não liga para site, liga para a faixa na quadra."
+  ],
+  "habits": [
+    "você passa o domingo à noite atualizando a tabela e mandando print no grupo",
+    "você já teve que anular um jogo por atleta irregular",
+    "você vende cotas de patrocínio para a loja de material de construção e a farmácia do bairro",
+    "você transmite a final pelo celular no Instagram",
+    "você cobra a inscrição por Pix e corre atrás de quem atrasou",
+    "você trabalha em outra coisa durante a semana e organiza a liga à noite"
+  ]
+}

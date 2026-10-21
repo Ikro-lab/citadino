@@ -1,0 +1,13 @@
+{
+  "id": "P023",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A Placarsoft já atende a prefeitura e a planilha com o grupo de WhatsApp resolve o campeonato há anos. Pra eu levar mais um contrato de R$ 6 mil ao secretário, preciso de um motivo forte, e um site bonito com notificação não é motivo forte o bastante.",
+  "objection": "Por que pagar outro sistema se já temos a Placarsoft? E se essa empresa pequena sumir no meio do campeonato, quem responde sou eu.",
+  "would_change_my_mind": "Ver funcionando de graça num campeonato inteiro de outra cidade do meu porte, com o secretário de lá dizendo que economizou trabalho da equipe, e saber que substitui o que a Placarsoft faz em vez de somar custo.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 450,
+  "price_too_expensive": 800
+}

@@ -1,0 +1,121 @@
+id,segmento,comportamento,too_cheap,cheap,expensive,too_expensive
+P001,grande,Cauteloso com compras,500,1200,4000,10000
+P002,grande,Cliente de fornecedor de gestão esportiva,400,1200,6000,12000
+P003,media,Planilha e WhatsApp,400,1000,3200,6000
+P004,pequena,Cauteloso com compras,320,800,1600,2800
+P005,media,Cliente de fornecedor de gestão esportiva,400,1000,3200,4800
+P006,media,Já usa app grátis,320,800,1600,2400
+P007,pequena,Planilha e WhatsApp,200,600,1200,2000
+P008,grande,Cliente de fornecedor de gestão esportiva,600,1400,4800,10000
+P009,pequena,Político de resultado,400,1000,2800,3600
+P010,pequena,Planilha e WhatsApp,200,600,1200,2000
+P011,pequena,Planilha e WhatsApp,320,800,1400,2000
+P012,grande,Planilha e WhatsApp,600,1200,3600,6000
+P013,grande,Planilha e WhatsApp,600,1400,3600,8000
+P014,grande,Entusiasta de tecnologia,400,1200,6000,12000
+P015,pequena,Já usa app grátis,320,800,1800,3200
+P016,media,Político de resultado,400,1000,3200,6000
+P017,pequena,Já usa app grátis,200,600,1200,2000
+P018,pequena,Cauteloso com compras,320,800,1400,2000
+P019,media,Cliente de fornecedor de gestão esportiva,400,1000,3600,6000
+P020,pequena,Cauteloso com compras,400,800,2600,4000
+P021,pequena,Já usa app grátis,200,400,1000,1600
+P022,media,Político de resultado,600,1200,3600,6000
+P023,media,Planilha e WhatsApp,400,1000,1800,3200
+P024,media,Político de resultado,400,800,1400,2000
+P025,pequena,Político de resultado,600,1200,3200,5200
+P026,pequena,Político de resultado,320,600,1200,2000
+P027,pequena,Planilha e WhatsApp,100,400,833,1333
+P028,terceirizado,Político de resultado,400,1000,2000,3600
+P029,media,Entusiasta de tecnologia,600,1400,4800,10000
+P030,grande,Político de resultado,1200,2400,10000,20000
+P031,media,Planilha e WhatsApp,600,1200,2800,4800
+P032,media,Entusiasta de tecnologia,600,1200,4800,10000
+P033,pequena,Político de resultado,200,600,1200,2000
+P034,media,Cauteloso com compras,600,1400,3600,6000
+P035,media,Já usa app grátis,400,800,1600,2800
+P036,media,Planilha e WhatsApp,600,1200,3600,6000
+P037,pequena,Cliente de fornecedor de gestão esportiva,400,1000,2400,4000
+P038,pequena,Planilha e WhatsApp,200,600,1200,2000
+P039,terceirizado,Já usa app grátis,120,320,800,1400
+P040,media,Já usa app grátis,400,1000,2000,3600
+P041,media,Planilha e WhatsApp,400,1000,3200,6000
+P042,terceirizado,Fim de mandato,400,1000,2000,3200
+P043,media,Político de resultado,600,1400,4800,10000
+P044,terceirizado,Entusiasta de tecnologia,320,800,1600,2800
+P045,media,Planilha e WhatsApp,400,1000,2800,4800
+P046,pequena,Cliente de fornecedor de gestão esportiva,200,600,1200,2000
+P047,terceirizado,Fim de mandato,400,1000,1800,2800
+P048,grande,Já usa app grátis,600,1400,4800,10000
+P049,media,Entusiasta de tecnologia,400,1200,4800,12000
+P050,media,Já usa app grátis,400,800,1600,2800
+P051,grande,Cauteloso com compras,600,1600,6000,12000
+P052,pequena,Cliente de fornecedor de gestão esportiva,400,1000,2400,4000
+P053,pequena,Já usa app grátis,200,480,1000,1600
+P054,media,Planilha e WhatsApp,400,1000,3000,6000
+P055,media,Planilha e WhatsApp,333,833,1667,3000
+P056,media,Planilha e WhatsApp,400,800,1600,2800
+P057,terceirizado,Cauteloso com compras,400,1000,2000,3600
+P058,media,Político de resultado,400,1200,4800,10000
+P059,pequena,Fim de mandato,400,1000,2000,3200
+P060,pequena,Cliente de fornecedor de gestão esportiva,400,1000,2000,3600
+P061,pequena,Planilha e WhatsApp,200,600,1200,2000
+P062,pequena,Já usa app grátis,200,400,1000,1600
+P063,pequena,Planilha e WhatsApp,100,1200,2500,4000
+P064,pequena,Entusiasta de tecnologia,400,1000,2600,4000
+P065,pequena,Cauteloso com compras,600,1200,2800,4800
+P066,pequena,Cauteloso com compras,300,1500,3000,5000
+P067,pequena,Planilha e WhatsApp,200,600,1200,2000
+P068,pequena,Cauteloso com compras,400,1000,2800,4800
+P069,pequena,Já usa app grátis,200,600,1200,2000
+P070,terceirizado,Planilha e WhatsApp,200,600,1200,2000
+P071,media,Político de resultado,400,1200,3600,6000
+P072,media,Político de resultado,400,1000,3200,6000
+P073,grande,Planilha e WhatsApp,500,1333,5000,10000
+P074,terceirizado,Planilha e WhatsApp,400,800,1600,2800
+P075,media,Político de resultado,400,800,1600,2800
+P076,media,Já usa app grátis,200,600,1400,2400
+P077,media,Já usa app grátis,400,1000,2000,3600
+P078,grande,Já usa app grátis,600,1400,4800,10000
+P079,grande,Cliente de fornecedor de gestão esportiva,500,1333,4000,8333
+P080,pequena,Planilha e WhatsApp,200,600,1200,2000
+P081,grande,Planilha e WhatsApp,600,1600,6000,14000
+P082,pequena,Político de resultado,320,800,1600,2400
+P083,media,Cauteloso com compras,600,1400,3600,6000
+P084,media,Planilha e WhatsApp,400,1200,3600,6000
+P085,pequena,Já usa app grátis,200,400,1000,1600
+P086,pequena,Fim de mandato,400,1000,2400,4000
+P087,media,Planilha e WhatsApp,400,800,2000,4000
+P088,grande,Já usa app grátis,600,1600,6000,14000
+P089,media,Cauteloso com compras,600,1200,3200,6000
+P090,pequena,Cliente de fornecedor de gestão esportiva,400,800,1600,2400
+P091,grande,Planilha e WhatsApp,500,1167,5000,11667
+P092,pequena,Entusiasta de tecnologia,400,1000,2800,4800
+P093,pequena,Cliente de fornecedor de gestão esportiva,200,600,1200,2000
+P094,media,Fim de mandato,600,1200,3200,6000
+P095,media,Fim de mandato,400,1000,2400,4000
+P096,terceirizado,Cliente de fornecedor de gestão esportiva,320,800,1600,2400
+P097,pequena,Já usa app grátis,200,600,1200,2000
+P098,pequena,Entusiasta de tecnologia,400,1200,3600,6000
+P099,pequena,Planilha e WhatsApp,300,1200,2500,4000
+P100,terceirizado,Fim de mandato,400,1000,2000,3600
+P001,media,Planilha e WhatsApp,300,1000,4500,10000
+P002,grande,Entusiasta de tecnologia,500,1500,12000,30000
+P003,pequena,Cliente de fornecedor de gestão esportiva,300,1000,3500,6000
+P004,media,Planilha e WhatsApp,500,1500,5000,12000
+P005,pequena,Cauteloso com compras,300,1000,4000,8000
+P006,pequena,Já usa app grátis,300,800,2000,4000
+P007,media,Já usa app grátis,300,1000,4000,8000
+P008,pequena,Planilha e WhatsApp,300,1000,4000,8000
+P009,terceirizado,Planilha e WhatsApp,200,600,1500,2500
+P010,media,Já usa app grátis,300,1200,4000,9000
+P011,media,Político de resultado,500,1500,6000,15000
+P012,pequena,Político de resultado,300,1000,5000,12000
+P013,terceirizado,Cauteloso com compras,100,300,800,1500
+P014,media,Planilha e WhatsApp,300,1000,5000,12000
+P015,grande,Já usa app grátis,500,2000,15000,40000
+P016,grande,Entusiasta de tecnologia,800,2500,18000,45000
+P017,media,Político de resultado,500,1500,8000,20000
+P018,pequena,Fim de mandato,300,1000,4000,8000
+P019,pequena,Planilha e WhatsApp,300,1000,3500,6000
+P020,pequena,Cliente de fornecedor de gestão esportiva,500,1500,4000,8000

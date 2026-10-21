@@ -1,0 +1,13 @@
+{
+  "id": "P038",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Minha planilha e o grupo de WhatsApp dão trabalho, mas funcionam há anos e não me custam nada. R$ 6 mil por ano sai do mesmo bolo que paga arbitragem, troféu e medalha, e numa cidade do meu tamanho isso pesa demais para trocar uma coisa que já roda.",
+  "objection": "Se o sinal cair no ginásio, a súmula não sobe, o jogo não aparece e a torcida vem reclamar comigo do mesmo jeito. E contrato de 12 meses para um campeonato que dura dois ou três meses no ano eu não consigo justificar.",
+  "would_change_my_mind": "Poder pagar só pelos meses do campeonato, por menos de R$ 2 mil no total, e ver funcionando sem internet na quadra, lançando depois quando o sinal voltar.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

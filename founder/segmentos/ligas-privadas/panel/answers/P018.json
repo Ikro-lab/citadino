@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Hoje eu toco a liga com planilha e grupo de WhatsApp e não pago nada por isso. R$ 800 não me quebra, mas eu só tiro do caixa se tiver certeza que volta no mesmo campeonato, e isso ninguém me provou ainda.",
+  "objection": "Os capitães não vão cadastrar atleta com documento pelo link, vão mandar tudo no WhatsApp pra mim, e eu vou acabar fazendo o trabalho do app. E o patrocinador daqui, a farmácia e a loja de material, compra cota por amizade, não porque tem logo num site.",
+  "would_change_my_mind": "Ver outra liga parecida com a minha que vendeu cota de patrocínio a mais por causa do site, ou poder pagar só depois de fechar a cota master, tirando os R$ 800 do dinheiro do patrocinador.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 700,
+  "price_too_expensive": 1200
+}

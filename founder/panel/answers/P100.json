@@ -1,0 +1,13 @@
+{
+  "id": "P100",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "timing",
+  "reason": "Estamos no último ano da gestão e eu não vou amarrar a prefeitura num contrato de 12 meses que a próxima equipe vai cortar no primeiro dia. E eu sou terceirizado: se o contrato é com a prefeitura, preciso convencer o secretário, e ele não assina nada que passe da eleição.",
+  "objection": "Contrato de 12 meses atravessando a troca de gestão, com uma pessoa só por trás. Se o cara some no meio do campeonato, quem leva a culpa na beira da quadra sou eu.",
+  "would_change_my_mind": "Pagar só pelo campeonato, uns 3 ou 4 meses, sem fidelidade de 12 meses, de preferência contratado no meu nome por evento, e alguma garantia de que os dados ficam com a gente se o serviço parar.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 500,
+  "price_too_expensive": 900
+}

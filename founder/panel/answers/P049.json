@@ -1,0 +1,13 @@
+{
+  "id": "P049",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Jogo ao vivo no celular, notificação de gol e voto no melhor da rodada é exatamente o que eu quero mostrar antes das cidades vizinhas, e R$ 6 mil por ano é troco perto da minha verba, cabe na dispensa sem dor de cabeça com compras. Eu mesma testaria a súmula na beira da quadra antes de levar ao secretário.",
+  "objection": "A Placarsoft já atende a prefeitura e o secretário vai perguntar por que pagar outro sistema; e eu já vi fornecedor pequeno sumir depois de seis meses, então tenho medo de ficar sem suporte no meio do campeonato.",
+  "would_change_my_mind": "Se eu não conseguir testar uma demonstração funcionando antes de assinar, ou se não houver nenhuma garantia de suporte e de manter o site no ar até o fim do campeonato, eu não levo ao secretário.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 1200,
+  "price_too_expensive": 3000
+}

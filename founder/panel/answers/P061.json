@@ -1,0 +1,13 @@
+{
+  "id": "P061",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Seis mil por ano é um pedaço grande da minha verba de eventos, que às vezes é só vinte mil, e a planilha com o grupo de WhatsApp já resolve, mesmo dando trabalho. Não vou amarrar a prefeitura num contrato de 12 meses com uma pessoa só por trás do sistema.",
+  "objection": "Se o cara sumir no meio do campeonato, eu fico sem tabela, sem súmula e com os treinadores e o prefeito me cobrando, e ainda pagando a mensalidade até o fim do contrato.",
+  "would_change_my_mind": "Poder testar de graça num campeonato inteiro e falar com o secretário de outra cidade pequena que já usou do começo ao fim, com o preço cobrado só nos meses do campeonato em vez de 12 meses.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

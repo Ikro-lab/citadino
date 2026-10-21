@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "R$ 6.000 por ano é entre 8% e 30% de toda a minha verba de eventos, que paga arbitragem, troféu e bola. O que eu faço hoje com Excel, WhatsApp e Canva dá trabalho, mas custa zero, e meu campeonato dura três ou quatro meses, não doze.",
+  "objection": "Contrato de 12 meses para um campeonato que começa em duas semanas e acaba em agosto. Em cinco dias úteis o site fica no ar, mas eu ainda teria que convencer os treinadores a cadastrar atleta por link com documento anexado, bem na semana que eu já estou fechando a tabela no papel. E depois do campeonato, eu sigo pagando R$ 500 por mês por um site parado.",
+  "would_change_my_mind": "Cobrar por campeonato (algo em torno de R$ 1.500 a R$ 2.000 pela edição inteira) em vez de contrato anual, ou me deixar rodar esta edição de graça para eu mostrar ao prefeito funcionando antes de assinar.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

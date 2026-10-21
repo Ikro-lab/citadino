@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Minha copa dura duas, três semanas e o povo vem pelo jogo, não pelo site. R$ 800 é o mesmo preço de quem roda quatro meses com 32 times, e pra mim isso é quase a inscrição de um time inteiro saindo do caixa por uma coisa que o Copa Fácil e a planilha já resolvem de graça.",
+  "objection": "Pagar preço de liga de quatro meses por um evento de fim de semana ou de feriado, sem saber se os capitães vão mesmo usar link e se o mesário vai lançar súmula no celular em vez de papel.",
+  "would_change_my_mind": "Um preço de copa curta, tipo R$ 250 a R$ 300 por evento, ou um patrocinador que eu já tenha topar pagar a cota justamente por aparecer no site.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

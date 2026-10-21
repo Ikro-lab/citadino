@@ -1,0 +1,13 @@
+{
+  "id": "P021",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Hoje eu monto o campeonato no Copa Fácil de graça e ele funciona, mesmo com anúncio e resultado atrasado. Seis mil por ano sai de uma verba de evento que já é curta, e eu ainda teria que explicar pro prefeito por que pagar um sistema novo se a Placarsoft já atende a prefeitura.",
+  "objection": "Por que pagar R$ 6 mil por ano e assinar contrato de 12 meses por uma coisa que eu já faço de graça, se o campeonato dura poucos meses e esse dinheiro compraria troféu, bola e arbitragem?",
+  "would_change_my_mind": "Um preço por campeonato, tipo R$ 1.500 a R$ 2.000 pela temporada sem amarrar 12 meses, e ver funcionando numa cidade do meu tamanho aqui da região.",
+  "price_too_cheap": 50,
+  "price_cheap": 100,
+  "price_expensive": 250,
+  "price_too_expensive": 400
+}

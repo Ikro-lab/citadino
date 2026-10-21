@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Minha copa dura um fim de semana ou poucas semanas e o Copa Fácil já monta tabela e classificação de graça. R$ 800 por uma copa de feriado come boa parte do que eu ganho com a cota da farmácia, e o plano foi pensado pra campeonato de 4 meses, não pro meu.",
+  "objection": "Os capitães não vão cadastrar atleta com documento pelo link, vão mandar tudo no WhatsApp e eu vou ter que lançar na mão do mesmo jeito. Aí estou pagando R$ 800 por uma tabela bonita.",
+  "would_change_my_mind": "Um preço de copa curta, tipo R$ 250 a R$ 300 pelo fim de semana, ou provar que o espaço de patrocinador me deixa cobrar mais da loja de material de construção a ponto de pagar o sistema sozinho.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

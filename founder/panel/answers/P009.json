@@ -1,0 +1,13 @@
+{
+  "id": "P009",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "A ideia é bonita e dá foto pro prefeito, mas eu já vi sistema da prefeitura morrer com seis meses e ninguém atender. Doze meses de contrato pra um campeonato que dura três, sem uma linha sobre o que acontece com os dados e o site quando acaba, não assino.",
+  "objection": "Quando o contrato acabar, o site e o cadastro dos atletas com documento e comprovante ficam com quem? Se o time reclamar que o suspenso foi calculado errado na quadra, quem responde sou eu, não o WhatsApp de vocês.",
+  "would_change_my_mind": "Cláusula escrita de que os dados e o site são da prefeitura com exportação garantida no fim, mais o telefone de um secretário de outra cidade que use há mais de um ano e me diga que o suporte não sumiu.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 700,
+  "price_too_expensive": 900
+}

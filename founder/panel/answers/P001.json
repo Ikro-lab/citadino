@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "R$ 6 mil por ano não pesa na minha verba, mas eu não contrato nada de um fornecedor que eu nunca ouvi falar sem referência de outra prefeitura e sem saber o que acontece com o site e com os dados dos atletas se a empresa sumir no meio do campeonato. Já passei por isso e já levei bronca do controle interno por menos.",
+  "objection": "Quem mais usa isso? Se o suporte acabar depois de seis meses, como foi com o último sistema, eu fico com campeonato no ar, dados de menor de idade na mão de terceiro e uma nota fiscal mensal que a procuradoria vai questionar. O anúncio não fala de SLA, de quem é dono dos dados, de LGPD, nem de o que acontece no fim do contrato.",
+  "would_change_my_mind": "Duas ou três prefeituras de porte parecido usando há pelo menos uma temporada, que eu possa ligar, mais uma minuta de contrato com SLA, cláusula de propriedade e exportação dos dados e tratamento de LGPD que a minha procuradoria aprove.",
+  "price_too_cheap": 1500,
+  "price_cheap": 3600,
+  "price_expensive": 12000,
+  "price_too_expensive": 30000
+}

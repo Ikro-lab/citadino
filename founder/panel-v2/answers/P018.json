@@ -1,0 +1,13 @@
+{
+  "id": "P018",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "timing",
+  "reason": "É por temporada, sem fidelidade, R$ 2 mil cabe fácil na verba e na dispensa, e termina antes da eleição sem deixar contrato pendurado para o próximo. Faço o piloto numa categoria e, se a súmula funcionar no ginásio, pago a temporada e ainda levo o relatório pro prefeito.",
+  "objection": "Ano eleitoral: site com a cara da prefeitura e notificação para a torcida perto da eleição pode virar problema de publicidade institucional com a procuradoria. E suporte de um desenvolvedor só: se ele some no dia da final, quem leva bronca sou eu.",
+  "would_change_my_mind": "Se a procuradoria disser que o site com a identidade da prefeitura não pode ficar no ar no período eleitoral, eu não contrato.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 4000,
+  "price_too_expensive": 8000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já faço tabela e classificação no Copa Fácil de graça; o anúncio é chato, mas não me custa nada. R$ 800 é a inscrição de um time inteiro, e meu campeonato mal fecha a conta da quadra e do troféu.",
+  "objection": "Quem vai lançar a súmula? Meu mesário é o filho do dono da quadra, ele mal anota o placar no papel. Se ninguém lançar na hora, o site fica tão atrasado quanto o app grátis e eu paguei R$ 800 à toa.",
+  "would_change_my_mind": "Se eu fechasse um patrocinador que pagasse a cota do site, ou seja, o Citadino se pagando sem sair um real das inscrições, e alguém me mostrasse o mesário de outra liga de várzea lançando a súmula no celular sem enrolação.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 350,
+  "price_too_expensive": 600
+}

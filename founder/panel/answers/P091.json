@@ -1,0 +1,13 @@
+{
+  "id": "P091",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O dinheiro nem é o problema, R$ 6 mil some no meu orçamento. Mas vocês vão guardar documento e comprovante de residência de centenas de atletas, inclusive menores da base, e eu não levo pra TI e procuradoria uma empresa que nenhuma cidade que eu conheço usa e que não diz nada de LGPD.",
+  "objection": "Quem é essa empresa, onde ficam os dados dos atletas e o que acontece se o site cair num sábado de final ou se vocês sumirem no meio do contrato de 12 meses? A procuradoria vai me perguntar isso e eu não tenho resposta.",
+  "would_change_my_mind": "Ver funcionando num campeonato de outra prefeitura do meu porte, com o contato do secretário de lá, e receber um termo de tratamento de dados (LGPD) e um contrato que a procuradoria aceite, de preferência com um piloto de uma categoria antes dos 12 meses.",
+  "price_too_cheap": 1500,
+  "price_cheap": 3500,
+  "price_expensive": 15000,
+  "price_too_expensive": 35000
+}

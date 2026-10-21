@@ -1,0 +1,13 @@
+{
+  "id": "P046",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga um sistema de gestão esportiva e o campeonato roda há anos com planilha e grupo de WhatsApp. Trocar ou somar mais R$ 6 mil por ano por um site bonito eu não consigo justificar pro prefeito nem pro setor de compras.",
+  "objection": "Eu já tenho fornecedor contratado e não sei quem são vocês. Se o sistema cair num sábado à noite no ginásio, ou a empresa sumir no meio do contrato de 12 meses, quem responde sou eu.",
+  "would_change_my_mind": "Um mês de teste grátis num campeonato de verdade aqui, com referência de outra prefeitura pequena que já usa, e sem me obrigar a contrato de 12 meses logo de cara.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

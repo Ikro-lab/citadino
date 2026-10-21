@@ -1,0 +1,13 @@
+{
+  "id": "P017",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Eu já monto o campeonato no Copa Fácil de graça. Tem anúncio e o resultado atrasa, mas o Instagram da prefeitura resolve, e R$ 6 mil por ano é um pedaço grande da minha verba de eventos, que precisa pagar arbitragem, troféu e lanche dos atletas.",
+  "objection": "Quando acabar o contrato de 12 meses, os dados dos atletas, documento e comprovante de residência ficam com quem? Isso não está escrito em lugar nenhum, e eu assino em nome da prefeitura.",
+  "would_change_my_mind": "Cláusula clara no contrato dizendo que os dados são da prefeitura, com exportação completa no fim, e um valor por temporada do campeonato (uns 4 ou 5 meses) em vez de 12 meses pagando o ano inteiro.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

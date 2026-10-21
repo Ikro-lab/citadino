@@ -1,0 +1,13 @@
+{
+  "id": "P014",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Já refiz classificação na mão por causa de um WO que não entrou na conta, e R$ 6 mil por ano na minha verba é troco perto do que eu pago no sistema que já tenho e que não faz jogo ao vivo. Quero ser a primeira cidade da região com o campeonato no celular do torcedor, com notificação de gol, e isso o app grátis de tabela não entrega.",
+  "objection": "Os treinadores vão subir documento e comprovante de residência de atleta, e a TI e a procuradoria vão me perguntar onde esses dados ficam, quem acessa e o que diz o contrato sobre LGPD; a oferta não fala nada disso, e sem isso o processo trava mesmo com dispensa.",
+  "would_change_my_mind": "Se a TI barrar por não ter resposta clara sobre hospedagem e tratamento dos dados dos atletas, ou se eu não puder testar o site com um jogo de verdade antes de assinar 12 meses.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 1500,
+  "price_too_expensive": 3000
+}

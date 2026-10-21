@@ -1,0 +1,13 @@
+{
+  "id": "P013",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Eu sou terceirizado, ganho por evento e ferramenta sai do meu bolso; R$ 2.000 por temporada come uma fatia boa do que eu tiro do campeonato, e a tabela eu já faço de graça. Torcedor recebendo notificação e gol em vídeo é bonito para a prefeitura, mas quem paga sou eu e não ganho um real a mais por isso.",
+  "objection": "Quem paga a conta? Se é para a cara da prefeitura, a prefeitura que contrate; eu não vou bancar do meu cachê uma coisa que app grátis resolve no essencial, e ainda depender de um desenvolvedor sozinho no suporte em dia de jogo.",
+  "would_change_my_mind": "A secretaria assumir o custo dentro do meu contrato (ou como item separado que ela paga direto), e o piloto grátis mostrar que a súmula pelo celular me poupa horas de verdade na semana.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 800,
+  "price_too_expensive": 1500
+}

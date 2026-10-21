@@ -1,0 +1,13 @@
+{
+  "id": "P036",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O preço cabe fácil na verba e o produto resolve o trabalho que eu faço na planilha, mas eu não vou colocar o campeonato da cidade, com a torcida toda olhando, na mão de um fornecedor que eu não conheço e que pode sumir. Se cair no meio da fase final, quem se queima com o secretário sou eu.",
+  "objection": "É uma pessoa só por trás disso. Se o cara ficar doente ou largar o negócio no meio do campeonato, eu fico sem súmula, sem tabela e com a prefeitura pagando contrato de 12 meses por um site fora do ar. E ainda tenho que explicar pro compras e pro secretário por que contratei.",
+  "would_change_my_mind": "Ver funcionando de verdade em outra prefeitura parecida com a minha, falar com o diretor de lá, e poder testar grátis numa competição menor antes de assinar, com cláusula de rescisão se o serviço parar e os dados exportáveis para eu voltar pra planilha.",
+  "price_too_cheap": 150,
+  "price_cheap": 300,
+  "price_expensive": 900,
+  "price_too_expensive": 1500
+}

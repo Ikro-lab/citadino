@@ -1,0 +1,13 @@
+{
+  "id": "P005",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Meu campeonato começa em duas semanas e eu não vou trocar nada agora; no máximo topo o piloto grátis de uma categoria, porque não custa nada e não exige contrato. Pagar, só depois de ver funcionar no meu ginásio e de falar com a outra prefeitura que já contratou.",
+  "objection": "É uma prefeitura só de referência e o suporte é um desenvolvedor sozinho. Se ele some no meio do campeonato, quem leva a bronca do controle interno sou eu, e ainda preciso arrumar mais dois orçamentos para justificar.",
+  "would_change_my_mind": "O piloto rodar bem a primeira fase inteira aqui e eu conseguir ligar para o secretário da prefeitura que já usa e ouvir que deu certo lá.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 4000,
+  "price_too_expensive": 8000
+}

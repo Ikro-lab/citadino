@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Eu pegaria o piloto grátis de uma categoria, porque não custa nada e me livra do card no Canva, mas pagar agora não. O Copa Fácil é de graça e funciona, e eu não levo pro secretário um fornecedor que é um cara só e com uma prefeitura de referência sem ter visto rodar aqui.",
+  "objection": "Se o desenvolvedor ficar doente ou sumir no meio do campeonato, sou eu que fico com a tabela parada e a torcida reclamando no Instagram da prefeitura. Rescindir sem multa não devolve o campeonato.",
+  "would_change_my_mind": "O piloto rodar umas três ou quatro rodadas sem falha aqui, com resultado saindo na hora, e eu poder ligar pro coordenador da outra prefeitura que já contratou.",
+  "price_too_cheap": 300,
+  "price_cheap": 1200,
+  "price_expensive": 4000,
+  "price_too_expensive": 9000
+}

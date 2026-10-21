@@ -1,0 +1,13 @@
+id,segmento,comportamento,too_cheap,cheap,expensive,too_expensive
+P028,terceirizado,Político de resultado,400,1000,2000,3600
+P039,terceirizado,Já usa app grátis,120,320,800,1400
+P042,terceirizado,Fim de mandato,400,1000,2000,3200
+P044,terceirizado,Entusiasta de tecnologia,320,800,1600,2800
+P047,terceirizado,Fim de mandato,400,1000,1800,2800
+P057,terceirizado,Cauteloso com compras,400,1000,2000,3600
+P070,terceirizado,Planilha e WhatsApp,200,600,1200,2000
+P074,terceirizado,Planilha e WhatsApp,400,800,1600,2800
+P096,terceirizado,Cliente de fornecedor de gestão esportiva,320,800,1600,2400
+P100,terceirizado,Fim de mandato,400,1000,2000,3600
+P009,terceirizado,Planilha e WhatsApp,200,600,1500,2500
+P013,terceirizado,Cauteloso com compras,100,300,800,1500

@@ -1,0 +1,257 @@
+{
+ "business": "Citadino: plataforma web/PWA que roda o campeonato municipal de futsal de ponta a ponta (inscrição de times e atletas, súmula ao vivo, classificação, artilharia, perfil de atleta, push para o torcedor), vendida à prefeitura por R$ 500/mês",
+ "seed": 242407,
+ "dealt": 100,
+ "answered": 100,
+ "skipped": [],
+ "buys": 9,
+ "passes": 91,
+ "buy_rate": 0.09,
+ "by_segment": [
+  [
+   "Secretário de esportes de cidade grande ou polo regional (100 a 500 mil habitantes), verba anual acima de R$ 400 mil, já usa ou já cotou sistema de gestão esportiva, compra passa por TI e procuradoria",
+   15,
+   0.13333333333333333
+  ],
+  [
+   "Diretor ou coordenador de esportes de cidade média (20 a 100 mil habitantes), verba anual de eventos entre R$ 80 mil e R$ 400 mil, equipe de 3 a 8 pessoas, precisa convencer o secretário e o setor de compras",
+   35,
+   0.11428571428571428
+  ],
+  [
+   "Secretário de esportes de cidade pequena (até 20 mil habitantes), verba anual de eventos esportivos entre R$ 20 mil e R$ 80 mil, um ou dois funcionários, ele mesmo organiza o campeonato",
+   40,
+   0.075
+  ],
+  [
+   "Organizador terceirizado (liga, associação ou pessoa física) contratado pela prefeitura para tocar o campeonato, ganha por evento e paga as ferramentas do próprio bolso",
+   10,
+   0.0
+  ]
+ ],
+ "by_behaviour": [
+  [
+   "Entusiasta de tecnologia",
+   8,
+   0.875
+  ],
+  [
+   "Político de resultado",
+   15,
+   0.06666666666666667
+  ],
+  [
+   "Planilha e WhatsApp",
+   28,
+   0.03571428571428571
+  ],
+  [
+   "Cauteloso com compras",
+   12,
+   0.0
+  ],
+  [
+   "Cliente de fornecedor de gestão esportiva",
+   12,
+   0.0
+  ],
+  [
+   "Já usa app grátis",
+   18,
+   0.0
+  ],
+  [
+   "Fim de mandato",
+   7,
+   0.0
+  ]
+ ],
+ "by_income": [
+  [
+   "$103,000 and up",
+   34,
+   0.17647058823529413
+  ],
+  [
+   "$74,000 to $103,000",
+   35,
+   0.08571428571428572
+  ],
+  [
+   "under $74,000",
+   31,
+   0.0
+  ]
+ ],
+ "why_not": [
+  [
+   "trust",
+   30,
+   [
+    "R$ 6 mil por ano não pesa na minha verba, mas eu não contrato nada de um fornecedor que eu nunca ouvi falar sem referência de outra prefeitura e sem saber o que acontece com o site e com os dados dos atletas se a empresa sumir no meio do campeonato. Já passei por isso e já levei bronca do controle interno por menos.",
+    "Não levo pro secretário um contrato de 12 meses com fornecedor que nunca vi funcionando em cidade nenhuma, pra um campeonato que dura quatro meses. A planilha dá trabalho, mas o problema dela sou eu, e eu sei resolver; se o site cair no meio da rodada, o problema vira meu nome na secretaria."
+   ],
+   [
+    "P001",
+    "P003"
+   ]
+  ],
+  [
+   "habit",
+   29,
+   [
+    "A prefeitura já paga um sistema de gestão esportiva que cobre escolinhas, ginásio, corrida de rua, jogos escolares e o campeonato. Isso aqui resolve só o futsal, e para colocar um segundo fornecedor eu teria que passar por TI e procuradoria para justificar uma coisa que, no papel, já está contratada.",
+    "A prefeitura já paga Placarsoft para gestão esportiva e o contrato está em vigor. Para trocar ou somar mais um fornecedor eu preciso levar justificativa ao secretário e ao setor de compras, e pelo que li aqui não consigo explicar o que o Citadino faz que o sistema atual não faz, só que é mais bonito no celular."
+   ],
+   [
+    "P002",
+    "P005"
+   ]
+  ],
+  [
+   "price",
+   18,
+   [
+    "R$ 6.000 por ano é entre 8% e 30% de toda a minha verba de eventos, que paga arbitragem, troféu e bola. O que eu faço hoje com Excel, WhatsApp e Canva dá trabalho, mas custa zero, e meu campeonato dura três ou quatro meses, não doze.",
+    "Meu campeonato dura uns quatro meses e eu teria que pagar doze. Seis mil por ano é dinheiro que hoje eu uso em bola, arbitragem e premiação, e a tabela no Excel com o grupo dos treinadores já resolve, dá trabalho mas é meu trabalho."
+   ],
+   [
+    "P010",
+    "P011"
+   ]
+  ],
+  [
+   "timing",
+   12,
+   [
+    "Meu campeonato começa em duas semanas e eu já estou com ele montado no Copa Fácil de graça; não vou parar tudo para abrir processo de contratação, mandar pro jurídico, empenhar e ainda ensinar os treinadores a cadastrar documento pelo link agora. Site no ar em 5 dias úteis é promessa de vocês, mas o contrato dentro da prefeitura não sai em 5 dias.",
+    "Meu campeonato começa em duas semanas e só pra passar contrato de 12 meses pelo secretário e pelo setor de compras já vai mais que isso; 5 dias úteis depois da assinatura não me salva. Este ano eu fecho na planilha e no Canva de novo e penso nisso pro próximo."
+   ],
+   [
+    "P015",
+    "P031"
+   ]
+  ],
+  [
+   "need",
+   2,
+   [
+    "Seis mil por ano não é o problema, minha verba aguenta. O problema é que isso resolve só o futsal, e eu toco futebol de campo, vôlei, corrida de rua, jogos escolares; já cotei sistema que cobre a secretaria inteira e não vou abrir mais um processo na TI e na procuradoria por um pedaço do que eu preciso.",
+    "O que o prefeito vê é abertura, troféu e o card no Instagram da prefeitura, e isso aqui não fala nada de gerar card nem vídeo pra rede social. Site com súmula e classificação é coisa que só os times olham, e R$ 6 mil por ano pra trocar uma planilha que já funciona eu não levo pro secretário agora."
+   ],
+   [
+    "P013",
+    "P075"
+   ]
+  ]
+ ],
+ "why_yes": [
+  [
+   "need",
+   9,
+   [
+    "R$ 6 mil por ano é troco perto da minha verba e cabe na dispensa sem dor de cabeça; o que me pega é a súmula ao vivo com classificação que não quebra por WO e o site com a cara da prefeitura, que é exatamente o que eu refaço no Excel e posto no Instagram hoje. Já cotei sistema antes e esse é mais barato do que o que me mostraram.",
+    "Já refiz classificação na mão por causa de um WO que não entrou na conta, e R$ 6 mil por ano na minha verba é troco perto do que eu pago no sistema que já tenho e que não faz jogo ao vivo. Quero ser a primeira cidade da região com o campeonato no celular do torcedor, com notificação de gol, e isso o app grátis de tabela não entrega."
+   ],
+   [
+    "P012",
+    "P014"
+   ]
+  ]
+ ],
+ "flip": [
+  "Duas ou três prefeituras de porte parecido usando há pelo menos uma temporada, que eu possa ligar, mais uma minuta de contrato com SLA, cláusula de propriedade e exportação dos dados e tratamento de LGPD que a minha procuradoria aprove.",
+  "Se cobrisse todas as modalidades da secretaria (não só futsal) a ponto de substituir o fornecedor atual, com resposta pronta de LGPD e hospedagem dos dados para a TI, e um piloto de um campeonato sem me amarrar em 12 meses.",
+  "Rodar um campeonato inteiro de teste sem contrato de 12 meses (ou contrato só pelo tempo do campeonato), com uma cidade vizinha de referência pra eu ligar e perguntar como foi, e a súmula podendo ser lançada depois do jogo a partir do papel, não obrigatoriamente ao vivo.",
+  "Uma prefeitura vizinha já usando, com o contrato e o empenho dela pra eu copiar o modelo, e contrato amarrado à duração do campeonato em vez de 12 meses fechados.",
+  "Rodar um campeonato inteiro da minha cidade como piloto, sem contrato de 12 meses, para eu mostrar ao secretário o site no ar com a cara da prefeitura e o torcedor recebendo notificação. Se o Instagram da secretaria parar de depender do meu card no Canva, aí eu tenho argumento para o compras.",
+  "Cobrar por campeonato ou por temporada (uns R$ 2 mil pela edição inteira) ou me deixar rodar uma categoria de graça nesta edição para eu mostrar ao secretário a torcida usando.",
+  "Contrato por temporada (três ou quatro meses) com cláusula escrita de que o site e os dados dos atletas são da prefeitura e eu consigo baixar tudo no fim.",
+  "Ver o sistema rodando uma temporada inteira numa cidade do meu porte, com o secretário de lá me dizendo que o suporte continuou depois do campeonato e que os mesários conseguiram operar a súmula.",
+  "Cláusula escrita de que os dados e o site são da prefeitura com exportação garantida no fim, mais o telefone de um secretário de outra cidade que use há mais de um ano e me diga que o suporte não sumiu.",
+  "Cobrar por campeonato (algo em torno de R$ 1.500 a R$ 2.000 pela edição inteira) em vez de contrato anual, ou me deixar rodar esta edição de graça para eu mostrar ao prefeito funcionando antes de assinar.",
+  "Contrato por campeonato, uns quatro ou cinco meses, com a súmula funcionando sem internet e sincronizando depois. Aí eu levo pro prefeito como o site da prefeitura e dá pra mostrar no relatório do ano.",
+  "Cobrir as outras modalidades da secretaria (campo, vôlei, basquete, jogos escolares) e vir com termo de tratamento de dados pronto pra passar na TI e na procuradoria; aí eu levo pro prefeito como vitrine da secretaria.",
+  "Contrato por campeonato, de 4 a 6 meses, em vez de 12; aí eu coloco no planejamento do ano que vem com tempo de passar pelo jurídico.",
+  "Rodar uma categoria do campeonato de graça por uma rodada, com a identidade da prefeitura, e eu ver os torcedores recebendo a notificação de gol e o prefeito compartilhando o link; aí tenho a foto e a história para levar ao secretário e substituir a Placarsoft em vez de somar contrato.",
+  "Cláusula clara no contrato dizendo que os dados são da prefeitura, com exportação completa no fim, e um valor por temporada do campeonato (uns 4 ou 5 meses) em vez de 12 meses pagando o ano inteiro.",
+  "Um secretário de outra cidade do tamanho da minha me dizer que usou numa edição inteira, o mesário dele deu conta, e o contrato passou no controle interno sem apontamento. E poder contratar só pelos meses do campeonato.",
+  "Rodar este campeonato de graça como piloto, com os times importados da planilha que já tenho, e deixar o contrato anual para o próximo ano, quando eu consigo encaixar no planejamento e levar o resultado deste ano para o secretário.",
+  "Telefone de um secretário de esportes de cidade do meu tamanho que usou isso num campeonato inteiro e me diga que o mesário dele deu conta, mais um contrato só pela temporada do campeonato, com cláusula de rescisão, em vez de 12 meses fechados.",
+  "Um preço por campeonato, tipo R$ 1.500 a R$ 2.000 pela temporada sem amarrar 12 meses, e ver funcionando numa cidade do meu tamanho aqui da região.",
+  "Ver rodando numa cidade do meu tamanho aqui da região, com o diretor de lá me dizendo que funcionou no ginásio sem dar problema, e de preferência um primeiro campeonato de teste sem contrato de 12 meses.",
+  "Ver funcionando de graça num campeonato inteiro de outra cidade do meu porte, com o secretário de lá dizendo que economizou trabalho da equipe, e saber que substitui o que a Placarsoft faz em vez de somar custo.",
+  "Rodar um campeonato inteiro de graça ou por um valor fechado só da temporada, e eu ver na prática a página com a marca da prefeitura sendo compartilhada pelos torcedores e menos time reclamando de suspensão na minha porta.",
+  "Ver funcionando numa cidade vizinha do nosso tamanho e falar com o secretário de lá, e poder testar num campeonato só, sem fidelidade de 12 meses, pagando por temporada.",
+  "Ver funcionando numa prefeitura vizinha do meu tamanho, com atestado de capacidade técnica, e pagar só pelos meses do campeonato em vez de 12 meses.",
+  "Cobrar só pelos meses do campeonato, tipo R$ 1.500 a R$ 2.000 pela temporada, e gerar sozinho o card de resultado pronto pro Instagram da prefeitura, que é o que me come a semana.",
+  "Ver uma prefeitura da região usando, com o secretário de lá atestando o suporte, e poder contratar só pelo período do campeonato ou com a prefeitura pagando direto com a documentação pronta pra dispensa (CNPJ, atestado de capacidade técnica e proposta no formato do setor de compras).",
+  "Ver outra prefeitura do nosso porte usando num campeonato inteiro sem problema, com o secretário de lá me confirmando, mais um contrato com garantia de continuidade e cláusula de entrega dos dados se o serviço acabar.",
+  "Uma demonstração com a cidade de um vizinho já usando, e a possibilidade de testar de graça neste campeonato e só assinar o contrato pro próximo, com início alinhado ao calendário.",
+  "Pagar só pelos meses do campeonato, uns R$ 1.500 a R$ 2.000 no total, e ver funcionando numa cidade do meu tamanho onde o prefeito apareceu bem e os times pararam de reclamar.",
+  "Uma prefeitura de porte parecido que já usou num campeonato inteiro e me atenda no telefone, mais um piloto gratuito numa categoria antes de assinar os 12 meses.",
+  "Ver funcionando num campeonato de outra cidade do meu porte, com um teste grátis numa categoria e alguém ensinando meu mesário na quadra, sem fidelidade de 12 meses no primeiro ano.",
+  "Ver funcionando de verdade em outra prefeitura parecida com a minha, falar com o diretor de lá, e poder testar grátis numa competição menor antes de assinar, com cláusula de rescisão se o serviço parar e os dados exportáveis para eu voltar pra planilha.",
+  "Um piloto gratuito numa categoria (tipo o feminino ou veterano) neste campeonato, rodando lado a lado com o sistema atual, pra eu mostrar ao secretário funcionando antes de assinar o próximo contrato.",
+  "Poder pagar só pelos meses do campeonato, por menos de R$ 2 mil no total, e ver funcionando sem internet na quadra, lançando depois quando o sinal voltar.",
+  "Se a prefeitura pagar direto, sem sair do meu cachê, e vocês me entregarem pronta a documentação de dispensa (proposta, CNPJ, atestado de outra prefeitura que já usa) para eu só levar ao secretário.",
+  "Um teste grátis num campeonato inteiro (ou numa categoria) provando que a súmula salva offline e sincroniza depois, e uma prefeitura parecida com a minha que já use e eu possa ligar para perguntar.",
+  "Ver funcionando de verdade numa prefeitura vizinha, com o contato do coordenador de lá pra eu ligar, e poder testar um campeonato inteiro antes de assinar 12 meses, ou contrato só pela temporada do campeonato.",
+  "Um contrato só pelo período do campeonato, de 3 ou 4 meses, que termine antes da eleição e me entregue um relatório bonito para mostrar ao prefeito o que a secretaria fez.",
+  "Ver funcionando numa cidade do meu porte aqui da região, com o diretor de lá confirmando, e um teste grátis numa categoria (o feminino ou a base) antes de fechar 12 meses.",
+  "Um plano por temporada ou por campeonato, sem fidelidade de 12 meses, que eu possa contratar no meu CNPJ e testar sozinha antes, com algo que a Placarsoft não tem (súmula ao vivo e notificação de gol) para mostrar ao prefeito.",
+  "Uma prefeitura vizinha usando de verdade que eu possa ligar, e um teste gratuito numa categoria (veterano ou feminino) deste campeonato, para fechar o contrato só no próximo, já com a proposta pronta para o secretário.",
+  "Um mês de teste grátis num campeonato de verdade aqui, com referência de outra prefeitura pequena que já usa, e sem me obrigar a contrato de 12 meses logo de cara.",
+  "Contratar só pela duração do campeonato, uns 4 ou 5 meses que terminem antes da eleição, sem fidelidade de 12 meses.",
+  "Um piloto gratuito rodando já neste campeonato, sem contrato antes, mais referência de uma prefeitura do meu porte que já usou e um termo de LGPD pronto para a procuradoria.",
+  "Rodar um campeonato inteiro de graça ou com contrato só pela temporada, e ver uma prefeitura vizinha do mesmo tamanho usando e satisfeita.",
+  "Uma prefeitura de porte parecido que use há pelo menos uma temporada inteira e que eu possa ligar para o secretário, mais um contrato com SLA de suporte, cláusula de LGPD e funcionamento da súmula sem internet com sincronização depois.",
+  "Um teste grátis numa categoria só (tipo o veterano) neste campeonato, sem contrato, pra eu ver funcionando na beira da quadra; se der certo, troco o fornecedor atual na renovação.",
+  "Um preço por campeonato, de uns R$ 1.500 a R$ 2.000 só nos meses em que tem jogo, sem fidelidade de 12 meses, e ver funcionando numa cidade do meu tamanho aqui da região.",
+  "Ver funcionando num campeonato de verdade de outra prefeitura do mesmo porte, falar com o coordenador de lá, e poder começar com um teste numa categoria antes de assinar 12 meses.",
+  "Um mês de teste grátis num campeonato real da minha cidade, mostrando que a súmula é rápida de lançar e que o torcedor e o secretário realmente usam o link.",
+  "Ver uma prefeitura do meu tamanho usando no campeonato dela, com números de acesso do torcedor, ou um teste grátis numa categoria para eu mostrar ao secretário antes de assinar.",
+  "Uma prefeitura vizinha usando e me dando referência, mais atestado de capacidade técnica e um contrato por temporada do campeonato em vez de 12 meses fechados.",
+  "Contratar só pela duração do campeonato, uns 3 ou 4 meses, sem fidelidade de 12 meses, com o suporte garantido até a final.",
+  "Ver funcionando numa prefeitura do mesmo porte, com atestado de capacidade técnica, e um piloto grátis num campeonato para eu comparar com o que já tenho antes de renovar o contrato atual.",
+  "Poder testar de graça num campeonato inteiro e falar com o secretário de outra cidade pequena que já usou do começo ao fim, com o preço cobrado só nos meses do campeonato em vez de 12 meses.",
+  "Pagar só pelos meses do campeonato, ou um pacote por campeonato na faixa de R$ 1.500 a R$ 2.000, e de preferência gerando o card de resultado pronto pro Instagram da prefeitura, que é o que me toma a semana.",
+  "Pagar só pelos meses do campeonato, ou um valor fechado de uns R$ 1.500 a R$ 2.000 por edição, de preferência com um campeonato teste de graça para eu ver se os treinadores usam mesmo.",
+  "Uma prefeitura do mesmo porte usando há pelo menos uma temporada, com o secretário de lá me confirmando por telefone, mais um contrato com cláusula de suporte e multa se o site sair do ar.",
+  "Uma prefeitura vizinha do meu porte usando e me indicando, com preço por campeonato em vez de contrato anual, algo perto de R$ 2 mil.",
+  "Pagar só pelos meses do campeonato, bem mais barato, e ver funcionando numa cidade do meu tamanho com mesário comum lançando a súmula sem travar.",
+  "Uma referência de outra prefeitura do mesmo porte que já rodou um campeonato inteiro, mais uma cláusula no contrato garantindo que os dados são da prefeitura e serão entregues e apagados no fim.",
+  "Um preço por temporada, uns R$ 1.500 a R$ 2 mil pelo campeonato, sem fidelidade de 12 meses, e um teste grátis numa rodada pra eu ver funcionando no ginásio.",
+  "Se a própria prefeitura contratasse e pagasse direto, no lugar da Placarsoft e não somado a ela, e isso tirasse de mim o trabalho de cobrar súmula e montar tabela no sábado à noite.",
+  "Ver funcionando de verdade em outra cidade do nosso tamanho, ou um teste de graça numa rodada do nosso campeonato, mostrando que a súmula funciona mesmo sem sinal e sobe sozinha quando a internet volta.",
+  "Ver uma prefeitura vizinha usando num campeonato inteiro sem problema, de preferência com o diretor de lá me contando, e o sistema gerando sozinho o card de resultados pro Instagram da prefeitura.",
+  "Uma prefeitura do meu porte que já rodou um campeonato inteiro com isso e que eu possa ligar, mais um documento de LGPD e hospedagem pronto pra eu entregar à TI e à procuradoria.",
+  "Ver funcionando sem internet na quadra, sincronizando depois, numa cidade parecida com a minha, e a secretaria bancar o contrato sem eu precisar defender.",
+  "Se o sistema gerasse sozinho os cards de resultado, artilharia e melhor da rodada com a marca da prefeitura, prontos pra postar, e eu visse outra prefeitura do meu porte usando sem reclamação de time.",
+  "Ver funcionando numa cidade do nosso tamanho e um teste grátis na próxima edição, sem contrato de 12 meses amarrado.",
+  "Um teste gratuito numa rodada ou categoria agora, sem contrato, e depois poder contratar só pelos meses do campeonato, com referência de outra prefeitura usando.",
+  "Ver funcionando sem sinal (lanca offline e sincroniza depois) em outra prefeitura do meu porte que eu possa ligar e perguntar, mais um periodo de teste num campeonato menor antes de assinar 12 meses.",
+  "Um piloto gratuito numa categoria, rodando em paralelo ao sistema atual, e referência de outra prefeitura do nosso porte que usa há uma temporada inteira, com LGPD dos documentos dos atletas resolvida por escrito.",
+  "Pagar só pelos meses do campeonato, uns R$ 1.500 a R$ 2.000 pela temporada, e ver funcionando na cidade vizinha antes.",
+  "Ver funcionando sem internet na beira da quadra, sincronizando depois, numa cidade parecida com a minha, com termo de LGPD e documentação pronta para a TI e a procuradoria aprovarem.",
+  "Ver isso rodando numa cidade do meu tamanho aqui perto, com torcedor usando de verdade, e poder testar um campeonato inteiro sem pagar antes de assinar 12 meses.",
+  "Uma prefeitura parecida com a minha usando há pelo menos uma temporada, com o contato do coordenador de lá para eu ligar, mais um período de teste num torneio menor antes do contrato de 12 meses.",
+  "Ver rodando numa cidade parecida com a minha, com um colega diretor que eu possa ligar, e um teste grátis numa rodada ou categoria mostrando que a súmula funciona mesmo com o sinal ruim do ginásio.",
+  "Pagar só pelos meses do campeonato, tipo R$ 1.500 a R$ 2.000 pela temporada, sem fidelidade de 12 meses.",
+  "Contratar só pelo período do campeonato, uns 3 ou 4 meses, sem fidelidade de 12 meses, e a súmula funcionar offline e sincronizar depois quando o sinal voltar.",
+  "Ver uma cidade do meu porte aqui da região rodando o campeonato inteiro nisso, falar com o coordenador de lá, e poder testar uma categoria de graça antes de levar ao secretário.",
+  "Ver o sistema rodando em outra prefeitura do meu porte, com o contato do secretário de lá, e um contrato com CNPJ, cláusula de disponibilidade e garantia de entrega dos dados se o serviço acabar; um piloto grátis numa categoria antes de assinar o ano inteiro.",
+  "Uma prefeitura do meu porte que já rodou um campeonato inteiro no sistema e topa atender meu telefonema, mais uma cláusula no contrato garantindo que os dados são da prefeitura, com exportação e exclusão no fim e tratamento conforme a LGPD.",
+  "Se o contrato com a Placarsoft vencesse e eles me mostrassem uma cidade pequena como a minha usando isso com um mesário comum, sem complicação, e com preço igual ou menor que o que já pagamos.",
+  "Ver funcionando num campeonato de outra prefeitura do meu porte, com o contato do secretário de lá, e receber um termo de tratamento de dados (LGPD) e um contrato que a procuradoria aceite, de preferência com um piloto de uma categoria antes dos 12 meses.",
+  "Se custasse bem menos ou fosse cobrado só nos meses do campeonato, e se eu pudesse testar de graça numa categoria antes, mostrando que substitui o que a Placarsoft faz para eu cancelar um dos dois.",
+  "Contrato só pela duração do campeonato (3 a 4 meses, ou valor fechado por edição), terminando antes da eleição, com atestado de capacidade técnica de outra prefeitura para eu anexar no processo.",
+  "Contratar só pela duração do campeonato, uns 3 ou 4 meses, sem fidelidade, e terminando antes da eleição.",
+  "Cobrar só pelos meses do campeonato, sem fidelidade de 12 meses, e eu poder testar numa edição antes; aí eu mostraria ao secretário a súmula ao vivo e as notificações que a Placarsoft não tem.",
+  "Funcionar sem internet na beira da quadra e sincronizar depois, com preço por campeonato (uns R$ 1.500 a 2.000 pela temporada) em vez de contrato de 12 meses pagando mês sem jogo.",
+  "Um pacote por campeonato, uns R$ 1.500 a R$ 2.000 pela temporada, sem fidelidade de 12 meses, com um relatório no fim que eu possa levar pro prefeito mostrando quantos atletas, jogos e acessos teve.",
+  "Pagar só pelo campeonato, uns 3 ou 4 meses, sem fidelidade de 12 meses, de preferência contratado no meu nome por evento, e alguma garantia de que os dados ficam com a gente se o serviço parar."
+ ],
+ "purchases_first_month_per_buyer": 1.0,
+ "price_answers": 100
+}

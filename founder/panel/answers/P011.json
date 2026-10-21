@@ -1,0 +1,13 @@
+{
+  "id": "P011",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Meu campeonato dura uns quatro meses e eu teria que pagar doze. Seis mil por ano é dinheiro que hoje eu uso em bola, arbitragem e premiação, e a tabela no Excel com o grupo dos treinadores já resolve, dá trabalho mas é meu trabalho.",
+  "objection": "Se o sinal cair no ginásio no meio do jogo, a súmula não sobe, o torcedor abre o link e não vê nada, e quem leva a reclamação sou eu, não o suporte de WhatsApp. E ainda tenho que justificar pro prefeito um contrato de doze meses pra uma coisa que roda quatro.",
+  "would_change_my_mind": "Contrato por campeonato, uns quatro ou cinco meses, com a súmula funcionando sem internet e sincronizando depois. Aí eu levo pro prefeito como o site da prefeitura e dá pra mostrar no relatório do ano.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 350,
+  "price_too_expensive": 500
+}

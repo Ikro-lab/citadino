@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason": "Hoje eu rodo o campeonato no Copa Fácil de graça e ele funciona, com anúncio e tudo. Faço o piloto grátis numa categoria, mas pagar, levar pro secretário e passar por compras faltando duas semanas pro campeonato eu não faço antes de ver funcionando no meu ginásio num sábado à noite.",
+  "reason_code": "habit",
+  "objection": "O suporte é uma pessoa só. Se o sistema travar no meio da rodada com o ginásio cheio e o desenvolvedor não atender, quem leva a bronca na frente do secretário sou eu, e o app grátis pelo menos eu já sei usar.",
+  "would_change_my_mind": "O piloto rodar umas três rodadas sem problema e eu ver os torcedores e os treinadores usando de verdade; aí levo o resultado pro secretário e contrato a próxima temporada.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 4000,
+  "price_too_expensive": 8000
+}

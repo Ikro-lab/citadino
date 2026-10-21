@@ -1,0 +1,13 @@
+{
+  "id": "P098",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "R$ 6 mil por ano cabe tranquilo na minha verba e eu quero ser a primeira cidade da região com o jogo ao vivo no celular. Se fica no ar em 5 dias úteis, dá tempo de rodar já neste campeonato.",
+  "objection": "Contrato de 12 meses sendo que o campeonato dura dois ou três meses; não sei se o jurídico da prefeitura aceita pagar mensalidade o ano inteiro por algo que eu nunca testei, e se os 5 dias úteis atrasarem eu perco a abertura.",
+  "would_change_my_mind": "Se não der pra assinar e colocar no ar antes da primeira rodada, eu deixo pro próximo campeonato.",
+  "price_too_cheap": 100,
+  "price_cheap": 300,
+  "price_expensive": 900,
+  "price_too_expensive": 1500
+}

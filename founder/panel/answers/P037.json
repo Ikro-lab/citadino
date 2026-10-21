@@ -1,0 +1,13 @@
+{
+  "id": "P037",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga a Placarsoft e meu campeonato começa em duas semanas; trocar agora é justificar para o secretário e para compras, refazer o cadastro dos times e arriscar dar pau no sábado com o ginásio cheio. Até pode ficar no ar em 5 dias úteis, mas não vou implantar sistema novo no meio da largada.",
+  "objection": "Se a súmula ao vivo travar no ginásio sem sinal bom, quem vai ser cobrado sou eu. E eu já tenho fornecedor contratado, então são R$ 6 mil a mais que vou ter que explicar por que não dá pra fazer com o que já pagamos.",
+  "would_change_my_mind": "Um piloto gratuito numa categoria (tipo o feminino ou veterano) neste campeonato, rodando lado a lado com o sistema atual, pra eu mostrar ao secretário funcionando antes de assinar o próximo contrato.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 600,
+  "price_too_expensive": 1000
+}

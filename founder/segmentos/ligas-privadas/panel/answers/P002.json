@@ -1,0 +1,13 @@
+{
+  "id": "P002",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "A parte de aprovar atleta com documento é exatamente o que me tira o sono, mas R$ 800 para uma copa de fim de semana ou de três semanas é preço de campeonato de quatro meses. Para o meu formato curto, o Copa Fácil de graça mais uma planilha de inscritos ainda sai mais em conta.",
+  "objection": "O pacote foi pensado para liga longa: até 4 meses, 32 times, todas as categorias. Eu faço copa de 12 a 16 times que acaba rápido, então pago por muita coisa que não uso, e vídeo de gol e votação de craque não resolvem briga de gato na beira da quadra.",
+  "would_change_my_mind": "Um preço para copa curta, na faixa de R$ 300 a R$ 400 por edição, ou um pacote que cubra várias copas no ano pelo valor de uma.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 450,
+  "price_too_expensive": 700
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P001",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Meu campeonato começa em duas semanas e eu não vou trocar a planilha que funciona por um sistema que só uma prefeitura usou. Aceito o piloto grátis numa categoria ao lado do Excel, mas pagar e levar pro secretário só depois de ver funcionar na quadra.",
+  "objection": "O suporte é uma pessoa só. Se ele ficar doente ou sumir no meio da temporada, quem passa vergonha na frente do secretário e dos treinadores sou eu, e a rescisão sem multa não resolve campeonato parado.",
+  "would_change_my_mind": "Ver o piloto rodar duas ou três rodadas sem eu precisar corrigir nada à mão, com WO e suspensão calculados certo, e conversar com o organizador da outra prefeitura.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 4500,
+  "price_too_expensive": 10000
+}

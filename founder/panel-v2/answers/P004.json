@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O preço cabe folgado na dispensa e o kit de compras ajuda, mas é um desenvolvedor sozinho com uma prefeitura de referência; não vou colocar o campeonato da cidade e meu nome na mão disso sem ver funcionar. Aceito o piloto grátis de uma categoria, mas contratar neste mês, não.",
+  "objection": "Se esse rapaz ficar doente ou desistir no meio da temporada, quem atende no dia de jogo? Uma referência só não me dá CNPJ com histórico, e eu é que vou responder ao secretário e ao prefeito se der problema.",
+  "would_change_my_mind": "O piloto rodar uma rodada inteira sem eu precisar ligar pra ele, e eu poder conversar com o diretor de esportes da prefeitura que já contratou.",
+  "price_too_cheap": 500,
+  "price_cheap": 1500,
+  "price_expensive": 5000,
+  "price_too_expensive": 12000
+}

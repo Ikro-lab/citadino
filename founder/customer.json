@@ -1,0 +1,41 @@
+{
+  "business": "Citadino: plataforma web/PWA que roda o campeonato municipal de futsal de ponta a ponta (inscrição de times e atletas, súmula ao vivo, classificação, artilharia, perfil de atleta, push para o torcedor), vendida à prefeitura por R$ 500/mês",
+  "target": "Quem decide a compra de serviços para o campeonato municipal numa prefeitura brasileira: o secretário ou diretor de esportes, ou o coordenador que organiza o campeonato e leva a proposta ao secretário. Todos os valores são em reais (R$); o salário acima é o seu, pessoal, e o que você gasta é dinheiro público da secretaria, com dispensa de licitação até R$ 65 mil por ano",
+  "where": "Brasil, cidades do interior",
+  "age": [28, 62],
+  "segments": [
+    {"name": "Secretário de esportes de cidade pequena (até 20 mil habitantes), verba anual de eventos esportivos entre R$ 20 mil e R$ 80 mil, um ou dois funcionários, ele mesmo organiza o campeonato", "share": 0.40, "income": [48000, 96000]},
+    {"name": "Diretor ou coordenador de esportes de cidade média (20 a 100 mil habitantes), verba anual de eventos entre R$ 80 mil e R$ 400 mil, equipe de 3 a 8 pessoas, precisa convencer o secretário e o setor de compras", "share": 0.35, "income": [60000, 144000]},
+    {"name": "Secretário de esportes de cidade grande ou polo regional (100 a 500 mil habitantes), verba anual acima de R$ 400 mil, já usa ou já cotou sistema de gestão esportiva, compra passa por TI e procuradoria", "share": 0.15, "income": [96000, 240000]},
+    {"name": "Organizador terceirizado (liga, associação ou pessoa física) contratado pela prefeitura para tocar o campeonato, ganha por evento e paga as ferramentas do próprio bolso", "share": 0.10, "income": [36000, 90000]}
+  ],
+  "behaviours": [
+    {"name": "Planilha e WhatsApp", "share": 0.28, "how": "Faz a tabela no Excel, cobra resultado no grupo dos treinadores, posta card no Instagram da prefeitura. Funciona, dá trabalho, e você já fez assim por anos."},
+    {"name": "Já usa app grátis", "share": 0.18, "how": "Monta o campeonato no Copa Fácil ou iFut no plano gratuito. Reclama de anúncio e de resultado atrasado, mas é de graça."},
+    {"name": "Cliente de fornecedor de gestão esportiva", "share": 0.12, "how": "A prefeitura já contrata Placarsoft, GZL ou similar para gestão esportiva. Trocar significa justificar para o secretário e para o setor de compras."},
+    {"name": "Político de resultado", "share": 0.15, "how": "O que importa é o prefeito ver a cidade bonita: abertura, troféu, foto, vídeo. Compra o que dá visibilidade e evita o que dá reclamação de time."},
+    {"name": "Cauteloso com compras", "share": 0.12, "how": "Já tomou bronca do controle interno ou do TCE. Só contrata com três orçamentos, referência de outra prefeitura e contrato bem amarrado."},
+    {"name": "Entusiasta de tecnologia", "share": 0.08, "how": "Gosta de novidade, testa app sozinho, quer ser a primeira cidade da região a ter o jogo ao vivo no celular."},
+    {"name": "Fim de mandato", "share": 0.07, "how": "Está no último ano da gestão. Evita contrato de 12 meses que a próxima gestão vai cortar, e não quer começar nada que não termine antes da eleição."}
+  ],
+  "objections": [
+    "R$ 6 mil por ano por um campeonato que a gente já faz na planilha de graça?",
+    "Tem app grátis que faz tabela, por que eu pagaria?",
+    "Quem vai preencher a súmula ao vivo no ginásio? Meu mesário mal usa o celular.",
+    "Se o sinal cair no ginásio, o jogo não aparece e a torcida reclama comigo.",
+    "A Placarsoft já atende a prefeitura. Por que outro sistema?",
+    "Isso passa no setor de compras? Preciso de três orçamentos e CNPJ com referência.",
+    "Quando acabar o contrato, os dados dos atletas ficam com quem?",
+    "É uma pessoa só por trás disso. E se o cara sumir no meio do campeonato?",
+    "Meu campeonato começa daqui a duas semanas. Dá tempo de implantar?"
+  ],
+  "habits": [
+    "você acompanha os jogos do campeonato pessoalmente no ginásio aos sábados à noite",
+    "você recebe no WhatsApp pessoal a reclamação de treinador sobre tabela errada",
+    "você já teve que refazer a classificação à mão porque um WO não entrou na conta",
+    "você passou a semana montando o card de resultados no Canva para o Instagram da prefeitura",
+    "você precisa apresentar ao prefeito o que a secretaria fez neste ano",
+    "você tem outras doze coisas para tocar além do campeonato: escolinhas, ginásio, corrida de rua, jogos escolares",
+    "você já viu um sistema contratado pela prefeitura ficar sem suporte depois de seis meses"
+  ]
+}

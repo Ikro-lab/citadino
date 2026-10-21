@@ -1,0 +1,13 @@
+{
+  "id": "P010",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "Minha liga tem uns 12 times pagando uns R$ 500, e R$ 800 é quase duas inscrições inteiras para trocar uma planilha e um grupo de WhatsApp que já funcionam. A parte de aprovar atleta com documento me interessa porque já anulei jogo por atleta irregular, mas o resto (vídeo de gol, voto no craque, notificação) é enfeite para o tamanho da minha liga.",
+  "objection": "Os capitães não vão cadastrar atleta com documento pelo link, vão mandar foto do RG no WhatsApp e eu vou acabar fazendo o cadastro de todo mundo sozinha. E o mesário da várzea não vai lançar súmula no celular na beira da quadra.",
+  "would_change_my_mind": "Um patrocinador já topando pagar uma cota maior por causa do site com logo, de modo que o sistema se pague sozinho, ou um teste grátis numa edição para eu ver se os capitães realmente cadastram pelo link.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 450,
+  "price_too_expensive": 700
+}

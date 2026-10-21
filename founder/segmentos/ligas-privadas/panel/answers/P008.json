@@ -1,0 +1,13 @@
+{
+  "id": "P008",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "O preço até cabe no caixa da liga, uma cota de patrocínio paga isso. Mas é um sistema de uma pessoa só, e eu não troco o app grátis que já funciona por algo que pode cair no dia da final, com a premiação em jogo e todo mundo cobrando no meu WhatsApp.",
+  "objection": "Se o desenvolvedor ficar doente, sumir ou o site sair do ar na final, quem me socorre? No grátis pelo menos eu sei que é empresa grande e que não cai.",
+  "would_change_my_mind": "Ver outra liga do meu tamanho rodando uma edição inteira com ele sem problema, e poder testar uma edição de graça ou pagar só no fim se tudo funcionar.",
+  "price_too_cheap": 150,
+  "price_cheap": 400,
+  "price_expensive": 900,
+  "price_too_expensive": 1500
+}

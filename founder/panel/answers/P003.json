@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Não levo pro secretário um contrato de 12 meses com fornecedor que nunca vi funcionando em cidade nenhuma, pra um campeonato que dura quatro meses. A planilha dá trabalho, mas o problema dela sou eu, e eu sei resolver; se o site cair no meio da rodada, o problema vira meu nome na secretaria.",
+  "objection": "Quem vai lançar a súmula ao vivo na beira da quadra? Meu mesário preenche no papel e mal mexe no celular; se ele não lançar, a classificação fica errada do mesmo jeito que fica hoje quando o WO não entra, só que agora na frente de toda a cidade.",
+  "would_change_my_mind": "Rodar um campeonato inteiro de teste sem contrato de 12 meses (ou contrato só pelo tempo do campeonato), com uma cidade vizinha de referência pra eu ligar e perguntar como foi, e a súmula podendo ser lançada depois do jogo a partir do papel, não obrigatoriamente ao vivo.",
+  "price_too_cheap": 100,
+  "price_cheap": 250,
+  "price_expensive": 800,
+  "price_too_expensive": 1500
+}

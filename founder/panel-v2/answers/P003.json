@@ -1,0 +1,13 @@
+{
+  "id": "P003",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga a Placarsoft e o campeonato está rodando; não vou abrir processo de compra novo no meio do ano para trocar de fornecedor. O piloto grátis eu até aceito numa categoria, mas pagar agora, não.",
+  "objection": "É um desenvolvedor sozinho fazendo o suporte. Se ele some ou adoece no meio da temporada, quem explica para o prefeito e para os times sou eu, e ainda tenho que justificar no compras por que larguei o fornecedor que já funcionava.",
+  "would_change_my_mind": "O piloto dar certo e o relatório de fim de temporada ficar bonito o bastante para eu levar ao prefeito, com o torcedor da cidade usando de verdade; aí eu contrato a próxima temporada com o kit de compras.",
+  "price_too_cheap": 300,
+  "price_cheap": 1000,
+  "price_expensive": 3500,
+  "price_too_expensive": 6000
+}

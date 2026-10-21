@@ -1,0 +1,13 @@
+{
+  "id": "P015",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "O campeonato já roda no app grátis e a Placarsoft já está dentro da prefeitura; R$ 2.000 é troco no meu orçamento, mas abrir mais um fornecedor passando por TI e procuradoria dá trabalho que ninguém pediu. Talvez eu deixe o coordenador testar o piloto grátis numa categoria, mas contratar neste mês, não.",
+  "objection": "É um desenvolvedor sozinho atendendo uma cidade de 300 mil habitantes. Se ele sumir ou ficar doente no meio da temporada, quem leva a bronca no WhatsApp sou eu, e ainda tenho que explicar na procuradoria por que contratei mais um sistema se a Placarsoft já atende.",
+  "would_change_my_mind": "O piloto rodar uma rodada inteira sem erro na tabela e os treinadores pararem de me mandar reclamação, com o prefeito vendo o gol em vídeo no celular dele.",
+  "price_too_cheap": 500,
+  "price_cheap": 2000,
+  "price_expensive": 15000,
+  "price_too_expensive": 40000
+}

@@ -1,0 +1,13 @@
+{
+  "id": "P020",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Bonito no papel, mas eu não assino contrato de 12 meses, R$ 6 mil de verba pública, com uma empresa que nunca ouvi falar e sem nenhuma prefeitura pra me dizer que funcionou no campeonato dela. Depois da bronca que levei do controle interno, eu só contrato com três orçamentos e referência, e isso aqui não tem nem o segundo orçamento.",
+  "objection": "Quem vai lançar a súmula ao vivo na beira da quadra? Meu mesário mal usa o celular, e se o site ficar desatualizado no meio do jogo a torcida vai reclamar comigo, não com vocês. E R$ 6 mil fixo por ano pesa num orçamento que às vezes é R$ 20 mil pra todos os eventos.",
+  "would_change_my_mind": "Telefone de um secretário de esportes de cidade do meu tamanho que usou isso num campeonato inteiro e me diga que o mesário dele deu conta, mais um contrato só pela temporada do campeonato, com cláusula de rescisão, em vez de 12 meses fechados.",
+  "price_too_cheap": 100,
+  "price_cheap": 200,
+  "price_expensive": 650,
+  "price_too_expensive": 1000
+}

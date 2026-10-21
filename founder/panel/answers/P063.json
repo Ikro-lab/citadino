@@ -1,0 +1,13 @@
+{
+  "id": "P063",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "Minha verba de eventos inteira é de R$ 20 a 80 mil no ano e R$ 6 mil é troféu, arbitragem e lanche de um campeonato. Cidade de 20 mil habitantes, a torcida pergunta o resultado no grupo e eu posto o card; a planilha dá trabalho mas é de graça.",
+  "objection": "Contrato de 12 meses a R$ 500 por mês para um campeonato que dura dois ou três meses. Vou pagar o ano todo por um site que fica parado o resto do tempo, e ainda tenho que explicar isso pro prefeito e pra Câmara.",
+  "would_change_my_mind": "Pagar só pelos meses do campeonato, ou um valor fechado de uns R$ 1.500 a R$ 2.000 por edição, de preferência com um campeonato teste de graça para eu ver se os treinadores usam mesmo.",
+  "price_too_cheap": 100,
+  "price_cheap": 1200,
+  "price_expensive": 2500,
+  "price_too_expensive": 4000
+}

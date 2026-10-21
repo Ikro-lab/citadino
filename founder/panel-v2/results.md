@@ -1,0 +1,69 @@
+# Buyer panel: Citadino: plataforma web/PWA que roda o campeonato municipal de futsal de ponta a ponta (inscrição de times e atletas, súmula ao vivo, classificação, artilharia, perfil de atleta, push para o torcedor), vendida à prefeitura por R$ 500/mês
+
+**7 buy · 13 pass** (35% buy) out of 20 simulated buyers. Seed 242407, so the same cards can be dealt again.
+
+These are simulated buyers, not customers. Use this to find objections and weak spots, then confirm the big ones with real people before you spend.
+
+## By segment
+
+| group | buyers | buy rate |
+| --- | ---: | ---: |
+| Secretário de esportes de cidade grande ou polo regional (100 a 500 mil habitantes), verba anual acima de R$ 400 mil, já usa ou já cotou sistema de gestão esportiva, compra passa por TI e procuradoria | 3 | 67%  (thin) |
+| Diretor ou coordenador de esportes de cidade média (20 a 100 mil habitantes), verba anual de eventos entre R$ 80 mil e R$ 400 mil, equipe de 3 a 8 pessoas, precisa convencer o secretário e o setor de compras | 7 | 43%  (thin) |
+| Secretário de esportes de cidade pequena (até 20 mil habitantes), verba anual de eventos esportivos entre R$ 20 mil e R$ 80 mil, um ou dois funcionários, ele mesmo organiza o campeonato | 8 | 25% |
+| Organizador terceirizado (liga, associação ou pessoa física) contratado pela prefeitura para tocar o campeonato, ganha por evento e paga as ferramentas do próprio bolso | 2 | 0%  (thin) |
+
+## By buying behaviour
+
+| group | buyers | buy rate |
+| --- | ---: | ---: |
+| Entusiasta de tecnologia | 2 | 100%  (thin) |
+| Político de resultado | 3 | 100%  (thin) |
+| Fim de mandato | 1 | 100%  (thin) |
+| Planilha e WhatsApp | 6 | 17%  (thin) |
+| Cliente de fornecedor de gestão esportiva | 2 | 0%  (thin) |
+| Cauteloso com compras | 2 | 0%  (thin) |
+| Já usa app grátis | 4 | 0%  (thin) |
+
+## By income
+
+| group | buyers | buy rate |
+| --- | ---: | ---: |
+| $120,000 and up | 7 | 71%  (thin) |
+| $81,000 to $120,000 | 7 | 29%  (thin) |
+| under $81,000 | 6 | 0%  (thin) |
+
+## Why they pass
+
+| reason | buyers | in their words |
+| --- | ---: | --- |
+| trust | 7 | "Meu campeonato começa em duas semanas e eu não vou trocar a planilha que funciona por um sistema que só uma prefeitura usou. Aceito o piloto grátis numa categoria ao lado do Excel, mas pagar e levar pro secretário só depois de ver funcionar na quadra." (P001) · "O preço cabe folgado na dispensa e o kit de compras ajuda, mas é um desenvolvedor sozinho com uma prefeitura de referência; não vou colocar o campeonato da cidade e meu nome na mão disso sem ver funcionar. Aceito o piloto grátis de uma categoria, mas contratar neste mês, não." (P004) |
+| habit | 4 | "A prefeitura já paga a Placarsoft e o campeonato está rodando; não vou abrir processo de compra novo no meio do ano para trocar de fornecedor. O piloto grátis eu até aceito numa categoria, mas pagar agora, não." (P003) · "Hoje eu rodo o campeonato no Copa Fácil de graça e ele funciona, com anúncio e tudo. Faço o piloto grátis numa categoria, mas pagar, levar pro secretário e passar por compras faltando duas semanas pro campeonato eu não faço antes de ver funcionando no meu ginásio num sábado à noite." (P007) |
+| price | 2 | "Eu ganho por evento e ferramenta sai do meu bolso; R$ 2.000 por temporada come uma fatia boa do que eu tiro no campeonato, e a planilha com o grupo do WhatsApp já resolve. O piloto grátis eu até topo, mas pagar do meu bolso não." (P009) · "Eu sou terceirizado, ganho por evento e ferramenta sai do meu bolso; R$ 2.000 por temporada come uma fatia boa do que eu tiro do campeonato, e a tabela eu já faço de graça. Torcedor recebendo notificação e gol em vídeo é bonito para a prefeitura, mas quem paga sou eu e não ganho um real a mais por isso." (P013) |
+
+## Why they buy
+
+| reason | buyers | in their words |
+| --- | ---: | --- |
+| need | 4 | "Gol em vídeo, site com a cara da prefeitura e relatório pronto pro prefeito é exatamente o que eu preciso mostrar no fim do ano, e R$ 2.000 passa na dispensa sem dor de cabeça. Faço o piloto numa categoria e, se a primeira rodada rodar sem reclamação de time, fecho a temporada." (P011) · "R$ 2.000 é troco perto da minha verba e cabe na dispensa sem dor de cabeça; gol em vídeo com a marca da prefeitura no celular de todo mundo é exatamente o que o prefeito quer ver. Faço o piloto numa categoria e, se a primeira rodada rodar redonda no ginásio, fecho a temporada." (P012) |
+| convenience | 2 | "Começo pelo piloto grátis numa categoria e, se o torcedor abrir o app e o gol aparecer em vídeo, fecho a temporada de R$ 2 mil sem pensar duas vezes: é troco perto da minha verba e cabe fácil na dispensa. Quero ser a primeira cidade da região com o jogo ao vivo no celular, e o kit de compras e o termo de LGPD me poupam a briga com TI e procuradoria." (P002) · "R$ 2.000 é troco perto da minha verba e cabe fácil na dispensa; se tirar de mim a tabela no Excel e as reclamações de treinador no meu WhatsApp pessoal, já se pagou. Faço o piloto grátis numa categoria e, se a súmula pelo celular funcionar no ginásio, levo a proposta com o kit de compras pro secretário." (P014) |
+| timing | 1 | "É por temporada, sem fidelidade, R$ 2 mil cabe fácil na verba e na dispensa, e termina antes da eleição sem deixar contrato pendurado para o próximo. Faço o piloto numa categoria e, se a súmula funcionar no ginásio, pago a temporada e ainda levo o relatório pro prefeito." (P018) |
+
+## What would flip a no
+
+- Ver o piloto rodar duas ou três rodadas sem eu precisar corrigir nada à mão, com WO e suspensão calculados certo, e conversar com o organizador da outra prefeitura.
+- O piloto dar certo e o relatório de fim de temporada ficar bonito o bastante para eu levar ao prefeito, com o torcedor da cidade usando de verdade; aí eu contrato a próxima temporada com o kit de compras.
+- O piloto rodar uma rodada inteira sem eu precisar ligar pra ele, e eu poder conversar com o diretor de esportes da prefeitura que já contratou.
+- O piloto rodar bem a primeira fase inteira aqui e eu conseguir ligar para o secretário da prefeitura que já usa e ouvir que deu certo lá.
+- Ver o piloto funcionando de verdade numa rodada nossa, com sinal ruim no ginásio, e falar com o secretário da outra prefeitura que já contratou pra saber se o suporte respondeu mesmo.
+- O piloto rodar umas três rodadas sem problema e eu ver os torcedores e os treinadores usando de verdade; aí levo o resultado pro secretário e contrato a próxima temporada.
+- O piloto rodar uma rodada inteira sem eu precisar corrigir nada à mão, e conversar com o secretário da prefeitura que já contratou para saber se o suporte respondeu mesmo em dia de jogo.
+- A prefeitura pagar direto, usando o kit de contratação, ou o piloto mostrar que o relatório pro prefeito me garante a renovação do contrato no ano que vem.
+- O piloto rodar umas três ou quatro rodadas sem falha aqui, com resultado saindo na hora, e eu poder ligar pro coordenador da outra prefeitura que já contratou.
+- A secretaria assumir o custo dentro do meu contrato (ou como item separado que ela paga direto), e o piloto grátis mostrar que a súmula pelo celular me poupa horas de verdade na semana.
+- O piloto rodar uma rodada inteira sem erro na tabela e os treinadores pararem de me mandar reclamação, com o prefeito vendo o gol em vídeo no celular dele.
+- O piloto rodar uma rodada inteira sem eu precisar mexer na planilha, e eu poder ligar para o secretário da outra prefeitura e ele confirmar que deu certo e que o empenho passou sem problema.
+
+Buyers say they would buy **1.0 times** in the first month on average.
+
+20 buyers gave all four price answers. Run founder-pricing's van_westendorp.py on the answers folder.

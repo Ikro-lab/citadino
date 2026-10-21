@@ -1,0 +1,13 @@
+{
+  "id": "P096",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "A prefeitura já paga a Placarsoft e eu sou terceirizado, ganho por evento: não vou tirar R$ 6 mil por ano do meu bolso nem convencer o secretário a contratar um segundo sistema que faz quase a mesma coisa.",
+  "objection": "Contrato de 12 meses para um campeonato que dura poucos meses, e eu teria que justificar para o secretário e para compras por que trocar um fornecedor que já atende. Se der problema no sábado à noite no ginásio, a culpa cai em mim.",
+  "would_change_my_mind": "Cobrar só pelos meses do campeonato, sem fidelidade de 12 meses, e eu poder testar numa edição antes; aí eu mostraria ao secretário a súmula ao vivo e as notificações que a Placarsoft não tem.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 400,
+  "price_too_expensive": 600
+}

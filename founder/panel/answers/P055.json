@@ -1,0 +1,13 @@
+{
+  "id": "P055",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "habit",
+  "reason": "R$ 6 mil cabe no orçamento, mas a planilha e o grupo de WhatsApp já resolvem o campeonato há anos, e eu teria que gastar tempo convencendo secretário e compras por algo que hoje não dá problema. Com doze outras coisas para tocar, não vou abrir um processo novo só por isso.",
+  "objection": "Quem vai lançar a súmula ao vivo na beira da quadra? Minha equipe é pequena, e se ninguém alimentar o sistema eu pago R$ 500 por mês por um site parado e ainda fico com cara de quem gastou dinheiro público à toa.",
+  "would_change_my_mind": "Um mês de teste grátis num campeonato real da minha cidade, mostrando que a súmula é rápida de lançar e que o torcedor e o secretário realmente usam o link.",
+  "price_too_cheap": 1000,
+  "price_cheap": 2500,
+  "price_expensive": 5000,
+  "price_too_expensive": 9000
+}

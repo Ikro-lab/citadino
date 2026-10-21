@@ -1,0 +1,222 @@
+[
+ {
+  "id": "P001",
+  "name": "Lina",
+  "age": 25,
+  "segment": "Organizador de copa curta (verão, feriado, fim de semana): 8 a 24 times, inscrição de R$ 500 a R$ 1.500, dura de 1 a 6 semanas",
+  "income": 91000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você vende cotas de patrocínio para a loja de material de construção e a farmácia do bairro"
+ },
+ {
+  "id": "P002",
+  "name": "Hana",
+  "age": 57,
+  "segment": "Organizador de copa curta (verão, feriado, fim de semana): 8 a 24 times, inscrição de R$ 500 a R$ 1.500, dura de 1 a 6 semanas",
+  "income": 88000,
+  "behaviour": "Cansado de briga por elegibilidade",
+  "behaviour_how": "Já perdeu um fim de semana inteiro resolvendo atleta irregular, gato e cartão que ninguém anotou.",
+  "objection": "O Copa Fácil é de graça e faz tabela. Por que eu pagaria?",
+  "habit": "você trabalha em outra coisa durante a semana e organiza a liga à noite"
+ },
+ {
+  "id": "P003",
+  "name": "Talia",
+  "age": 34,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 88000,
+  "behaviour": "Vive de patrocínio",
+  "behaviour_how": "A conta da liga só fecha com patrocinador. Procura qualquer coisa que dê mais exposição para vender cota.",
+  "objection": "O Copa Fácil é de graça e faz tabela. Por que eu pagaria?",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P004",
+  "name": "Mason",
+  "age": 57,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 42000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "Quem vai lançar a súmula? Meu mesário é o filho do dono da quadra.",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P005",
+  "name": "Jordan",
+  "age": 55,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 86000,
+  "behaviour": "Cansado de briga por elegibilidade",
+  "behaviour_how": "Já perdeu um fim de semana inteiro resolvendo atleta irregular, gato e cartão que ninguém anotou.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você trabalha em outra coisa durante a semana e organiza a liga à noite"
+ },
+ {
+  "id": "P006",
+  "name": "Ines",
+  "age": 31,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 64000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Faz tudo no Excel e no grupo dos capitães. Cobra a inscrição por Pix e confere atleta pela lista impressa.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P007",
+  "name": "Ethan",
+  "age": 54,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 71000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Faz tudo no Excel e no grupo dos capitães. Cobra a inscrição por Pix e confere atleta pela lista impressa.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você passa o domingo à noite atualizando a tabela e mandando print no grupo"
+ },
+ {
+  "id": "P008",
+  "name": "Sara",
+  "age": 53,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 109000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "É uma pessoa só por trás do sistema. E se sair do ar na final?",
+  "habit": "você transmite a final pelo celular no Instagram"
+ },
+ {
+  "id": "P009",
+  "name": "Theo",
+  "age": 45,
+  "segment": "Arena ou complexo esportivo que organiza a própria liga para encher horário: cobra R$ 45 a R$ 80 por jogo por time",
+  "income": 143000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "Patrocinador local não liga para site, liga para a faixa na quadra.",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P010",
+  "name": "Selin",
+  "age": 37,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 60000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Faz tudo no Excel e no grupo dos capitães. Cobra a inscrição por Pix e confere atleta pela lista impressa.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você já teve que anular um jogo por atleta irregular"
+ },
+ {
+  "id": "P011",
+  "name": "Mira",
+  "age": 58,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 67000,
+  "behaviour": "Profissionalizado",
+  "behaviour_how": "Tem site ou Instagram forte, regulamento em PDF, árbitro pago e transmissão no YouTube. Quer parecer liga de verdade.",
+  "objection": "Se eu pagar, vou ter que repassar para os times, e eles reclamam.",
+  "habit": "você transmite a final pelo celular no Instagram"
+ },
+ {
+  "id": "P012",
+  "name": "Freya",
+  "age": 25,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 66000,
+  "behaviour": "Profissionalizado",
+  "behaviour_how": "Tem site ou Instagram forte, regulamento em PDF, árbitro pago e transmissão no YouTube. Quer parecer liga de verdade.",
+  "objection": "Patrocinador local não liga para site, liga para a faixa na quadra.",
+  "habit": "você transmite a final pelo celular no Instagram"
+ },
+ {
+  "id": "P013",
+  "name": "Ben",
+  "age": 56,
+  "segment": "Arena ou complexo esportivo que organiza a própria liga para encher horário: cobra R$ 45 a R$ 80 por jogo por time",
+  "income": 184000,
+  "behaviour": "Cansado de briga por elegibilidade",
+  "behaviour_how": "Já perdeu um fim de semana inteiro resolvendo atleta irregular, gato e cartão que ninguém anotou.",
+  "objection": "É uma pessoa só por trás do sistema. E se sair do ar na final?",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P014",
+  "name": "Emma",
+  "age": 52,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 32000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "Se eu pagar, vou ter que repassar para os times, e eles reclamam.",
+  "habit": "você trabalha em outra coisa durante a semana e organiza a liga à noite"
+ },
+ {
+  "id": "P015",
+  "name": "Min",
+  "age": 30,
+  "segment": "Organizador de copa curta (verão, feriado, fim de semana): 8 a 24 times, inscrição de R$ 500 a R$ 1.500, dura de 1 a 6 semanas",
+  "income": 91000,
+  "behaviour": "Planilha e WhatsApp",
+  "behaviour_how": "Faz tudo no Excel e no grupo dos capitães. Cobra a inscrição por Pix e confere atleta pela lista impressa.",
+  "objection": "O Copa Fácil é de graça e faz tabela. Por que eu pagaria?",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ },
+ {
+  "id": "P016",
+  "name": "Julian",
+  "age": 48,
+  "segment": "Arena ou complexo esportivo que organiza a própria liga para encher horário: cobra R$ 45 a R$ 80 por jogo por time",
+  "income": 85000,
+  "behaviour": "Desconfiado de pagar app",
+  "behaviour_how": "Acha que app de campeonato tem que ser de graça. Só paga se ver o dinheiro voltar no mesmo campeonato.",
+  "objection": "Se eu pagar, vou ter que repassar para os times, e eles reclamam.",
+  "habit": "você vende cotas de patrocínio para a loja de material de construção e a farmácia do bairro"
+ },
+ {
+  "id": "P017",
+  "name": "Iris",
+  "age": 59,
+  "segment": "Liga de bairro ou várzea (society/futsal): 8 a 16 times, inscrição de R$ 300 a R$ 800 por time, premiação pequena, organizador faz por paixão",
+  "income": 44000,
+  "behaviour": "Vive de patrocínio",
+  "behaviour_how": "A conta da liga só fecha com patrocinador. Procura qualquer coisa que dê mais exposição para vender cota.",
+  "objection": "Minha margem é pequena: a inscrição mal cobre arbitragem e premiação.",
+  "habit": "você já teve que anular um jogo por atleta irregular"
+ },
+ {
+  "id": "P018",
+  "name": "Wes",
+  "age": 54,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 126000,
+  "behaviour": "Desconfiado de pagar app",
+  "behaviour_how": "Acha que app de campeonato tem que ser de graça. Só paga se ver o dinheiro voltar no mesmo campeonato.",
+  "objection": "Os capitães não vão cadastrar atleta com documento, vão mandar no WhatsApp.",
+  "habit": "você vende cotas de patrocínio para a loja de material de construção e a farmácia do bairro"
+ },
+ {
+  "id": "P019",
+  "name": "Noor",
+  "age": 58,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 133000,
+  "behaviour": "Já usa Copa Fácil ou iFut grátis",
+  "behaviour_how": "Monta tabela e classificação no app grátis. Reclama de anúncio e de resultado atrasado, mas não paga nada hoje.",
+  "objection": "Minha margem é pequena: a inscrição mal cobre arbitragem e premiação.",
+  "habit": "você trabalha em outra coisa durante a semana e organiza a liga à noite"
+ },
+ {
+  "id": "P020",
+  "name": "Finn",
+  "age": 38,
+  "segment": "Liga de futsal amador regional: 16 a 32 times, inscrição de R$ 1.000 a R$ 2.000 por time, premiação em dinheiro, patrocinador local",
+  "income": 131000,
+  "behaviour": "Vive de patrocínio",
+  "behaviour_how": "A conta da liga só fecha com patrocinador. Procura qualquer coisa que dê mais exposição para vender cota.",
+  "objection": "Minha margem é pequena: a inscrição mal cobre arbitragem e premiação.",
+  "habit": "você cobra a inscrição por Pix e corre atrás de quem atrasou"
+ }
+]

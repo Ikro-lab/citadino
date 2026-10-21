@@ -1,0 +1,13 @@
+{
+  "id": "P016",
+  "buys": true,
+  "purchases_first_month": 1,
+  "reason_code": "need",
+  "reason": "Ser a primeira cidade da região com gol em vídeo no celular do torcedor e um relatório pronto pro prefeito, por R$ 2.000, cabe folgado na dispensa e eu mesmo testo o app no fim de semana. Faço o piloto numa categoria agora e, se rodar a primeira rodada sem pane, contrato a temporada por dispensa antes de o campeonato engrenar.",
+  "objection": "É um desenvolvedor só segurando o suporte. Numa cidade do meu tamanho, com várias categorias e jogos simultâneos no sábado, se ele ficar doente ou sumir eu fico exposto na frente do prefeito e da imprensa. E o preço é tão baixo perto do que já me cotaram que a procuradoria vai perguntar o que está faltando.",
+  "would_change_my_mind": "Se o piloto falhar em dia de jogo com ginásio cheio, ou se o suporte demorar a responder logo na primeira rodada, eu volto pro sistema que já uso.",
+  "price_too_cheap": 800,
+  "price_cheap": 2500,
+  "price_expensive": 18000,
+  "price_too_expensive": 45000
+}

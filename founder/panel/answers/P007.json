@@ -1,0 +1,13 @@
+{
+  "id": "P007",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Bonito, mas eu assino doze meses de contrato por um campeonato que dura três ou quatro, e o texto não diz uma palavra sobre o que acontece com o documento e o comprovante de residência de cada menino quando o contrato acaba. Minha planilha e meu grupo de WhatsApp dão trabalho, mas o dado fica comigo e não custa seis mil reais do pouco que eu tenho pra evento.",
+  "objection": "Quando acabar o contrato, os dados dos atletas ficam com quem? Eu respondo pelo documento daqueles meninos, e R$ 6.000 por ano é um pedaço grande da minha verba de eventos pra pagar por doze meses de uma coisa que eu uso em quatro.",
+  "would_change_my_mind": "Contrato por temporada (três ou quatro meses) com cláusula escrita de que o site e os dados dos atletas são da prefeitura e eu consigo baixar tudo no fim.",
+  "price_too_cheap": 50,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}

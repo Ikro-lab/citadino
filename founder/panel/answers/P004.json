@@ -1,0 +1,13 @@
+{
+  "id": "P004",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "trust",
+  "reason": "Depois da bronca que levei do controle interno, não assino contrato de 12 meses com uma empresa que não me diz uma única prefeitura que já usa isso. O campeonato dura três ou quatro meses e eu pagaria o ano inteiro por um site, sendo que tem app grátis que faz a tabela.",
+  "objection": "Como eu justifico pro controle interno e pro TCE R$ 6.000 de dinheiro público num site de campeonato, sem três orçamentos comparáveis e sem nenhuma referência de outra cidade, quando a tabela sai de graça num app?",
+  "would_change_my_mind": "Uma prefeitura vizinha já usando, com o contrato e o empenho dela pra eu copiar o modelo, e contrato amarrado à duração do campeonato em vez de 12 meses fechados.",
+  "price_too_cheap": 80,
+  "price_cheap": 200,
+  "price_expensive": 400,
+  "price_too_expensive": 700
+}

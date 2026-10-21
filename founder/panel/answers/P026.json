@@ -1,0 +1,13 @@
+{
+  "id": "P026",
+  "buys": false,
+  "purchases_first_month": 0,
+  "reason_code": "price",
+  "reason": "R$ 6 mil por ano é um pedaço grande da minha verba de eventos, que já tem que pagar arbitragem, troféu e abertura. Eu monto o card no Canva e resolvo, e o prefeito quer ver festa e foto, não site com tabela que atualiza sozinha.",
+  "objection": "Contrato de 12 meses para um campeonato que dura dois ou três meses, e de uma empresa que ninguém aqui conhece. Isso passa no setor de compras? Preciso de três orçamentos e CNPJ com referência de outra prefeitura, senão vira dor de cabeça com o controle interno.",
+  "would_change_my_mind": "Ver funcionando numa prefeitura vizinha do meu tamanho, com atestado de capacidade técnica, e pagar só pelos meses do campeonato em vez de 12 meses.",
+  "price_too_cheap": 80,
+  "price_cheap": 150,
+  "price_expensive": 300,
+  "price_too_expensive": 500
+}
