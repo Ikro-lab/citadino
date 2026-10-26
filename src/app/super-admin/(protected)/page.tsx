@@ -4,11 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toggleTenantAtivo } from "@/lib/actions/super-admin";
 import { ExcluirTenant } from "@/components/super-admin/excluir-tenant";
+import { NovoAdmin } from "@/components/super-admin/novo-admin";
 
 export default async function SuperAdminDashboard() {
   const tenants = await prisma.tenant.findMany({
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { users: true, campeonatos: true, times: true } } },
+    include: {
+      _count: { select: { users: true, campeonatos: true, times: true } },
+      users: { where: { role: "ADMIN" }, orderBy: { createdAt: "asc" }, select: { id: true, name: true, email: true } },
+    },
   });
 
   return (
@@ -22,14 +26,18 @@ export default async function SuperAdminDashboard() {
             <p className="text-xs text-muted">
               {t._count.users} usuário(s) · {t._count.campeonatos} campeonato(s) · {t._count.times} time(s)
             </p>
+            <p className="text-xs text-muted">
+              Admin: {t.users.length > 0 ? t.users.map((u) => `${u.name} (${u.email})`).join(", ") : "nenhum"}
+            </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-1 flex-wrap items-center justify-end gap-2">
             <Badge variant={t.ativo ? "success" : "neutral"}>{t.ativo ? "Ativo" : "Inativo"}</Badge>
             <form action={toggleTenantAtivo.bind(null, t.id, !t.ativo)}>
               <Button type="submit" variant="secondary" size="sm">
                 {t.ativo ? "Desativar" : "Ativar"}
               </Button>
             </form>
+            <NovoAdmin tenantId={t.id} />
             <ExcluirTenant id={t.id} slug={t.slug} />
           </div>
         </Card>

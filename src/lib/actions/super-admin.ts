@@ -113,3 +113,48 @@ export async function excluirTenant(id: string, _prev: ExcluirTenantState, formD
   revalidatePath("/");
   return {};
 }
+
+export type CriarAdminState = { error?: string; criado?: { email: string; slug: string } } | undefined;
+
+/**
+ * Cria mais uma conta de administrador num campeonato que já existe (outra
+ * pessoa da prefeitura, ou a troca de quem cuida do campeonato).
+ */
+export async function criarAdminTenant(
+  tenantId: string,
+  _prev: CriarAdminState,
+  formData: FormData
+): Promise<CriarAdminState> {
+  await requireSuperAdmin();
+
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim();
+  const password = String(formData.get("password") || "");
+  if (!name || !email.includes("@") || password.length < 6) {
+    return { error: "Preencha nome, e-mail válido e senha com ao menos 6 caracteres." };
+  }
+
+  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true } });
+  if (!tenant) return { error: "Campeonato não encontrado." };
+
+  // O e-mail é único por campeonato: a mesma pessoa não pode ser treinador e admin.
+  const existente = await prisma.user.findUnique({
+    where: { tenantId_email: { tenantId, email } },
+    select: { role: true },
+  });
+  if (existente) {
+    return {
+      error:
+        existente.role === "ADMIN"
+          ? "Esse e-mail já é administrador deste campeonato."
+          : "Esse e-mail já tem uma conta de treinador neste campeonato. Use outro e-mail.",
+    };
+  }
+
+  await prisma.user.create({
+    data: { name, email, passwordHash: await bcrypt.hash(password, 10), role: "ADMIN", tenantId },
+  });
+
+  revalidatePath("/super-admin");
+  return { criado: { email, slug: tenant.slug } };
+}
