@@ -17,7 +17,7 @@ export type LinhaClassificacao = {
 export async function getClassificacao(
   tenantId: string,
   categoriaId: string,
-  opts?: { timeIds?: string[]; apenasFaseGrupos?: boolean }
+  opts?: { timeIds?: string[]; apenasFaseGrupos?: boolean; incluirAoVivo?: boolean }
 ) {
   const db = getTenantPrisma(tenantId);
   const times = await db.time.findMany({
@@ -45,7 +45,8 @@ export async function getClassificacao(
   const partidas = await db.partida.findMany({
     where: {
       categoriaId,
-      status: "ENCERRADA",
+      // Ao vivo conta com o placar do momento: "se terminasse agora".
+      status: opts?.incluirAoVivo ? { in: ["ENCERRADA", "AO_VIVO"] } : "ENCERRADA",
       ...(opts?.apenasFaseGrupos ? { fase: "GRUPOS" } : {}),
     },
     select: {

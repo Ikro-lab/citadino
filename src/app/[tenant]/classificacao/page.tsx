@@ -9,6 +9,8 @@ import { paths } from "@/lib/tenant-path";
 import { CategoriaTabs } from "@/components/partidas/categoria-tabs";
 import { StandingsTable } from "@/components/partidas/standings-table";
 import { BracketView } from "@/components/partidas/bracket-view";
+import { AtualizarAoVivo } from "@/components/partidas/atualizar-ao-vivo";
+import { chaveamentoProjetado } from "@/lib/chaveamento";
 import { TimesInscritos } from "@/components/times/times-inscritos";
 
 export default async function ClassificacaoPage({
@@ -72,10 +74,28 @@ export default async function ClassificacaoPage({
           linhas: await getClassificacao(tenant.id, categoriaId!, {
             timeIds: g.times.map((t) => t.id),
             apenasFaseGrupos: true,
+            incluirAoVivo: true,
           }),
         }))
       )
     : [];
+
+  // Chave projetada pela classificação do momento; os jogos ao vivo entram
+  // com o placar atual e a página se atualiza sozinha enquanto rolam.
+  const [aoVivo, gruposPendentes] =
+    isGruposMataMata && categoriaId
+      ? await Promise.all([
+          db.partida.count({ where: { categoriaId, status: "AO_VIVO" } }),
+          db.partida.count({ where: { categoriaId, fase: "GRUPOS", status: { not: "ENCERRADA" } } }),
+        ])
+      : [0, 0];
+  const projecao =
+    categoria && linhasPorGrupo.length > 0
+      ? chaveamentoProjetado(
+          categoria.nome,
+          linhasPorGrupo.map((g) => g.linhas)
+        )
+      : null;
 
   const regulamentoUrl = categoria?.regulamentoUrl || categoria?.campeonato.regulamentoUrl;
 
@@ -102,6 +122,7 @@ export default async function ClassificacaoPage({
         <EmptyState>Nenhum campeonato ativo no momento.</EmptyState>
       ) : (
         <div className="flex flex-col gap-6">
+          <AtualizarAoVivo ativo={aoVivo > 0} />
           <CategoriaTabs
             categorias={categorias}
             categoriaId={categoriaId}
@@ -130,8 +151,17 @@ export default async function ClassificacaoPage({
 
               {linhasPorGrupo.length > 0 && (
                 <div>
-                  <h2 className="mb-2 font-semibold">Mata-mata</h2>
-                  <BracketView partidas={partidasMataMata} tenantSlug={tenantSlug} />
+                  <h2 className="mb-1 font-semibold">Mata-mata</h2>
+                  {projecao && (
+                    <p className="mb-2 text-xs text-muted">
+                      {aoVivo > 0
+                        ? "Atualizando ao vivo: a chave muda com o placar dos jogos em andamento."
+                        : gruposPendentes > 0
+                          ? "Provisório: confrontos se a fase de grupos terminasse agora."
+                          : "Classificados definidos pela fase de grupos."}
+                    </p>
+                  )}
+                  <BracketView partidas={partidasMataMata} projecao={projecao} tenantSlug={tenantSlug} />
                 </div>
               )}
             </>
