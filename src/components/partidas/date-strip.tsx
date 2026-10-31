@@ -56,7 +56,9 @@ export function DateStrip({
 
   return (
     <div className="flex items-center gap-2">
-      <div className="flex flex-1 gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+      {/* relative: o sr-only (absolute) dos dias fora da tela fica preso aqui;
+          sem isso ele vaza, alarga a página e o feed rola para o lado. */}
+      <div className="relative flex flex-1 gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
         {dias.map((d) => (
           <Link
             key={d}
