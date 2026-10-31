@@ -69,12 +69,19 @@ async function main() {
             VALUES (?, ?, ?, ?, ?, 1)`,
       args: [randomBytes(16).toString("hex"), checksumDe(sql), agora(), nome, inicio],
     });
+  // O Git no Windows troca LF por CRLF no checkout: o mesmo SQL com outra
+  // quebra de linha não é alteração, então vale o checksum de qualquer uma.
+  const checksumsAceitos = (sql: Buffer) => {
+    const lf = sql.toString("utf8").replace(/\r\n/g, "\n");
+    return new Set([checksumDe(sql), checksumDe(Buffer.from(lf)), checksumDe(Buffer.from(lf.replace(/\n/g, "\r\n")))]);
+  };
   for (const nome of nomes) {
     const sql = await readFile(path.join(PASTA, nome, "migration.sql"));
-    const checksum = checksumDe(sql);
     const registrada = aplicadas.get(nome);
     if (!registrada) pendentes.push({ nome, sql });
-    else if (registrada !== checksum) console.warn(`Aviso: ${nome} foi alterada depois de aplicada (checksum diferente).`);
+    else if (!checksumsAceitos(sql).has(registrada)) {
+      console.warn(`Aviso: ${nome} foi alterada depois de aplicada (checksum diferente).`);
+    }
   }
 
   if (registrar) {
