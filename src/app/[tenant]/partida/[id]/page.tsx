@@ -4,6 +4,7 @@ import { getClassificacao } from "@/lib/classificacao";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { LiveMatchDetail } from "@/components/partidas/live-match-detail";
+import { AvisoNotificacoes } from "@/components/push/aviso-notificacoes";
 import { isAbaPartida } from "@/lib/labels";
 import { auth } from "@/auth";
 
@@ -49,6 +50,7 @@ export default async function PartidaPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
+      <AvisoNotificacoes tenantId={tenant.id} tenantSlug={tenantSlug} categoria={partida.categoria} />
       <LiveMatchDetail
         timesEditaveis={timesEditaveis}
         initial={partida}

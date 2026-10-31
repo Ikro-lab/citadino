@@ -6,6 +6,7 @@ import { DateStrip } from "@/components/partidas/date-strip";
 import { LiveFilterToggle } from "@/components/partidas/live-filter-toggle";
 import { FeedList } from "@/components/partidas/feed-list";
 import { PageHeader } from "@/components/ui/page-header";
+import { AvisoNotificacoes } from "@/components/push/aviso-notificacoes";
 
 export default async function HomePage({
   params,
@@ -39,6 +40,7 @@ export default async function HomePage({
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">
       <PageHeader title="Partidas" />
+      <AvisoNotificacoes tenantId={tenant.id} tenantSlug={tenantSlug} />
 
       <div className="flex flex-col gap-3">
         <DateStrip data={data} vivo={vivo} tenantSlug={tenantSlug} diasComJogo={diasComJogo} />

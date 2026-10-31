@@ -1,7 +1,6 @@
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { PushManager } from "@/components/push/push-manager";
-import { InstallPrompt } from "@/components/push/install-prompt";
 
 export default async function NotificacoesPage({
   params,
@@ -28,7 +27,6 @@ export default async function NotificacoesPage({
     <div className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
       <h1 className="text-xl font-semibold tracking-tight">Notificações</h1>
       <PushManager categorias={categorias} times={times} tenantId={tenant.id} />
-      <InstallPrompt />
     </div>
   );
 }
