@@ -40,9 +40,16 @@ export default async function TreinadorPartidasPage({
           key={p.id}
           partida={p}
           actions={
-            <Link href={paths.treinador.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
-              {p.status === "AO_VIVO" ? "Acompanhar ao vivo" : "Ver súmula"}
-            </Link>
+            <>
+              {p.status === "AGENDADA" && (
+                <Link href={`${paths.partida(tenantSlug, p.id)}?aba=escalacao`} className={acaoLinkClass}>
+                  Escalar titulares
+                </Link>
+              )}
+              <Link href={paths.treinador.partidaSumula(tenantSlug, p.id)} className={acaoLinkClass}>
+                {p.status === "AO_VIVO" ? "Acompanhar ao vivo" : "Ver súmula"}
+              </Link>
+            </>
           }
         />
       ))}

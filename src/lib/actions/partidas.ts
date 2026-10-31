@@ -258,9 +258,12 @@ export async function addEvento(partidaId: string, formData: FormData) {
  * Troca um jogador em quadra por um do banco, pela quadra da página da partida.
  * Antes do jogo, só muda os titulares; com o jogo rolando, vira uma
  * substituição na súmula (aparece em Detalhes e na Linha do tempo).
+ * O treinador escolhe os titulares do próprio time, só antes do jogo; com a
+ * partida rolando, as substituições são da organização.
  */
 export async function substituirAtleta(partidaId: string, timeId: string, saiId: string, entraId: string) {
-  const session = await exigirAdmin();
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autenticado.");
   const tenantId = session.user.tenantId!;
   const tenantSlug = session.user.tenantSlug!;
   const db = getTenantPrisma(tenantId);
@@ -269,8 +272,8 @@ export async function substituirAtleta(partidaId: string, timeId: string, saiId:
   const partida = await db.partida.findUnique({
     where: { id: partidaId },
     include: {
-      timeCasa: { select: { atletas: elenco } },
-      timeFora: { select: { atletas: elenco } },
+      timeCasa: { select: { treinadorId: true, atletas: elenco } },
+      timeFora: { select: { treinadorId: true, atletas: elenco } },
       eventos: {
         where: { tipo: "SUBSTITUICAO", timeId },
         select: { tipo: true, atletaId: true, atletaEntraId: true, createdAt: true },
@@ -284,6 +287,14 @@ export async function substituirAtleta(partidaId: string, timeId: string, saiId:
   const time = ehCasa ? partida.timeCasa : partida.timeFora;
   if (partida.status !== "AO_VIVO" && partida.status !== "AGENDADA") {
     throw new Error("A escalação só muda antes ou durante o jogo.");
+  }
+  if (session.user.role !== "ADMIN") {
+    if (session.user.role !== "TREINADOR" || time.treinadorId !== session.user.id) {
+      throw new Error("Só a organização ou o treinador do time pode mudar a escalação.");
+    }
+    if (partida.status !== "AGENDADA") {
+      throw new Error("Com o jogo rolando, as substituições são lançadas pela organização.");
+    }
   }
 
   const titularesJson = ehCasa ? partida.escalacaoCasa : partida.escalacaoFora;

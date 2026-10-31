@@ -45,8 +45,20 @@ export default async function PartidaPage({
   // Lances e escalação pela quadra são só do admin do campeonato (as ações
   // conferem de novo no servidor).
   const session = await auth();
+  // O treinador escolhe os titulares do próprio time antes do jogo.
+  const doTenant = session?.user?.tenantSlug === tenantSlug;
+  const idsDosTimes = [partida.timeCasa.id, partida.timeFora.id];
   const timesEditaveis =
-    session?.user?.tenantSlug === tenantSlug && session.user.role === "ADMIN" ? [partida.timeCasa.id, partida.timeFora.id] : [];
+    doTenant && session.user.role === "ADMIN"
+      ? idsDosTimes
+      : doTenant && session.user.role === "TREINADOR" && partida.status === "AGENDADA"
+        ? (
+            await db.time.findMany({
+              where: { id: { in: idsDosTimes }, treinadorId: session.user.id },
+              select: { id: true },
+            })
+          ).map((t) => t.id)
+        : [];
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-6">

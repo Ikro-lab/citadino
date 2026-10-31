@@ -321,7 +321,7 @@ export function RosterPanel({
   const fora = escalacaoAtual(partida.timeFora.atletas, partida.escalacaoFora, partida.eventos.filter((e) => e.timeId === partida.timeFora.id));
   const editavel = partida.status === "AO_VIVO" || partida.status === "AGENDADA";
   const comSubstituicoes = partida.eventos.some((e) => e.tipo === "SUBSTITUICAO" && e.atletaEntraId);
-  const origem = partida.escalacaoCasa || partida.escalacaoFora ? "Escalação definida pela organização" : "Escalação provável, pela posição de cada atleta";
+  const origem = partida.escalacaoCasa || partida.escalacaoFora ? "Escalação definida antes do jogo" : "Escalação provável, pela posição de cada atleta";
 
   const onEditar = (atleta: Atleta, visitante: boolean) => {
     const time = visitante ? partida.timeFora : partida.timeCasa;
@@ -336,7 +336,9 @@ export function RosterPanel({
       <RotuloTime nome={partida.timeCasa.nome} visitante={false} />
       <p className="text-center text-xs text-muted">
         {editavel && timesEditaveis.length > 0
-          ? "Toque num jogador para lançar um lance ou fazer uma substituição."
+          ? partida.status === "AGENDADA"
+            ? "Toque num jogador em quadra para trocar um titular."
+            : "Toque num jogador para lançar um lance ou fazer uma substituição."
           : `${origem}${comSubstituicoes ? ", com as substituições do jogo" : ""}.`}
       </p>
 
