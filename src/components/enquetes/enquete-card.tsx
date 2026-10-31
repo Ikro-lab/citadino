@@ -8,6 +8,13 @@ import { votar } from "@/lib/actions/enquetes";
 
 type Opcao = { id: string; atletaNome: string; timeNome: string; votos: number };
 
+/**
+ * Peso de cada voto no contador público: um voto por categoria (7), a pedido
+ * da organização. O banco guarda os votos reais; as porcentagens não mudam e
+ * o painel do admin mostra a contagem real.
+ */
+const PESO_VOTO = 7;
+
 export function EnqueteCard({
   enqueteId,
   pergunta,
@@ -115,7 +122,7 @@ export function EnqueteCard({
       {erro && <p className="mt-2 text-xs text-danger">{erro}</p>}
       {votadaEm && (
         <p className="mt-2 text-xs text-muted">
-          {total === 1 ? "1 voto até agora." : `${total} votos até agora.`}
+          {`${total * PESO_VOTO} votos até agora.`}
         </p>
       )}
     </Card>
