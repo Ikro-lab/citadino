@@ -238,3 +238,15 @@ export async function deleteAtleta(atletaId: string, timeId: string) {
   await apagarArquivosSemUso(refs);
   revalidateTimeViews(tenantSlug, timeId);
 }
+
+/** Inclui, troca ou apaga (texto vazio) o apelido, pelo painel da escalação. */
+export async function definirApelido(atletaId: string, timeId: string, apelidoBruto: string) {
+  const db = await assertCanManageTime(timeId);
+  const session = await auth();
+  const apelido = apelidoBruto.trim().slice(0, 30) || null;
+  // timeId no where: o treinador só mexe em atletas do próprio time.
+  const { count } = await db.atleta.updateMany({ where: { id: atletaId, timeId }, data: { apelido } });
+  if (count === 0) throw new Error("Atleta não encontrado neste time.");
+  revalidateTimeViews(session!.user.tenantSlug!, timeId);
+  revalidatePath(paths.atleta(session!.user.tenantSlug!, atletaId));
+}

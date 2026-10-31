@@ -3,12 +3,13 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeftRight, Footprints, Goal, UserRound, X } from "lucide-react";
+import { ArrowLeftRight, Footprints, Goal, Tag, UserRound, X } from "lucide-react";
 import type { PartidaDetalhe } from "@/lib/partidas";
 import { paths } from "@/lib/tenant-path";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { CartaoIcon } from "@/components/partidas/evento-icon";
 import { addEvento, substituirAtleta } from "@/lib/actions/partidas";
+import { definirApelido } from "@/lib/actions/atletas";
 import { VAGAS, escalacaoAtual, minutoDeJogo, type Vaga } from "@/lib/escalacao";
 import { cn } from "@/lib/utils";
 import { nomeDoAtleta } from "@/lib/labels";
@@ -198,7 +199,8 @@ function PainelAcoes({
   onFechar: () => void;
 }) {
   const router = useRouter();
-  const [modo, setModo] = useState<"acoes" | "trocar">("acoes");
+  const [modo, setModo] = useState<"acoes" | "trocar" | "apelido">("acoes");
+  const [apelido, setApelido] = useState(sel.atleta.apelido ?? "");
   const [erro, setErro] = useState<string | null>(null);
   const [pendente, iniciar] = useTransition();
   const aoVivo = partida.status === "AO_VIVO";
@@ -266,6 +268,9 @@ function PainelAcoes({
               {aoVivo ? "Substituição" : "Trocar titular"}
               {sel.banco.length === 0 && <span className="font-normal text-muted"> (sem reservas)</span>}
             </BotaoAcao>
+            <BotaoAcao onClick={() => setModo("apelido")} disabled={pendente} icone={<Tag size={18} />}>
+              {sel.atleta.apelido ? "Alterar apelido" : "Incluir apelido"}
+            </BotaoAcao>
             <Link href={paths.atleta(tenantSlug, sel.atleta.id)} className="flex h-12 items-center gap-3 rounded-2xl px-4 text-sm font-semibold text-muted hover:bg-field">
               <span className="flex w-5 justify-center">
                 <UserRound size={18} />
@@ -273,6 +278,42 @@ function PainelAcoes({
               Ver perfil
             </Link>
           </div>
+        ) : modo === "apelido" ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              executar(() => definirApelido(sel.atleta.id, sel.timeId, apelido));
+            }}
+          >
+            <label htmlFor="apelido-atleta" className="mb-2 block text-sm font-semibold">
+              Apelido de {sel.atleta.nome}
+            </label>
+            <input
+              id="apelido-atleta"
+              value={apelido}
+              onChange={(e) => setApelido(e.target.value)}
+              maxLength={30}
+              autoFocus
+              autoComplete="off"
+              placeholder="Como é chamado em quadra"
+              className="h-12 w-full rounded-2xl border border-border bg-field px-4 text-base outline-none focus:border-accent"
+            />
+            <p className="mt-1 text-xs text-muted">
+              Aparece no lugar do nome na escalação, lances, enquete e artilharia. Deixe vazio para voltar ao nome.
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <button
+                type="submit"
+                disabled={pendente}
+                className="h-11 rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground hover:bg-accent-dark disabled:opacity-50"
+              >
+                Salvar
+              </button>
+              <button type="button" onClick={() => setModo("acoes")} className="text-sm font-semibold text-muted hover:text-foreground">
+                ← Voltar
+              </button>
+            </div>
+          </form>
         ) : (
           <div>
             <p className="mb-2 text-sm font-semibold">
