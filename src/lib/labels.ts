@@ -48,3 +48,8 @@ export const posicaoLabel: Record<PosicaoAtleta, string> = {
   PIVO: "Pivô",
   LINHA: "Linha",
 };
+
+/** Nome que o site mostra para o atleta: o apelido do treinador, se houver. */
+export function nomeDoAtleta(atleta: { nome: string; apelido?: string | null }) {
+  return atleta.apelido?.trim() || atleta.nome;
+}

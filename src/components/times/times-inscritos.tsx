@@ -4,14 +4,14 @@ import { paths } from "@/lib/tenant-path";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Escudo } from "@/components/times/escudo";
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
-import { posicaoLabel, type PosicaoAtleta } from "@/lib/labels";
+import { nomeDoAtleta, posicaoLabel, type PosicaoAtleta } from "@/lib/labels";
 
 /** Só dados públicos: nada de documento, comprovante ou data de nascimento. */
 export type TimeInscrito = {
   id: string;
   nome: string;
   escudoUrl: string | null;
-  atletas: { id: string; nome: string; numero: number; posicao: string; fotoUrl: string | null }[];
+  atletas: { id: string; nome: string; apelido?: string | null; numero: number; posicao: string; fotoUrl: string | null }[];
 };
 
 export function TimesInscritos({ times, tenantSlug }: { times: TimeInscrito[]; tenantSlug: string }) {
@@ -42,9 +42,9 @@ export function TimesInscritos({ times, tenantSlug }: { times: TimeInscrito[]; t
                       href={paths.atleta(tenantSlug, a.id)}
                       className="flex min-h-12 items-center gap-3 px-4 py-2 text-sm hover:bg-field"
                     >
-                      <AtletaAvatar nome={a.nome} fotoUrl={a.fotoUrl} size={32} />
+                      <AtletaAvatar nome={nomeDoAtleta(a)} fotoUrl={a.fotoUrl} size={32} />
                       <span className="w-8 shrink-0 font-semibold tabular-nums text-muted">#{a.numero}</span>
-                      <span className="min-w-0 flex-1 truncate font-medium">{a.nome}</span>
+                      <span className="min-w-0 flex-1 truncate font-medium">{nomeDoAtleta(a)}</span>
                       <span className="shrink-0 text-xs text-muted">
                         {posicaoLabel[a.posicao as PosicaoAtleta]}
                       </span>

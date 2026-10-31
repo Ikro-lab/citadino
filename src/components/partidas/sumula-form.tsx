@@ -5,7 +5,7 @@ import { Input, Label, Select } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { addEvento } from "@/lib/actions/partidas";
 
-type Atleta = { id: string; nome: string; numero: number };
+type Atleta = { id: string; nome: string; apelido?: string | null; numero: number };
 type Time = { id: string; nome: string; atletas: Atleta[] };
 
 const tipos = [
@@ -75,7 +75,7 @@ export function SumulaForm({
           <option value="">Não especificado</option>
           {atletas.map((a) => (
             <option key={a.id} value={a.id}>
-              #{a.numero} {a.nome}
+              #{a.numero} {a.apelido ? `${a.apelido} (${a.nome})` : a.nome}
             </option>
           ))}
         </Select>

@@ -1,4 +1,5 @@
 import { getTenantPrisma } from "@/lib/tenant-prisma";
+import { nomeDoAtleta } from "@/lib/labels";
 
 export type ArtilheiroLinha = {
   atletaId: string;
@@ -29,7 +30,7 @@ export async function getArtilharia(tenantId: string, categoriaId: string): Prom
       atletaId: true,
       tipo: true,
       atleta: {
-        select: { id: true, nome: true, numero: true, time: { select: { nome: true } } },
+        select: { id: true, nome: true, apelido: true, numero: true, time: { select: { nome: true } } },
       },
     },
   });
@@ -40,7 +41,7 @@ export async function getArtilharia(tenantId: string, categoriaId: string): Prom
     if (!map.has(e.atletaId)) {
       map.set(e.atletaId, {
         atletaId: e.atletaId,
-        nome: e.atleta.nome,
+        nome: nomeDoAtleta(e.atleta),
         numero: e.atleta.numero,
         timeNome: e.atleta.time.nome,
         gols: 0,

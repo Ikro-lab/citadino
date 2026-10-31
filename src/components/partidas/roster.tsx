@@ -11,6 +11,7 @@ import { CartaoIcon } from "@/components/partidas/evento-icon";
 import { addEvento, substituirAtleta } from "@/lib/actions/partidas";
 import { VAGAS, escalacaoAtual, minutoDeJogo, type Vaga } from "@/lib/escalacao";
 import { cn } from "@/lib/utils";
+import { nomeDoAtleta } from "@/lib/labels";
 
 type Atleta = PartidaDetalhe["timeCasa"]["atletas"][number];
 type Escalacao = ReturnType<typeof escalacaoAtual<Atleta>>;
@@ -29,6 +30,11 @@ const POSICOES: Record<Vaga, { x: number; y: number }> = {
 function nomeCurto(nome: string) {
   const partes = nome.trim().split(/\s+/);
   return partes.length > 1 ? `${partes[0]} ${partes[partes.length - 1]}` : nome;
+}
+
+/** Na quadra: o apelido inteiro, se houver; senão primeiro e último nome. */
+function nomeCurtoDe(atleta: { nome: string; apelido?: string | null }) {
+  return atleta.apelido?.trim() || nomeCurto(atleta.nome);
 }
 
 function Jogador({
@@ -51,7 +57,7 @@ function Jogador({
     <>
       <span className="relative">
         <AtletaAvatar
-          nome={atleta.nome}
+          nome={nomeDoAtleta(atleta)}
           fotoUrl={atleta.fotoUrl}
           size={44}
           className={cn("ring-2 shadow-md transition-transform group-hover:scale-105", visitante ? "ring-accent" : "ring-white")}
@@ -61,7 +67,7 @@ function Jogador({
         </span>
       </span>
       <span className="mt-1 max-w-full truncate text-[11px] leading-tight font-semibold text-white [text-shadow:0_1px_2px_rgba(0,0,0,.6)]">
-        {nomeCurto(atleta.nome)}
+        {nomeCurtoDe(atleta)}
       </span>
     </>
   );
@@ -69,7 +75,7 @@ function Jogador({
   const estilo = { left: `${x}%`, top: `${y}%` };
 
   return onEditar ? (
-    <button type="button" onClick={onEditar} style={estilo} className={classe} aria-label={`Ações para ${atleta.nome}`}>
+    <button type="button" onClick={onEditar} style={estilo} className={classe} aria-label={`Ações para ${nomeDoAtleta(atleta)}`}>
       {conteudo}
     </button>
   ) : (
@@ -140,9 +146,9 @@ function Banco({ nome, atletas, tenantSlug }: { nome: string; atletas: Atleta[];
           {atletas.map((a) => (
             <li key={a.id}>
               <Link href={paths.atleta(tenantSlug, a.id)} className="flex min-w-0 items-center gap-2 text-sm hover:text-accent">
-                <AtletaAvatar nome={a.nome} fotoUrl={a.fotoUrl} size={28} />
+                <AtletaAvatar nome={nomeDoAtleta(a)} fotoUrl={a.fotoUrl} size={28} />
                 <span className="shrink-0 font-semibold tabular-nums">#{a.numero}</span>
-                <span className="truncate text-muted">{nomeCurto(a.nome)}</span>
+                <span className="truncate text-muted">{nomeCurtoDe(a)}</span>
               </Link>
             </li>
           ))}
@@ -223,14 +229,14 @@ function PainelAcoes({
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/50 sm:items-center" onClick={onFechar}>
       <div
         role="dialog"
-        aria-label={`Ações para ${sel.atleta.nome}`}
+        aria-label={`Ações para ${nomeDoAtleta(sel.atleta)}`}
         className="w-full max-w-md rounded-t-3xl bg-surface p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center gap-3">
-          <AtletaAvatar nome={sel.atleta.nome} fotoUrl={sel.atleta.fotoUrl} size={48} />
+          <AtletaAvatar nome={nomeDoAtleta(sel.atleta)} fotoUrl={sel.atleta.fotoUrl} size={48} />
           <div className="min-w-0 flex-1">
-            <p className="truncate font-semibold">{sel.atleta.nome}</p>
+            <p className="truncate font-semibold">{nomeDoAtleta(sel.atleta)}</p>
             <p className="text-xs text-muted">
               #{sel.atleta.numero}
               {aoVivo ? ` · lança no minuto ${minutoDeJogo(partida.dataHora)}'` : " · antes do jogo"}
@@ -281,9 +287,9 @@ function PainelAcoes({
                     onClick={() => executar(() => substituirAtleta(partida.id, sel.timeId, sel.atleta.id, a.id))}
                     className="flex w-full items-center gap-3 rounded-2xl px-2 py-2 text-left hover:bg-field disabled:opacity-50"
                   >
-                    <AtletaAvatar nome={a.nome} fotoUrl={a.fotoUrl} size={36} />
+                    <AtletaAvatar nome={nomeDoAtleta(a)} fotoUrl={a.fotoUrl} size={36} />
                     <span className="font-semibold tabular-nums">#{a.numero}</span>
-                    <span className="truncate text-sm">{a.nome}</span>
+                    <span className="truncate text-sm">{nomeDoAtleta(a)}</span>
                   </button>
                 </li>
               ))}

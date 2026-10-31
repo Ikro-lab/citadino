@@ -11,7 +11,7 @@ import { StandingsTable } from "@/components/partidas/standings-table";
 import type { PartidaDetalhe } from "@/lib/partidas";
 import type { LinhaClassificacao } from "@/lib/classificacao";
 import { paths } from "@/lib/tenant-path";
-import { abasPartida, tipoEventoLabel, type AbaPartida, type TipoEvento } from "@/lib/labels";
+import { abasPartida, nomeDoAtleta, tipoEventoLabel, type AbaPartida, type TipoEvento } from "@/lib/labels";
 import { centralizarChip } from "@/lib/centralizar-chip";
 
 const TIPOS_MOMENTOS = ["GOL", "ASSISTENCIA", "CARTAO_AMARELO", "CARTAO_VERMELHO", "SUBSTITUICAO"];
@@ -23,9 +23,9 @@ function MomentosPrincipais({ partida, tenantSlug }: { partida: PartidaDetalhe; 
     return <p className="text-sm text-muted">Nenhum lance registrado ainda.</p>;
   }
 
-  const linkAtleta = (a: { id: string; nome: string }) => (
+  const linkAtleta = (a: { id: string; nome: string; apelido?: string | null }) => (
     <Link href={paths.atleta(tenantSlug, a.id)} className="font-medium hover:text-accent hover:underline">
-      {a.nome}
+      {nomeDoAtleta(a)}
     </Link>
   );
 

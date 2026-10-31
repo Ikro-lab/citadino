@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { nomeDoAtleta } from "@/lib/labels";
 import { CACHE_AO_VIVO } from "@/lib/http-cache";
 import { getTenantBySlugOrNull } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
@@ -17,7 +18,7 @@ export async function GET(
     include: {
       opcoes: {
         include: {
-          atleta: { select: { nome: true, time: { select: { nome: true } } } },
+          atleta: { select: { nome: true, apelido: true, time: { select: { nome: true } } } },
           _count: { select: { votos: true } },
         },
       },
@@ -32,7 +33,7 @@ export async function GET(
       ativa: enquete.ativa,
       opcoes: enquete.opcoes.map((o) => ({
         id: o.id,
-        atletaNome: o.atleta.nome,
+        atletaNome: nomeDoAtleta(o.atleta),
         timeNome: o.atleta.time.nome,
         votos: o._count.votos,
       })),

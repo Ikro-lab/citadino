@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import type { PartidaDetalhe } from "@/lib/partidas";
-import { tipoEventoLabel, type TipoEvento } from "@/lib/labels";
+import { nomeDoAtleta, tipoEventoLabel, type TipoEvento } from "@/lib/labels";
 import { EventoIcon } from "./evento-icon";
 import { EventoVideo } from "./evento-video";
 import { paths } from "@/lib/tenant-path";
@@ -38,16 +38,16 @@ export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe
                     <>
                       <span className="font-normal text-muted">Sai </span>
                       <Link href={paths.atleta(tenantSlug, evento.atleta.id)} className="hover:text-accent hover:underline">
-                        {evento.atleta.nome}
+                        {nomeDoAtleta(evento.atleta)}
                       </Link>
                       <span className="font-normal text-muted">, entra </span>
                       <Link href={paths.atleta(tenantSlug, evento.atletaEntra.id)} className="hover:text-accent hover:underline">
-                        {evento.atletaEntra.nome}
+                        {nomeDoAtleta(evento.atletaEntra)}
                       </Link>
                     </>
                   ) : evento.atleta ? (
                     <Link href={paths.atleta(tenantSlug, evento.atleta.id)} className="hover:text-accent hover:underline">
-                      {evento.atleta.nome}
+                      {nomeDoAtleta(evento.atleta)}
                     </Link>
                   ) : (
                     label

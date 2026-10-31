@@ -56,7 +56,7 @@ export default async function ClassificacaoPage({
             escudoUrl: true,
             atletas: {
               orderBy: { numero: "asc" },
-              select: { id: true, nome: true, numero: true, posicao: true, fotoUrl: true },
+              select: { id: true, nome: true, apelido: true, numero: true, posicao: true, fotoUrl: true },
             },
           },
         })

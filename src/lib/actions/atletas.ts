@@ -56,6 +56,7 @@ export async function createAtleta(
   const tenantSlug = session!.user.tenantSlug!;
 
   const nome = String(formData.get("nome") || "").trim();
+  const apelido = String(formData.get("apelido") || "").trim() || null;
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
   const instagram = String(formData.get("instagram") || "").trim() || null;
@@ -104,6 +105,7 @@ export async function createAtleta(
       data: {
         tenantId: session!.user.tenantId!,
         nome,
+        apelido,
         numero,
         posicao,
         instagram,
@@ -139,6 +141,7 @@ export async function updateAtleta(
   const tenantSlug = session!.user.tenantSlug!;
 
   const nome = String(formData.get("nome") || "").trim();
+  const apelido = String(formData.get("apelido") || "").trim() || null;
   const numero = Number(formData.get("numero"));
   const posicao = String(formData.get("posicao") || "LINHA") as Posicao;
   const instagram = String(formData.get("instagram") || "").trim() || null;
@@ -185,6 +188,7 @@ export async function updateAtleta(
       where: { id: atletaId },
       data: {
         nome,
+        apelido,
         numero,
         posicao,
         instagram,

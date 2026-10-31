@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { EventoIcon } from "@/components/partidas/evento-icon";
-import { statusPartida, tipoEventoLabel, type StatusPartida, type TipoEvento } from "@/lib/labels";
+import { nomeDoAtleta, statusPartida, tipoEventoLabel, type StatusPartida, type TipoEvento } from "@/lib/labels";
 
 /** Cabeçalho de placar das súmulas (admin e treinador). */
 export function SumulaPlacar({
@@ -46,7 +46,7 @@ export function EventoRegistrado({
     tipo: string;
     minuto: number;
     time: { nome: string };
-    atleta: { nome: string; numero: number } | null;
+    atleta: { nome: string; apelido?: string | null; numero: number } | null;
   };
   children?: React.ReactNode;
 }) {
@@ -60,7 +60,7 @@ export function EventoRegistrado({
         <span className="min-w-0">
           <span className="block font-medium">
             {evento.atleta
-              ? `${evento.atleta.nome} (#${evento.atleta.numero})`
+              ? `${nomeDoAtleta(evento.atleta)} (#${evento.atleta.numero})`
               : tipoEventoLabel[evento.tipo as TipoEvento] ?? tipoEventoLabel.OUTRO}
           </span>
           <span className="block text-xs text-muted">

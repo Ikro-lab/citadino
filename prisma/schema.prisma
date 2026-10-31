@@ -256,6 +256,9 @@ model Atleta {
   tenantId      String
   tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   nome          String
+  /// Nome de quadra, definido pelo treinador. Quando existe, aparece no lugar
+  /// do nome na escalação, lances, enquete e artilharia (ver nomeDoAtleta).
+  apelido       String?
   numero        Int
   posicao       Posicao
   fotoUrl       String?

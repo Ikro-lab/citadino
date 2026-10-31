@@ -29,13 +29,13 @@ export default async function AdminEnquetesPage({
     db.categoria.findMany({ orderBy: { nome: "asc" } }),
     db.atleta.findMany({
       orderBy: { nome: "asc" },
-      select: { id: true, nome: true, timeId: true, time: { select: { nome: true, categoriaId: true } } },
+      select: { id: true, nome: true, apelido: true, timeId: true, time: { select: { nome: true, categoriaId: true } } },
     }),
   ]);
 
   const atletasFormatados = atletas.map((a) => ({
     id: a.id,
-    nome: a.nome,
+    nome: a.apelido ? `${a.apelido} (${a.nome})` : a.nome,
     timeNome: a.time.nome,
     categoriaId: a.time.categoriaId,
   }));

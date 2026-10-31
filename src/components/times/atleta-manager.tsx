@@ -19,12 +19,13 @@ import {
 import { AtletaAvatar } from "@/components/atletas/atleta-avatar";
 import { paths } from "@/lib/tenant-path";
 import { enviarSemLimpar } from "@/lib/enviar-sem-limpar";
-import { posicaoLabel, posicoes } from "@/lib/labels";
+import { nomeDoAtleta, posicaoLabel, posicoes } from "@/lib/labels";
 import type { Posicao } from "@prisma/client";
 
 type Atleta = {
   id: string;
   nome: string;
+  apelido?: string | null;
   numero: number;
   posicao: Posicao;
   fotoUrl: string | null;
@@ -91,6 +92,18 @@ function CamposAtleta({ prefixo, atleta }: { prefixo: string; atleta?: Atleta })
           <Label htmlFor={`${prefixo}-nome`}>Nome</Label>
           <Input id={`${prefixo}-nome`} name="nome" defaultValue={atleta?.nome} autoComplete="off" required />
         </div>
+      </div>
+      <div>
+        <Label htmlFor={`${prefixo}-apelido`}>Apelido (opcional)</Label>
+        <Input
+          id={`${prefixo}-apelido`}
+          name="apelido"
+          maxLength={30}
+          placeholder="Como é chamado em quadra"
+          defaultValue={atleta?.apelido ?? ""}
+          autoComplete="off"
+        />
+        <p className="mt-1 text-xs text-muted">Aparece no lugar do nome na escalação, lances, enquete e artilharia.</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -222,7 +235,8 @@ function AtletaRow({
         <div className="min-w-0">
           <Link href={paths.atleta(tenantSlug, atleta.id)} className="block">
             <p className="truncate text-sm font-medium hover:text-accent">
-              <span className="tabular-nums">#{atleta.numero}</span> {atleta.nome}
+              <span className="tabular-nums">#{atleta.numero}</span> {nomeDoAtleta(atleta)}
+              {atleta.apelido && <span className="font-normal text-muted"> · {atleta.nome}</span>}
             </p>
             <p className="text-xs text-muted">{posicaoLabel[atleta.posicao]}</p>
           </Link>

@@ -120,7 +120,7 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
           nome: true,
           escudoUrl: true,
           atletas: {
-            select: { id: true, nome: true, numero: true, posicao: true, fotoUrl: true },
+            select: { id: true, nome: true, apelido: true, numero: true, posicao: true, fotoUrl: true },
             orderBy: { numero: "asc" },
           },
         },
@@ -131,7 +131,7 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
           nome: true,
           escudoUrl: true,
           atletas: {
-            select: { id: true, nome: true, numero: true, posicao: true, fotoUrl: true },
+            select: { id: true, nome: true, apelido: true, numero: true, posicao: true, fotoUrl: true },
             orderBy: { numero: "asc" },
           },
         },
@@ -140,8 +140,8 @@ export async function getPartidaDetalhe(tenantId: string, id: string) {
       eventos: {
         orderBy: { minuto: "asc" },
         include: {
-          atleta: { select: { id: true, nome: true, numero: true } },
-          atletaEntra: { select: { id: true, nome: true, numero: true } },
+          atleta: { select: { id: true, nome: true, apelido: true, numero: true } },
+          atletaEntra: { select: { id: true, nome: true, apelido: true, numero: true } },
           time: { select: { id: true, nome: true } },
         },
       },

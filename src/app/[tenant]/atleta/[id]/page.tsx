@@ -11,7 +11,7 @@ import { EventoVideo } from "@/components/partidas/evento-video";
 import { CartaoIcon, EventoIcon } from "@/components/partidas/evento-icon";
 import { calcularIdade } from "@/lib/utils";
 import { TIMEZONE } from "@/lib/date-utils";
-import { posicaoLabel, tipoEventoLabel, type PosicaoAtleta, type TipoEvento } from "@/lib/labels";
+import { nomeDoAtleta, posicaoLabel, tipoEventoLabel, type PosicaoAtleta, type TipoEvento } from "@/lib/labels";
 
 export default async function AtletaPage({
   params,
@@ -27,6 +27,7 @@ export default async function AtletaPage({
     select: {
       id: true,
       nome: true,
+      apelido: true,
       numero: true,
       posicao: true,
       fotoUrl: true,
@@ -81,9 +82,10 @@ export default async function AtletaPage({
     <div className="mx-auto flex max-w-2xl flex-col gap-4 px-4 py-6">
       <Card className="text-center">
         <div className="mx-auto mb-3 w-fit">
-          <AtletaAvatar nome={atleta.nome} fotoUrl={atleta.fotoUrl} size={88} className="text-2xl" />
+          <AtletaAvatar nome={nomeDoAtleta(atleta)} fotoUrl={atleta.fotoUrl} size={88} className="text-2xl" />
         </div>
-        <h1 className="text-2xl font-semibold leading-tight tracking-tight">{atleta.nome}</h1>
+        <h1 className="text-2xl font-semibold leading-tight tracking-tight">{nomeDoAtleta(atleta)}</h1>
+        {atleta.apelido && <p className="text-sm text-muted">{atleta.nome}</p>}
         <p className="text-sm text-muted">
           <span className="tabular-nums">#{atleta.numero}</span>, {posicaoLabel[atleta.posicao as PosicaoAtleta]} do{" "}
           {atleta.time.nome}

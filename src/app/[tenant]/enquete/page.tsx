@@ -1,4 +1,5 @@
 import { resolveCategoriaId } from "@/lib/categorias";
+import { nomeDoAtleta } from "@/lib/labels";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
@@ -28,7 +29,7 @@ export default async function EnquetePage({
         include: {
           opcoes: {
             include: {
-              atleta: { select: { nome: true, time: { select: { nome: true } } } },
+              atleta: { select: { nome: true, apelido: true, time: { select: { nome: true } } } },
               _count: { select: { votos: true } },
             },
           },
@@ -66,7 +67,7 @@ export default async function EnquetePage({
                 rodada={e.rodada}
                 opcoesIniciais={e.opcoes.map((o) => ({
                   id: o.id,
-                  atletaNome: o.atleta.nome,
+                  atletaNome: nomeDoAtleta(o.atleta),
                   timeNome: o.atleta.time.nome,
                   votos: o._count.votos,
                 }))}
