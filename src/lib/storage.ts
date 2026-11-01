@@ -37,6 +37,15 @@ const PRIVATE_PREFIX = "privado:";
 const PUBLIC_BLOB_HOST = /\.public\.blob\.vercel-storage\.com$/;
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
 
+/**
+ * Lado maior das imagens exibidas no site. Foto de atleta aparece em no máximo
+ * ~128px e escudo em 56px; o dobro/triplo cobre telas retina. Guardar o
+ * original do celular (vários MB) faz cada miniatura baixar o arquivo inteiro
+ * e esgota a transferência do Blob.
+ */
+export const FOTO_MAX_PX = 400;
+export const ESCUDO_MAX_PX = 256;
+
 const EXT_BY_MIME: Record<string, string> = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -202,8 +211,28 @@ export function ehRefPrivada(ref: string | null | undefined) {
  * pública (exibida no site) só com autorização; sem ela, privada.
  */
 export async function saveFotoAtleta(file: File, subdir: string, publica: boolean) {
-  if (publica) return saveUpload(file, subdir);
-  return saveDocumentoPrivado(file, subdir);
+  const foto = await reduzirFoto(file);
+  if (publica) return saveUpload(foto, subdir);
+  return saveDocumentoPrivado(foto, subdir);
+}
+
+/**
+ * Reduz a foto para FOTO_MAX_PX em WebP (de vários MB para ~30KB), já girada
+ * pela orientação EXIF. Formato que o sharp não lê (PDF, HEIC sem suporte)
+ * segue como veio.
+ */
+async function reduzirFoto(file: File): Promise<File> {
+  if (file.size === 0 || !file.type.startsWith("image/")) return file;
+  try {
+    const buffer = await sharp(Buffer.from(await file.arrayBuffer()))
+      .rotate()
+      .resize({ width: FOTO_MAX_PX, height: FOTO_MAX_PX, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    return new File([new Uint8Array(buffer)], `${path.parse(file.name).name}.webp`, { type: "image/webp" });
+  } catch {
+    return file;
+  }
 }
 
 function pathnameDe(ref: string) {
@@ -278,7 +307,7 @@ async function apagarArquivoLocal(root: string, relativo: string) {
  * branco/transparente ao redor (comum em logos exportados com padding),
  * pra não sobrar espaço vazio quando exibido em tamanho fixo no site.
  */
-export async function saveLogoUpload(file: File, subdir: string): Promise<string> {
+export async function saveLogoUpload(file: File, subdir: string, maxPx = 800): Promise<string> {
   if (file.size === 0) throw new Error("Arquivo vazio.");
   if (file.size > MAX_BYTES) throw new Error("Arquivo maior que 10MB.");
 
@@ -291,7 +320,7 @@ export async function saveLogoUpload(file: File, subdir: string): Promise<string
     buffer = Buffer.from(
       await sharp(original)
         .trim()
-        .resize({ width: 800, height: 800, fit: "inside", withoutEnlargement: true })
+        .resize({ width: maxPx, height: maxPx, fit: "inside", withoutEnlargement: true })
         .png()
         .toBuffer()
     );

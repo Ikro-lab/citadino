@@ -6,14 +6,14 @@ import { requireAdmin } from "@/lib/require-role";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atleta";
-import { saveLogoUpload } from "@/lib/storage";
+import { ESCUDO_MAX_PX, saveLogoUpload } from "@/lib/storage";
 import { auth } from "@/auth";
 
 async function escudoEnviado(formData: FormData): Promise<string | null> {
   const arquivo = formData.get("escudo");
   // Como os logos de patrocinador: recorta a margem vazia e grava em PNG,
   // mantendo o fundo transparente.
-  return arquivo instanceof File && arquivo.size > 0 ? saveLogoUpload(arquivo, "escudos") : null;
+  return arquivo instanceof File && arquivo.size > 0 ? saveLogoUpload(arquivo, "escudos", ESCUDO_MAX_PX) : null;
 }
 
 export type CriarMeuTimeState = { error?: string } | undefined;

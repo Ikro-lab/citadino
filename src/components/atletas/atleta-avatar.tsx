@@ -35,6 +35,8 @@ export function AtletaAvatar({
         alt={nome}
         width={size}
         height={size}
+        loading="lazy"
+        decoding="async"
         style={{ width: size, height: size }}
         className={`shrink-0 rounded-full object-cover ${className}`}
       />
