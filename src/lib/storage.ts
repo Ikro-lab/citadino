@@ -33,6 +33,15 @@ function credencialPrivada(): { token: string } | { storeId: string } | null {
   if (storeId) return { storeId };
   return null;
 }
+/**
+ * Credencial do store público. O token vai explícito porque, sem ele, o SDK
+ * prefere OIDC + BLOB_STORE_ID (store conectado ao projeto) ao
+ * BLOB_READ_WRITE_TOKEN — e o token pode ser de um store de outro time.
+ */
+function credencialPublica(): { token: string } | Record<string, never> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN?.trim();
+  return token ? { token } : {};
+}
 const PRIVATE_PREFIX = "privado:";
 const PUBLIC_BLOB_HOST = /\.public\.blob\.vercel-storage\.com$/;
 const MAX_BYTES = 10 * 1024 * 1024; // 10MB
@@ -63,6 +72,7 @@ async function saveBufferToBlob(
     access: "public",
     contentType,
     addRandomSuffix: false,
+    ...credencialPublica(),
   });
   return blob.url;
 }
@@ -286,7 +296,7 @@ export async function apagarArquivos(refs: Iterable<string>) {
         await apagarArquivoLocal(UPLOAD_ROOT, ref.slice("/uploads/".length));
       } else {
         const url = new URL(ref);
-        if (url.protocol === "https:" && PUBLIC_BLOB_HOST.test(url.hostname)) await del(ref);
+        if (url.protocol === "https:" && PUBLIC_BLOB_HOST.test(url.hostname)) await del(ref, credencialPublica());
       }
     } catch (e) {
       console.warn(`[storage] Não foi possível apagar ${ref.slice(0, 80)}:`, e instanceof Error ? e.message : e);

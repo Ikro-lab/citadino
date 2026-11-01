@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 function hashString(value: string): number {
   let hash = 0;
   for (let i = 0; i < value.length; i++) {
@@ -26,8 +30,11 @@ export function AtletaAvatar({
   size?: number;
   className?: string;
 }) {
+  const [falhou, setFalhou] = useState(false);
+
   // `privado:` = foto sem autorização de imagem: nunca vai para o navegador.
-  if (fotoUrl && !fotoUrl.startsWith("privado:")) {
+  // Link quebrado (arquivo apagado, store fora do ar) cai para as iniciais.
+  if (fotoUrl && !fotoUrl.startsWith("privado:") && !falhou) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
@@ -37,6 +44,7 @@ export function AtletaAvatar({
         height={size}
         loading="lazy"
         decoding="async"
+        onError={() => setFalhou(true)}
         style={{ width: size, height: size }}
         className={`shrink-0 rounded-full object-cover ${className}`}
       />
