@@ -176,7 +176,16 @@ export async function updateAtleta(
       if (!foto.type.startsWith("image/")) return { error: "A foto precisa ser uma imagem." };
       fotoUrl = await saveFotoAtleta(foto, `atletas/${timeId}`, imagem.autoriza);
     } else if (fotoUrl) {
-      fotoUrl = await moverArquivo(fotoUrl, imagem.autoriza ? "publico" : "privado");
+      try {
+        fotoUrl = await moverArquivo(fotoUrl, imagem.autoriza ? "publico" : "privado");
+      } catch (e) {
+        // Original inacessível (ex.: store antigo bloqueado). Autorizando, a
+        // foto só continua fora do site; revogando, não dá para deixá-la pública.
+        if (!imagem.autoriza) {
+          return { error: "Não foi possível tirar a foto atual do site agora. Envie uma foto nova para salvar." };
+        }
+        console.warn(`[atletas] Foto de ${atletaId} não foi movida:`, e instanceof Error ? e.message : e);
+      }
     }
   } catch (e) {
     return { error: e instanceof Error ? e.message : "Falha ao salvar a foto." };

@@ -174,7 +174,8 @@ export async function lerDocumento(
     const pathname = ref.slice(PRIVATE_PREFIX.length);
     const credencial = credencialPrivada();
     if (credencial) {
-      const result = await get(pathname, { access: "private", ...credencial });
+      // Token sem acesso (arquivo de um store antigo) vira "não encontrado".
+      const result = await get(pathname, { access: "private", ...credencial }).catch(() => null);
       if (!result || result.statusCode !== 200) return null;
       return { body: result.stream, contentType: result.blob.contentType };
     }
