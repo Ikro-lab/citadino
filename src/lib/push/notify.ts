@@ -1,7 +1,8 @@
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
-import { dayRange, todayStr, TIMEZONE } from "@/lib/date-utils";
+import { dayRange, formatDatetimeLocalBRT, formatHora, shiftDateStr, todayStr, TIMEZONE } from "@/lib/date-utils";
+import { previsoesDeInicio } from "@/lib/atraso";
 import { paths } from "@/lib/tenant-path";
 import type { Prisma, PushSubscription as StoredSubscription } from "@prisma/client";
 
@@ -89,13 +90,15 @@ export async function notifyBroadcast(tenantId: string, payload: PushPayload) {
 }
 
 /**
- * Envia o lembrete "faltam X min" para cada inscrito cuja preferência
- * (lembreteMin, padrão 30) caia dentro da janela atual. Precisa rodar a cada
- * minuto para não perder partidas — o cron nativo da Vercel (Hobby) só roda
- * 1x/dia, então isso é disparado por um agendador externo (ver README).
+ * Envia o lembrete "faltam X min" quando o início do jogo (o previsto pelo
+ * atraso dos anteriores, ou o marcado) fica a até lembreteMin minutos (padrão
+ * 30) de cada inscrito. Como o previsto anda com o relógio, cada inscrito
+ * recebe um lembrete só por partida (LembreteEnviado). Precisa rodar a cada
+ * minuto — o cron nativo da Vercel (Hobby) só roda 1x/dia, então isso é
+ * disparado por um agendador externo (ver README).
  *
  * Roda globalmente (todos os tenants) — cada subscription só enxerga
- * partidas do PRÓPRIO tenant (where.tenantId), nunca de outro.
+ * partidas do PRÓPRIO tenant, nunca de outro.
  */
 export async function notifyLembretesProximos() {
   if (!vapidPublic || !vapidPrivate) return { enviados: 0 };
@@ -103,36 +106,64 @@ export async function notifyLembretesProximos() {
   const subs = await prisma.pushSubscription.findMany();
   if (subs.length === 0) return { enviados: 0 };
 
-  const now = new Date();
+  const agora = Date.now();
+
+  // Jogos de hoje e de amanhã (o lembrete de um jogo logo depois da meia-noite sai antes dela).
+  const hoje = todayStr();
+  const doDia = await prisma.partida.findMany({
+    where: {
+      tenantId: { in: Array.from(new Set(subs.map((s) => s.tenantId))) },
+      dataHora: { gte: dayRange(hoje).start, lte: dayRange(shiftDateStr(hoje, 1)).end },
+      categoria: { campeonato: { ativo: true } },
+    },
+    include: {
+      timeCasa: { select: { nome: true } },
+      timeFora: { select: { nome: true } },
+      tenant: { select: { slug: true } },
+      lembretes: { select: { subscriptionId: true } },
+    },
+  });
+  // Previsão por dia (cada dia é uma sequência de jogos na quadra).
+  const previsoes = new Map<string, Date>();
+  const porDia = new Map<string, typeof doDia>();
+  for (const p of doDia) {
+    const dia = `${p.tenantId}|${formatDatetimeLocalBRT(p.dataHora).slice(0, 10)}`;
+    porDia.set(dia, [...(porDia.get(dia) ?? []), p]);
+  }
+  for (const jogos of porDia.values()) {
+    for (const [id, previsto] of previsoesDeInicio(jogos, agora)) previsoes.set(id, previsto);
+  }
+
   let enviados = 0;
+  for (const partida of doDia) {
+    if (partida.status !== "AGENDADA") continue;
+    const inicio = (previsoes.get(partida.id) ?? partida.dataHora).getTime();
+    const faltam = Math.round((inicio - agora) / 60_000);
+    if (faltam <= 0) continue;
+    const jaEnviados = new Set(partida.lembretes.map((l) => l.subscriptionId));
 
-  for (const sub of subs) {
-    const minutos = sub.lembreteMin ?? 30;
-    const janelaInicio = new Date(now.getTime() + (minutos - 1) * 60_000);
-    const janelaFim = new Date(now.getTime() + (minutos + 1) * 60_000);
+    for (const sub of subs) {
+      if (sub.tenantId !== partida.tenantId || jaEnviados.has(sub.id)) continue;
+      if (faltam > (sub.lembreteMin ?? 30)) continue;
+      // sem categoria e sem time = inscrito em "todas as categorias" do seu tenant.
+      if (sub.categoriaId && sub.categoriaId !== partida.categoriaId) continue;
+      if (!sub.categoriaId && sub.timeId && sub.timeId !== partida.timeCasaId && sub.timeId !== partida.timeForaId) {
+        continue;
+      }
 
-    const where: Prisma.PartidaWhereInput = {
-      tenantId: sub.tenantId,
-      status: "AGENDADA",
-      dataHora: { gte: janelaInicio, lte: janelaFim },
-    };
+      // Grava antes de enviar: com duas execuções ao mesmo tempo, só uma passa.
+      const registrado = await prisma.lembreteEnviado
+        .create({ data: { subscriptionId: sub.id, partidaId: partida.id } })
+        .then(() => true)
+        .catch(() => false);
+      if (!registrado) continue;
 
-    if (sub.categoriaId) {
-      where.categoriaId = sub.categoriaId;
-    } else if (sub.timeId) {
-      where.OR = [{ timeCasaId: sub.timeId }, { timeForaId: sub.timeId }];
-    }
-    // sem categoria e sem time = inscrito em "todas as categorias" DO SEU TENANT.
-
-    const partidas = await prisma.partida.findMany({
-      where,
-      include: { timeCasa: true, timeFora: true, tenant: { select: { slug: true } } },
-    });
-
-    for (const partida of partidas) {
+      const atrasado = previsoes.has(partida.id);
       await sendToSubscription(sub, {
-        title: `Em ${minutos} min: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
-        body: "Não perca o início da partida.",
+        title: `Em ${faltam} min: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
+        body: atrasado
+          ? `Previsão de início às ${formatHora(new Date(inicio))}, pelo atraso dos jogos anteriores.`
+          : "Não perca o início da partida.",
         url: paths.partida(partida.tenant.slug, partida.id),
       });
       enviados += 1;

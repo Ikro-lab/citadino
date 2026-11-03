@@ -370,6 +370,7 @@ model Partida {
   updatedAt     DateTime @updatedAt
 
   eventos       EventoPartida[]
+  lembretes     LembreteEnviado[]
 
   @@index([tenantId, categoriaId])
   // Feed do dia (filtra por data) e forma recente de cada time.
@@ -464,5 +465,21 @@ model PushSubscription {
   lembreteMin   Int?     @default(30)
   createdAt     DateTime @default(now())
 
+  lembretes     LembreteEnviado[]
+
   @@index([tenantId])
+}
+
+/// Lembrete "faltam X min" já enviado: o horário previsto pelo atraso muda com
+/// o relógio, então cada inscrito recebe um só por partida.
+model LembreteEnviado {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  subscription   PushSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  partidaId      String
+  partida        Partida  @relation(fields: [partidaId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@unique([subscriptionId, partidaId])
+  @@index([partidaId])
 }
