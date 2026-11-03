@@ -70,7 +70,7 @@ export function FeedList({
   return (
     <div className="flex flex-col gap-3">
       {grupos.map((g, i) => (
-        <Fragment key={g.categoriaId}>
+        <Fragment key={g.chave}>
           <FeedGroup categoriaNome={g.categoriaNome} total={g.partidas.length}>
             {g.partidas.map((partida) => (
               <MatchRow key={partida.id} partida={partida} forma={forma} tenantSlug={tenantSlug} />

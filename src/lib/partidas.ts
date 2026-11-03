@@ -30,7 +30,7 @@ export async function getFeedAgrupado(tenantId: string, dateStr: string) {
       dataHora: { gte: start, lte: end },
       categoria: { campeonato: { ativo: true } },
     },
-    orderBy: [{ categoriaId: "asc" }, { dataHora: "asc" }],
+    orderBy: [{ dataHora: "asc" }, { categoriaId: "asc" }],
     include: {
       timeCasa: { select: { id: true, nome: true, escudoUrl: true } },
       timeFora: { select: { id: true, nome: true, escudoUrl: true } },
@@ -38,22 +38,16 @@ export async function getFeedAgrupado(tenantId: string, dateStr: string) {
     },
   });
 
-  const grupos = new Map<
-    string,
-    { categoriaId: string; categoriaNome: string; partidas: typeof partidas }
-  >();
+  // Ordem do dia (horário): jogos seguidos da mesma categoria ficam sob um
+  // título só; a categoria se repete se voltar a jogar mais tarde.
+  const grupos: { chave: string; categoriaId: string; categoriaNome: string; partidas: typeof partidas }[] = [];
   for (const p of partidas) {
-    if (!grupos.has(p.categoriaId)) {
-      grupos.set(p.categoriaId, {
-        categoriaId: p.categoriaId,
-        categoriaNome: p.categoria.nome,
-        partidas: [],
-      });
-    }
-    grupos.get(p.categoriaId)!.partidas.push(p);
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo?.categoriaId === p.categoriaId) ultimo.partidas.push(p);
+    else grupos.push({ chave: p.id, categoriaId: p.categoriaId, categoriaNome: p.categoria.nome, partidas: [p] });
   }
 
-  return Array.from(grupos.values());
+  return grupos;
 }
 
 /**
