@@ -7,6 +7,7 @@ import { signIn } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getTenantBySlug } from "@/lib/tenant";
 import { paths } from "@/lib/tenant-path";
+import { usuarioPorEmail } from "@/lib/email";
 
 export type LoginState = { error?: string } | undefined;
 
@@ -46,7 +47,7 @@ export async function login(
 const CadastroSchema = z
   .object({
     name: z.string().trim().min(2, "Informe seu nome completo."),
-    email: z.email("E-mail inválido."),
+    email: z.string().trim().toLowerCase().pipe(z.email("E-mail inválido.")),
     password: z.string().min(6, "A senha deve ter ao menos 6 caracteres."),
     confirmPassword: z.string(),
     nomeTime: z.string().trim().optional(),
@@ -102,9 +103,7 @@ export async function cadastroTreinador(
     categoriaConviteId = categoria.id;
   }
 
-  const existing = await prisma.user.findUnique({
-    where: { tenantId_email: { tenantId: tenant.id, email } },
-  });
+  const existing = await usuarioPorEmail(tenant.id, email);
   if (existing) {
     return {
       error: categoriaConviteId

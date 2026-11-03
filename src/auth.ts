@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { normalizarEmail, usuarioPorEmail } from "@/lib/email";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
@@ -25,9 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const tenant = await prisma.tenant.findUnique({ where: { slug: tenantSlug } });
         if (!tenant || !tenant.ativo) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { tenantId_email: { tenantId: tenant.id, email } },
-        });
+        const user = await usuarioPorEmail(tenant.id, email);
         if (!user || !user.tenantId) return null;
 
         const valid = await bcrypt.compare(password, user.passwordHash);
@@ -56,7 +55,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!email || !password) return null;
 
         const user = await prisma.user.findFirst({
-          where: { role: "SUPER_ADMIN", email },
+          where: { role: "SUPER_ADMIN", email: { in: [normalizarEmail(email), email.trim()] } },
         });
         if (!user) return null;
 

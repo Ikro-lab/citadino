@@ -7,6 +7,7 @@ import { apagarArquivosSemUso, refsDe, selectArquivos } from "@/lib/arquivos-atl
 import { requireSuperAdmin } from "@/lib/require-role";
 import { isValidTenantSlug } from "@/lib/tenant";
 import { isValidHexColor } from "@/lib/color";
+import { normalizarEmail, usuarioPorEmail } from "@/lib/email";
 
 export type CreateTenantState = { error?: string; success?: boolean } | undefined;
 
@@ -21,7 +22,7 @@ export async function createTenantComAdmin(
   const corPrimaria = String(formData.get("corPrimaria") || "").trim() || "#f5821f";
   const corSecundaria = String(formData.get("corSecundaria") || "").trim() || "#2fbf8f";
   const adminName = String(formData.get("adminName") || "").trim();
-  const adminEmail = String(formData.get("adminEmail") || "").trim();
+  const adminEmail = normalizarEmail(String(formData.get("adminEmail") || ""));
   const adminPassword = String(formData.get("adminPassword") || "");
 
   if (!nome || !adminName || !adminEmail || adminPassword.length < 6) {
@@ -128,7 +129,7 @@ export async function criarAdminTenant(
   await requireSuperAdmin();
 
   const name = String(formData.get("name") || "").trim();
-  const email = String(formData.get("email") || "").trim();
+  const email = normalizarEmail(String(formData.get("email") || ""));
   const password = String(formData.get("password") || "");
   if (!name || !email.includes("@") || password.length < 6) {
     return { error: "Preencha nome, e-mail válido e senha com ao menos 6 caracteres." };
@@ -138,10 +139,7 @@ export async function criarAdminTenant(
   if (!tenant) return { error: "Campeonato não encontrado." };
 
   // O e-mail é único por campeonato: a mesma pessoa não pode ser treinador e admin.
-  const existente = await prisma.user.findUnique({
-    where: { tenantId_email: { tenantId, email } },
-    select: { role: true },
-  });
+  const existente = await usuarioPorEmail(tenantId, email);
   if (existente) {
     return {
       error:
