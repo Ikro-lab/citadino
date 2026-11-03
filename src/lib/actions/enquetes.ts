@@ -6,6 +6,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { requireAdmin } from "@/lib/require-role";
 import { getOrCreateDeviceId } from "@/lib/device-id";
 import { paths } from "@/lib/tenant-path";
+import { notifyCategoria } from "@/lib/push/notify";
 
 export async function createEnquete(formData: FormData) {
   const session = await requireAdmin();
@@ -20,7 +21,7 @@ export async function createEnquete(formData: FormData) {
   if (!categoriaId || !rodada || atletaIds.length < 2) return;
 
   const tenantId = session.user.tenantId!;
-  await db.enquete.create({
+  const enquete = await db.enquete.create({
     data: {
       tenantId,
       categoriaId,
@@ -28,9 +29,17 @@ export async function createEnquete(formData: FormData) {
       pergunta,
       opcoes: { create: atletaIds.map((atletaId) => ({ tenantId, atletaId })) },
     },
+    include: { categoria: { select: { nome: true } } },
   });
   revalidatePath(paths.admin.enquetes(tenantSlug));
   revalidatePath(paths.enquete(tenantSlug));
+
+  // Votação aberta: avisa quem segue a categoria (ou um time dela).
+  await notifyCategoria(tenantId, categoriaId, {
+    title: `Votação aberta: ${enquete.pergunta}`,
+    body: `${enquete.categoria.nome.replace(/^Categoria de base /, "")}, rodada ${rodada}. Toque para votar.`,
+    url: paths.enquete(tenantSlug),
+  });
 }
 
 export async function toggleEnqueteAtiva(id: string, ativa: boolean) {

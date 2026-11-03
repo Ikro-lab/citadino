@@ -66,6 +66,20 @@ export async function notifyPartidaEvento(tenantId: string, partidaId: string, p
   );
 }
 
+/** Quem segue a categoria, um time dela ou todas as categorias (ex: enquete nova). */
+export async function notifyCategoria(tenantId: string, categoriaId: string, payload: PushPayload) {
+  if (!vapidPublic || !vapidPrivate) return;
+  const db = getTenantPrisma(tenantId);
+
+  const times = await db.time.findMany({ where: { categoriaId }, select: { id: true } });
+  const subs = await db.pushSubscription.findMany({
+    where: {
+      OR: [{ categoriaId }, { timeId: { in: times.map((t) => t.id) } }, { categoriaId: null, timeId: null }],
+    },
+  });
+  await Promise.all(subs.map((sub) => sendToSubscription(sub, payload)));
+}
+
 export async function notifyBroadcast(tenantId: string, payload: PushPayload) {
   if (!vapidPublic || !vapidPrivate) return;
   const db = getTenantPrisma(tenantId);
