@@ -2,7 +2,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { FormaRecente } from "@/components/partidas/forma-recente";
 import { LiveMinuto } from "@/components/partidas/live-minuto";
-import { inicioDoJogo } from "@/lib/escalacao";
 import { FavoritoStar } from "@/components/partidas/favorito-star";
 import { Escudo } from "@/components/times/escudo";
 import { formatHora } from "@/lib/date-utils";
@@ -74,7 +73,7 @@ export function MatchRow({
         {/* Horário/status separado dos times por um fio, como num placar eletrônico. */}
         <div className="flex w-11 shrink-0 flex-col items-center border-r border-border pr-3 text-xs tabular-nums">
           {aoVivo ? (
-            <LiveMinuto inicio={inicioDoJogo(partida)} />
+            <LiveMinuto partida={partida} compacto />
           ) : encerrada ? (
             <span className="text-muted">Fim</span>
           ) : partida.status === "ADIADA" ? (

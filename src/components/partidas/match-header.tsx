@@ -2,7 +2,6 @@ import { Radio } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Escudo } from "@/components/times/escudo";
 import { LiveMinuto } from "@/components/partidas/live-minuto";
-import { inicioDoJogo } from "@/lib/escalacao";
 import { TIMEZONE, formatHora } from "@/lib/date-utils";
 import type { PartidaDetalhe } from "@/lib/partidas";
 
@@ -65,7 +64,7 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
 
           <div className="text-xs">
             {aoVivo ? (
-              <LiveMinuto inicio={inicioDoJogo(partida)} />
+              <LiveMinuto partida={partida} />
             ) : encerrada ? (
               <span className="text-muted">Encerrado</span>
             ) : partida.status === "ADIADA" ? (

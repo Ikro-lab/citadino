@@ -11,7 +11,15 @@ import { TransmissaoCard } from "@/components/partidas/transmissao-card";
 import { ClipeYoutubeAjuste } from "@/components/partidas/clipe-youtube-ajuste";
 import { getAtletasSuspensosIds } from "@/lib/artilharia";
 import { extrairYoutubeId } from "@/lib/youtube";
-import { iniciarPartida, encerrarPartida, adiarPartida, deleteEvento } from "@/lib/actions/partidas";
+import {
+  iniciarPartida,
+  encerrarPrimeiroTempo,
+  iniciarSegundoTempo,
+  encerrarPartida,
+  adiarPartida,
+  deleteEvento,
+} from "@/lib/actions/partidas";
+import { tempoDeJogo } from "@/lib/escalacao";
 
 export default async function SumulaPage({
   params,
@@ -36,6 +44,7 @@ export default async function SumulaPage({
   });
 
   if (!partida) notFound();
+  const tempo = tempoDeJogo(partida);
 
   const suspensos = await getAtletasSuspensosIds(tenant.id, partida.categoriaId);
   const timeCasaDisponivel = {
@@ -56,7 +65,7 @@ export default async function SumulaPage({
         <SumulaPlacar partida={partida} />
 
         {(partida.status === "AGENDADA" || partida.status === "AO_VIVO") && (
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className={`mt-4 grid gap-2 ${partida.status === "AGENDADA" ? "grid-cols-2" : "grid-cols-1"}`}>
             {partida.status === "AGENDADA" && (
               <>
                 <form action={iniciarPartida.bind(null, id)}>
@@ -71,8 +80,22 @@ export default async function SumulaPage({
                 </form>
               </>
             )}
+            {partida.status === "AO_VIVO" && tempo === "1T" && (
+              <form action={encerrarPrimeiroTempo.bind(null, id)}>
+                <Button type="submit" size="lg" className="w-full">
+                  Encerrar 1º tempo
+                </Button>
+              </form>
+            )}
+            {partida.status === "AO_VIVO" && tempo === "INTERVALO" && (
+              <form action={iniciarSegundoTempo.bind(null, id)}>
+                <Button type="submit" size="lg" className="w-full">
+                  Iniciar 2º tempo
+                </Button>
+              </form>
+            )}
             {partida.status === "AO_VIVO" && (
-              <form action={encerrarPartida.bind(null, id)} className="col-span-2">
+              <form action={encerrarPartida.bind(null, id)}>
                 <Button type="submit" variant="secondary" size="lg" className="w-full">
                   Encerrar partida
                 </Button>

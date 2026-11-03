@@ -139,7 +139,7 @@ export async function iniciarPartida(id: string) {
   const tenantSlug = session.user.tenantSlug!;
   const partida = await db.partida.update({
     where: { id },
-    data: { status: "AO_VIVO", iniciadaEm: new Date() },
+    data: { status: "AO_VIVO", iniciadaEm: new Date(), intervaloEm: null, segundoTempoEm: null },
     include: { timeCasa: true, timeFora: true },
   });
   await garantirInicioLive(db, partida);
@@ -148,6 +148,45 @@ export async function iniciarPartida(id: string) {
   await notifyPartidaEvento(session.user.tenantId!, partida.id, {
     title: `Começou! ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
     body: "A partida está ao vivo.",
+  });
+}
+
+/** Fim do 1º tempo: o minuto de jogo para até o toque em "Iniciar 2º tempo". */
+export async function encerrarPrimeiroTempo(id: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  const { count } = await db.partida.updateMany({
+    where: { id, status: "AO_VIVO", intervaloEm: null },
+    data: { intervaloEm: new Date() },
+  });
+  if (count === 0) return;
+  const partida = await db.partida.findUniqueOrThrow({ where: { id }, include: { timeCasa: true, timeFora: true } });
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, id));
+  revalidatePath(paths.partida(tenantSlug, id));
+  revalidatePath(paths.home(tenantSlug));
+  await notifyPartidaEvento(session.user.tenantId!, id, {
+    title: `Intervalo: ${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`,
+    body: "Fim do 1º tempo.",
+  });
+}
+
+export async function iniciarSegundoTempo(id: string) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  const { count } = await db.partida.updateMany({
+    where: { id, status: "AO_VIVO", intervaloEm: { not: null }, segundoTempoEm: null },
+    data: { segundoTempoEm: new Date() },
+  });
+  if (count === 0) return;
+  const partida = await db.partida.findUniqueOrThrow({ where: { id }, include: { timeCasa: true, timeFora: true } });
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, id));
+  revalidatePath(paths.partida(tenantSlug, id));
+  revalidatePath(paths.home(tenantSlug));
+  await notifyPartidaEvento(session.user.tenantId!, id, {
+    title: `Começou o 2º tempo: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
+    body: `${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`,
   });
 }
 

@@ -8,6 +8,8 @@ export function SumulaPlacar({
 }: {
   partida: {
     status: StatusPartida;
+    intervaloEm?: Date | null;
+    segundoTempoEm?: Date | null;
     placarCasa: number;
     placarFora: number;
     timeCasa: { nome: string };
@@ -16,12 +18,20 @@ export function SumulaPlacar({
   };
 }) {
   const status = statusPartida[partida.status];
+  const label =
+    partida.status !== "AO_VIVO"
+      ? status.label
+      : partida.segundoTempoEm
+        ? "Ao vivo · 2º tempo"
+        : partida.intervaloEm
+          ? "Intervalo"
+          : "Ao vivo · 1º tempo";
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-2">
         <Badge variant="accent">{partida.categoria.nome}</Badge>
         <Badge variant={status.variant} pulse={partida.status === "AO_VIVO"}>
-          {status.label}
+          {label}
         </Badge>
       </div>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 text-center">

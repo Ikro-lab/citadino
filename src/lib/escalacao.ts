@@ -98,7 +98,30 @@ export function inicioDoJogo(partida: { dataHora: string | Date; iniciadaEm?: st
   return partida.iniciadaEm ?? partida.dataHora;
 }
 
-/** Minuto de jogo (mesma conta do minuto ao vivo do feed). */
-export function minutoDeJogo(partida: { dataHora: string | Date; iniciadaEm?: string | Date | null }) {
-  return Math.max(0, Math.floor((Date.now() - new Date(inicioDoJogo(partida)).getTime()) / 60000));
+type RelogioPartida = {
+  dataHora: string | Date;
+  iniciadaEm?: string | Date | null;
+  intervaloEm?: string | Date | null;
+  segundoTempoEm?: string | Date | null;
+};
+
+/** Em que parte do jogo está, pelos toques em "Encerrar 1º tempo" e "Iniciar 2º tempo". */
+export function tempoDeJogo(partida: RelogioPartida): "1T" | "INTERVALO" | "2T" {
+  if (partida.segundoTempoEm) return "2T";
+  if (partida.intervaloEm) return "INTERVALO";
+  return "1T";
+}
+
+/**
+ * Minuto de jogo (mesma conta do minuto ao vivo do feed): para no intervalo e,
+ * no 2º tempo, continua de onde o 1º terminou (lances ficam em ordem).
+ */
+export function minutoDeJogo(partida: RelogioPartida, agora = Date.now()) {
+  const ms = (d: string | Date) => new Date(d).getTime();
+  const inicio = ms(inicioDoJogo(partida));
+  let jogado: number;
+  if (!partida.intervaloEm) jogado = agora - inicio;
+  else if (!partida.segundoTempoEm) jogado = ms(partida.intervaloEm) - inicio;
+  else jogado = ms(partida.intervaloEm) - inicio + (agora - ms(partida.segundoTempoEm));
+  return Math.max(0, Math.floor(jogado / 60000));
 }
