@@ -4,6 +4,8 @@ export const paths = {
   cadastro: (t: string) => `/${t}/cadastro`,
   /** Cadastro de treinador pelo link de uma categoria: o time nasce nela. */
   cadastroConvite: (t: string, token: string) => `/${t}/cadastro/${token}`,
+  /** Link de nova senha que o admin gera para o treinador. */
+  redefinirSenha: (t: string, token: string) => `/${t}/redefinir-senha/${token}`,
   classificacao: (t: string) => `/${t}/classificacao`,
   artilharia: (t: string) => `/${t}/artilharia`,
   enquete: (t: string) => `/${t}/enquete`,

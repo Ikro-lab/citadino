@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { AtletaManager } from "@/components/times/atleta-manager";
 import { Escudo } from "@/components/times/escudo";
 import { FotoInput } from "@/components/ui/foto-input";
+import { AcessoTreinador } from "@/components/times/acesso-treinador";
 import { removerEscudo, updateTime } from "@/lib/actions/times";
 
 export default async function EditarTimePage({
@@ -21,7 +22,11 @@ export default async function EditarTimePage({
   const [time, categorias, treinadores] = await Promise.all([
     db.time.findUnique({
       where: { id },
-      include: { atletas: { orderBy: { numero: "asc" } } },
+      include: {
+        atletas: { orderBy: { numero: "asc" } },
+        treinador: { select: { id: true, name: true, email: true } },
+        categoria: { select: { campeonato: { select: { nome: true } } } },
+      },
     }),
     db.categoria.findMany({ orderBy: { nome: "asc" } }),
     db.user.findMany({ where: { role: "TREINADOR" }, orderBy: { name: "asc" } }),
@@ -90,6 +95,15 @@ export default async function EditarTimePage({
             <Button type="submit">Salvar alterações</Button>
           </div>
         </form>
+      </Card>
+
+      <Card>
+        <h2 className="mb-3 font-semibold">Acesso do treinador</h2>
+        {time.treinador ? (
+          <AcessoTreinador treinador={time.treinador} campeonatoNome={time.categoria.campeonato.nome} />
+        ) : (
+          <p className="text-sm text-muted">Nenhum treinador vinculado. Escolha um em Dados do time.</p>
+        )}
       </Card>
 
       <AtletaManager

@@ -27,7 +27,7 @@ export default async function TimesPage({
       orderBy: { createdAt: "desc" },
       include: {
         categoria: { select: { nome: true } },
-        treinador: { select: { name: true } },
+        treinador: { select: { name: true, email: true } },
         _count: { select: { atletas: true } },
       },
     }),
@@ -90,7 +90,7 @@ export default async function TimesPage({
                 <p className="font-medium">{t.nome}</p>
                 <p className="text-xs text-muted">
                   {t.categoria.nome} · {t._count.atletas} atletas ·{" "}
-                  {t.treinador ? t.treinador.name : "sem treinador"}
+                  {t.treinador ? `${t.treinador.name} (${t.treinador.email})` : "sem treinador"}
                 </p>
               </div>
             </div>

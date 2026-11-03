@@ -99,6 +99,10 @@ model User {
   /// Categoria do link de cadastro usado pelo treinador: depois de entrar ele
   /// cria o time, que já nasce nela. Limpa quando o time é criado.
   categoriaConviteId String?
+  /// Link de nova senha gerado pelo admin: só o SHA-256 do token fica no
+  /// banco. Vale até `senhaTokenExpiraEm` e uma vez só (limpa ao usar).
+  senhaTokenHash     String?   @unique
+  senhaTokenExpiraEm DateTime?
   tenantId      String?
   tenant        Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
