@@ -86,7 +86,7 @@ Notificações push exigem HTTPS (ou `localhost`) e permissão do navegador. Par
 localmente com HTTPS: `npx next dev --experimental-https`.
 
 Um resumo diário ("hoje tem jogo do seu time/categoria") é enviado 1x por dia via
-`/api/cron/resumo-diario`. O `vercel.json` já agenda esse cron às 22h UTC (19h em
+`/api/cron/resumo-diario`. O `vercel.json` já agenda esse cron às 21h UTC (18h em
 horário de Brasília) — o plano Hobby da Vercel só permite cron 1x/dia.
 
 O lembrete "faltam X minutos" (`/api/cron/lembretes`, baseado na preferência
