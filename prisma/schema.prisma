@@ -355,6 +355,9 @@ model Partida {
   linkTransmissaoUrl String?
   /// Quando a live do YouTube começou — base para o link do minuto de cada gol.
   transmissaoInicioEm DateTime?
+  /// Quando o admin tocou em "Iniciar partida" — base do minuto de jogo.
+  /// Vazio (jogos de antes deste campo) = conta do horário marcado.
+  iniciadaEm    DateTime?
   /// Titulares escolhidos pelo admin (JSON {GOL, FIXO, ALA_E, ALA_D, PIVO} → atletaId).
   /// Vazio = escalação provável pela posição. Substituições são aplicadas por cima.
   escalacaoCasa String?

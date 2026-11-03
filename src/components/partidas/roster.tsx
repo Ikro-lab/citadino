@@ -223,7 +223,7 @@ function PainelAcoes({
     fd.set("tipo", tipo);
     fd.set("timeId", sel.timeId);
     fd.set("atletaId", sel.atleta.id);
-    fd.set("minuto", String(minutoDeJogo(partida.dataHora)));
+    fd.set("minuto", String(minutoDeJogo(partida)));
     executar(() => addEvento(partida.id, fd));
   }
 
@@ -241,7 +241,7 @@ function PainelAcoes({
             <p className="truncate font-semibold">{nomeDoAtleta(sel.atleta)}</p>
             <p className="text-xs text-muted">
               #{sel.atleta.numero}
-              {aoVivo ? ` · lança no minuto ${minutoDeJogo(partida.dataHora)}'` : " · antes do jogo"}
+              {aoVivo ? ` · lança no minuto ${minutoDeJogo(partida)}'` : " · antes do jogo"}
             </p>
           </div>
           <button type="button" onClick={onFechar} aria-label="Fechar" className="rounded-full p-2 hover:bg-field">

@@ -90,7 +90,15 @@ export function escalacaoAtual<A extends AtletaBase>(
   return { quadra, banco: atletas.filter((a) => !emQuadra.has(a.id)) };
 }
 
-/** Minuto de jogo pelo horário de início (mesma conta do minuto ao vivo do feed). */
-export function minutoDeJogo(dataHora: string | Date) {
-  return Math.max(0, Math.floor((Date.now() - new Date(dataHora).getTime()) / 60000));
+/**
+ * Início que vale para o minuto: o toque em "Iniciar partida" (o jogo pode
+ * começar atrasado); jogos de antes desse registro contam do horário marcado.
+ */
+export function inicioDoJogo(partida: { dataHora: string | Date; iniciadaEm?: string | Date | null }) {
+  return partida.iniciadaEm ?? partida.dataHora;
+}
+
+/** Minuto de jogo (mesma conta do minuto ao vivo do feed). */
+export function minutoDeJogo(partida: { dataHora: string | Date; iniciadaEm?: string | Date | null }) {
+  return Math.max(0, Math.floor((Date.now() - new Date(inicioDoJogo(partida)).getTime()) / 60000));
 }

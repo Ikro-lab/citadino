@@ -2,18 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-function calcularMinuto(dataHora: string | Date) {
-  const inicio = new Date(dataHora).getTime();
-  return Math.max(0, Math.floor((Date.now() - inicio) / 60000));
+function calcularMinuto(inicio: string | Date) {
+  return Math.max(0, Math.floor((Date.now() - new Date(inicio).getTime()) / 60000));
 }
 
-export function LiveMinuto({ dataHora }: { dataHora: string | Date }) {
-  const [minuto, setMinuto] = useState(() => calcularMinuto(dataHora));
+/** `inicio`: use `inicioDoJogo(partida)` (o toque em "Iniciar partida", ou o horário marcado). */
+export function LiveMinuto({ inicio }: { inicio: string | Date }) {
+  const [minuto, setMinuto] = useState(() => calcularMinuto(inicio));
 
   useEffect(() => {
-    const interval = setInterval(() => setMinuto(calcularMinuto(dataHora)), 15000);
+    const interval = setInterval(() => setMinuto(calcularMinuto(inicio)), 15000);
     return () => clearInterval(interval);
-  }, [dataHora]);
+  }, [inicio]);
 
   return (
     <span

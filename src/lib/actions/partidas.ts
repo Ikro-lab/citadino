@@ -139,7 +139,7 @@ export async function iniciarPartida(id: string) {
   const tenantSlug = session.user.tenantSlug!;
   const partida = await db.partida.update({
     where: { id },
-    data: { status: "AO_VIVO" },
+    data: { status: "AO_VIVO", iniciadaEm: new Date() },
     include: { timeCasa: true, timeFora: true },
   });
   await garantirInicioLive(db, partida);
@@ -314,7 +314,7 @@ export async function substituirAtleta(partidaId: string, timeId: string, saiId:
         timeId,
         atletaId: saiId,
         atletaEntraId: entraId,
-        minuto: minutoDeJogo(partida.dataHora),
+        minuto: minutoDeJogo(partida),
         lancadoPorId: session.user.id,
       },
     });
