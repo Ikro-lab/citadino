@@ -52,7 +52,7 @@ export function MatchRow({
   forma,
   tenantSlug,
 }: {
-  partida: FeedPartida;
+  partida: FeedPartida & { previstoEm?: Date | string | null };
   forma: Record<string, ("V" | "E" | "D")[]>;
   tenantSlug: string;
 }) {
@@ -79,6 +79,14 @@ export function MatchRow({
             <span className="text-muted">Fim</span>
           ) : partida.status === "ADIADA" ? (
             <span className="text-live">Adiada</span>
+          ) : partida.previstoEm ? (
+            // Atrasado pelos jogos anteriores: horário marcado riscado e o previsto.
+            <>
+              <span className="text-[10px] text-muted line-through">{formatHora(partida.dataHora)}</span>
+              <span className="font-semibold text-accent-dark" title="Previsão pelo atraso dos jogos anteriores">
+                {formatHora(partida.previstoEm)}
+              </span>
+            </>
           ) : (
             <span className="font-medium">{formatHora(partida.dataHora)}</span>
           )}

@@ -21,6 +21,7 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
   const showPlacar = partida.status !== "AGENDADA" && partida.status !== "ADIADA";
   const casaPerde = encerrada && partida.placarCasa < partida.placarFora;
   const foraPerde = encerrada && partida.placarFora < partida.placarCasa;
+  const previstoEm = partida.status === "AGENDADA" ? partida.previstoEm : null;
 
   const data = new Date(partida.dataHora).toLocaleDateString("pt-BR", {
     weekday: "short",
@@ -52,8 +53,13 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
               <span className={cn(foraPerde && "text-muted")}>{partida.placarFora}</span>
             </p>
           ) : (
-            <p className="flex h-14 items-center font-display text-4xl leading-none font-bold tabular-nums">
-              {formatHora(partida.dataHora)}
+            <p
+              className={cn(
+                "flex h-14 items-center font-display text-4xl leading-none font-bold tabular-nums",
+                previstoEm && "text-accent-dark"
+              )}
+            >
+              {formatHora(previstoEm ?? partida.dataHora)}
             </p>
           )}
 
@@ -64,6 +70,10 @@ export function MatchHeader({ partida }: { partida: PartidaDetalhe }) {
               <span className="text-muted">Encerrado</span>
             ) : partida.status === "ADIADA" ? (
               <span className="text-live">Adiado</span>
+            ) : previstoEm ? (
+              <span className="text-muted" title="Previsão pelo atraso dos jogos anteriores">
+                Previsto, era <span className="line-through">{formatHora(partida.dataHora)}</span>
+              </span>
             ) : (
               <span className="text-muted">Não começou</span>
             )}

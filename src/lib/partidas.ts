@@ -1,5 +1,6 @@
 import { getTenantPrisma } from "@/lib/tenant-prisma";
-import { dayRange } from "@/lib/date-utils";
+import { dayRange, formatDatetimeLocalBRT } from "@/lib/date-utils";
+import { previsoesDeInicio } from "@/lib/atraso";
 
 export { dayRange, todayStr, shiftDateStr } from "@/lib/date-utils";
 
@@ -25,7 +26,7 @@ export async function getFeedAgrupado(tenantId: string, dateStr: string) {
   const { start, end } = dayRange(dateStr);
   const db = getTenantPrisma(tenantId);
 
-  const partidas = await db.partida.findMany({
+  const doDia = await db.partida.findMany({
     where: {
       dataHora: { gte: start, lte: end },
       categoria: { campeonato: { ativo: true } },
@@ -37,6 +38,8 @@ export async function getFeedAgrupado(tenantId: string, dateStr: string) {
       categoria: { select: { id: true, nome: true } },
     },
   });
+  const previsoes = previsoesDeInicio(doDia);
+  const partidas = doDia.map((p) => ({ ...p, previstoEm: previsoes.get(p.id) ?? null }));
 
   // Ordem do dia (horário): jogos seguidos da mesma categoria ficam sob um
   // título só; a categoria se repete se voltar a jogar mais tarde.
@@ -103,7 +106,30 @@ export async function getFormaRecenteEmLote(tenantId: string, timeIds: string[])
   return Object.fromEntries(entradas) as Record<string, ("V" | "E" | "D")[]>;
 }
 
+/** Início previsto de um jogo agendado, pelo atraso dos anteriores do dia (null = no horário). */
+async function getPrevistoEm(
+  tenantId: string,
+  partida: { id: string; dataHora: Date; status: string }
+): Promise<Date | null> {
+  if (partida.status !== "AGENDADA") return null;
+  const { start, end } = dayRange(formatDatetimeLocalBRT(partida.dataHora).slice(0, 10));
+  const doDia = await getTenantPrisma(tenantId).partida.findMany({
+    where: {
+      dataHora: { gte: start, lte: end },
+      categoria: { campeonato: { ativo: true } },
+    },
+    select: { id: true, dataHora: true, iniciadaEm: true, status: true, local: true },
+  });
+  return previsoesDeInicio(doDia).get(partida.id) ?? null;
+}
+
 export async function getPartidaDetalhe(tenantId: string, id: string) {
+  const partida = await buscarPartidaDetalhe(tenantId, id);
+  if (!partida) return null;
+  return { ...partida, previstoEm: await getPrevistoEm(tenantId, partida) };
+}
+
+async function buscarPartidaDetalhe(tenantId: string, id: string) {
   const db = getTenantPrisma(tenantId);
   return db.partida.findUnique({
     where: { id },

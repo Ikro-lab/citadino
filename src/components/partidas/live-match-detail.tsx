@@ -40,8 +40,9 @@ export function LiveMatchDetail({
         // ignore transient network errors, will retry on next tick
       }
     },
-    6000,
-    partida.status === "AO_VIVO"
+    // Jogo atrasado pelos anteriores: confere de vez em quando se a previsão mudou ou se começou.
+    partida.status === "AO_VIVO" ? 6000 : 30000,
+    partida.status === "AO_VIVO" || Boolean(partida.previstoEm)
   );
 
   return (

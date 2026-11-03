@@ -37,6 +37,8 @@ export function FeedList({
   }
 
   const temAoVivo = grupos.some((g) => g.partidas.some((p) => p.status === "AO_VIVO"));
+  // Jogo atrasado pelos anteriores: a previsão anda com o relógio.
+  const temAtraso = grupos.some((g) => g.partidas.some((p) => p.previstoEm));
 
   usePolling(
     async () => {
@@ -53,8 +55,8 @@ export function FeedList({
         // ignore transient network errors, will retry on next tick
       }
     },
-    8000,
-    temAoVivo
+    temAoVivo ? 8000 : 30000,
+    temAoVivo || temAtraso
   );
 
   if (grupos.length === 0) {
