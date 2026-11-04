@@ -18,7 +18,9 @@ import {
   encerrarPartida,
   adiarPartida,
   deleteEvento,
+  setEventoAtleta,
 } from "@/lib/actions/partidas";
+import { TrocarAtletaEvento } from "@/components/partidas/trocar-atleta-evento";
 import { tempoDeJogo } from "@/lib/escalacao";
 
 export default async function SumulaPage({
@@ -125,6 +127,15 @@ export default async function SumulaPage({
         <div className="flex flex-col gap-2">
           {partida.eventos.map((e) => (
             <EventoRegistrado key={e.id} evento={e}>
+              {e.tipo !== "SUBSTITUICAO" && (
+                <TrocarAtletaEvento
+                  action={setEventoAtleta.bind(null, e.id, id)}
+                  atletaId={e.atletaId}
+                  atletas={(e.timeId === partida.timeCasaId ? partida.timeCasa : partida.timeFora).atletas.map(
+                    (a) => ({ id: a.id, nome: a.nome, apelido: a.apelido, numero: a.numero })
+                  )}
+                />
+              )}
               {e.videoUrl && extrairYoutubeId(e.videoUrl) ? (
                 <ClipeYoutubeAjuste eventoId={e.id} videoUrl={e.videoUrl} />
               ) : (

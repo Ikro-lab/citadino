@@ -397,6 +397,31 @@ export async function deleteEvento(eventoId: string, partidaId: string) {
   revalidatePath(paths.home(tenantSlug));
 }
 
+/**
+ * Troca o jogador de um lance já lançado (o autor do gol muitas vezes só se
+ * confirma na súmula física). Aceita "sem jogador"; o time e o placar não mudam.
+ */
+export async function setEventoAtleta(eventoId: string, partidaId: string, formData: FormData) {
+  const session = await requireAdmin();
+  const db = getTenantPrisma(session.user.tenantId!);
+  const tenantSlug = session.user.tenantSlug!;
+  const atletaId = String(formData.get("atletaId") || "") || null;
+
+  const evento = await db.eventoPartida.findUniqueOrThrow({ where: { id: eventoId } });
+  if (evento.partidaId !== partidaId || evento.tipo === "SUBSTITUICAO") return;
+  if (atletaId) {
+    const atleta = await db.atleta.findUnique({ where: { id: atletaId }, select: { timeId: true } });
+    if (atleta?.timeId !== evento.timeId) throw new Error("Escolha um atleta do time do lance.");
+  }
+
+  await db.eventoPartida.update({ where: { id: eventoId }, data: { atletaId } });
+
+  revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
+  revalidatePath(paths.partida(tenantSlug, partidaId));
+  revalidatePath(paths.artilharia(tenantSlug));
+  revalidatePath(paths.home(tenantSlug));
+}
+
 export async function setEventoVideo(eventoId: string, videoUrl: string) {
   const evento = await assertPodeEditarEvento(eventoId);
   if (!videoUrl) return;
