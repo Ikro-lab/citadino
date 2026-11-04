@@ -84,6 +84,9 @@ export default async function CategoriasPage({
               >
                 Gerenciar
               </Link>
+              <a href={paths.exportAtletasCategoria(tenantSlug, c.id)} download className={acaoLinkClass}>
+                Exportar atletas
+              </a>
               <DeleteButton action={deleteCategoria.bind(null, c.id)} />
             </div>
           </Card>

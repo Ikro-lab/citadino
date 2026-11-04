@@ -12,6 +12,7 @@ import {
 } from "@/lib/actions/categorias";
 import { ConviteTreinadorLink } from "@/components/times/convite-treinador-link";
 import { paths } from "@/lib/tenant-path";
+import { acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { createGrupo, deleteGrupo, atribuirGrupoDoTime } from "@/lib/actions/grupos";
 
 export default async function EditarCategoriaPage({
@@ -86,6 +87,16 @@ export default async function EditarCategoriaPage({
             <Button type="submit">Salvar</Button>
           </div>
         </form>
+      </Card>
+
+      <Card>
+        <h2 className="mb-1 font-semibold">Lista de atletas</h2>
+        <p className="mb-3 text-xs text-muted">
+          Planilha com todos os times de {categoria.nome}: time, número da camisa e nome completo de cada atleta.
+        </p>
+        <a href={paths.exportAtletasCategoria(tenantSlug, id)} download className={acaoLinkClass}>
+          Exportar atletas (planilha)
+        </a>
       </Card>
 
       <Card>

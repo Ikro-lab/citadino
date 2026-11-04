@@ -17,6 +17,8 @@ export const paths = {
   /** Documento de atleta servido pela rota autenticada (nunca a URL do arquivo). */
   documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante" | "foto") =>
     `/api/${t}/documentos/${tipo}/${id}/${campo}`,
+  /** Planilha (CSV) com os atletas de todos os times da categoria, só para o admin. */
+  exportAtletasCategoria: (t: string, id: string) => `/api/${t}/categorias/${id}/atletas`,
   admin: {
     root: (t: string) => `/${t}/admin`,
     campeonatos: (t: string) => `/${t}/admin/campeonatos`,
