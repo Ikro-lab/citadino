@@ -81,6 +81,16 @@ export async function notifyCategoria(tenantId: string, categoriaId: string, pay
   await Promise.all(subs.map((sub) => sendToSubscription(sub, payload)));
 }
 
+/** Só os admins do tenant que ativaram as notificações logados (avisos da organização). */
+export async function notifyAdmins(tenantId: string, payload: PushPayload) {
+  if (!vapidPublic || !vapidPrivate) return;
+  const db = getTenantPrisma(tenantId);
+
+  const admins = await db.user.findMany({ where: { role: "ADMIN" }, select: { id: true } });
+  const subs = await db.pushSubscription.findMany({ where: { userId: { in: admins.map((a) => a.id) } } });
+  await Promise.all(subs.map((sub) => sendToSubscription(sub, payload)));
+}
+
 export async function notifyBroadcast(tenantId: string, payload: PushPayload) {
   if (!vapidPublic || !vapidPrivate) return;
   const db = getTenantPrisma(tenantId);

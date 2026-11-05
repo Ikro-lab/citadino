@@ -30,6 +30,8 @@ export const paths = {
     partida: (t: string, id: string) => `/${t}/admin/partidas/${id}`,
     partidaEditar: (t: string, id: string) => `/${t}/admin/partidas/${id}/editar`,
     partidaSumula: (t: string, id: string) => `/${t}/admin/partidas/${id}/sumula`,
+    /** Gol detectado na live esperando aprovação (aberto pela notificação). */
+    golSugerido: (t: string, id: string) => `/${t}/admin/gols/${id}`,
     solicitacoes: (t: string) => `/${t}/admin/solicitacoes`,
     inscricoes: (t: string) => `/${t}/admin/inscricoes`,
     enquetes: (t: string) => `/${t}/admin/enquetes`,

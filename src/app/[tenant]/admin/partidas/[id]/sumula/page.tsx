@@ -1,4 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { paths } from "@/lib/tenant-path";
+import { acaoLinkClass } from "@/components/partidas/partida-list-item";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { Card } from "@/components/ui/card";
@@ -47,6 +50,10 @@ export default async function SumulaPage({
 
   if (!partida) notFound();
   const tempo = tempoDeJogo(partida);
+  const golsPendentes = await db.golSugerido.findMany({
+    where: { partidaId: id, status: "PENDENTE" },
+    orderBy: { createdAt: "asc" },
+  });
 
   const suspensos = await getAtletasSuspensosIds(tenant.id, partida.categoriaId);
   const timeCasaDisponivel = {
@@ -63,6 +70,20 @@ export default async function SumulaPage({
 
   return (
     <div className="flex flex-col gap-6">
+      {golsPendentes.length > 0 && (
+        <Card className="border-live">
+          <h2 className="mb-2 font-semibold">Gols vistos na transmissão, esperando aprovação</h2>
+          <div className="flex flex-col gap-2">
+            {golsPendentes.map((g) => (
+              <Link key={g.id} href={paths.admin.golSugerido(tenantSlug, g.id)} className={acaoLinkClass}>
+                Gol de {g.timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome} ({g.placarCasa} x{" "}
+                {g.placarFora}): conferir
+              </Link>
+            ))}
+          </div>
+        </Card>
+      )}
+
       <Card>
         <SumulaPlacar partida={partida} />
 

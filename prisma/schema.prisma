@@ -88,6 +88,7 @@ model Tenant {
   enqueteVotos   EnqueteVoto[]
   patrocinadores Patrocinador[]
   pushSubs       PushSubscription[]
+  golsSugeridos  GolSugerido[]
 }
 
 model User {
@@ -375,6 +376,7 @@ model Partida {
 
   eventos       EventoPartida[]
   lembretes     LembreteEnviado[]
+  golsSugeridos GolSugerido[]
 
   @@index([tenantId, categoriaId])
   // Feed do dia (filtra por data) e forma recente de cada time.
@@ -467,11 +469,40 @@ model PushSubscription {
   categoriaId   String?
   timeId        String?
   lembreteMin   Int?     @default(30)
+  /// Admin logado quando ativou as notificações: recebe também os avisos da
+  /// organização (gol detectado na live esperando aprovação).
+  /// Sem relação de propósito: só um filtro (coluna nova sem recriar a tabela).
+  userId        String?
   createdAt     DateTime @default(now())
 
   lembretes     LembreteEnviado[]
 
   @@index([tenantId])
+  @@index([userId])
+}
+
+/// Gol detectado pelo placar da transmissão (monitor da live), esperando o
+/// admin aprovar. Aprovado vira um EventoPartida GOL; o clipe usa videoSegundo.
+model GolSugerido {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  partidaId    String
+  partida      Partida  @relation(fields: [partidaId], references: [id], onDelete: Cascade)
+  timeId       String
+  /// Placar que a transmissão mostrou depois do gol.
+  placarCasa   Int
+  placarFora   Int
+  /// Segundo do vídeo da live em que o gol aconteceu.
+  videoSegundo Int
+  /// PENDENTE, APROVADO (pelo aviso), LANCADO (o admin já tinha lançado na súmula) ou DESCARTADO.
+  status       String   @default("PENDENTE")
+  eventoId     String?
+  createdAt    DateTime @default(now())
+  resolvidoEm  DateTime?
+
+  @@index([tenantId])
+  @@index([partidaId, status])
 }
 
 /// Lembrete "faltam X min" já enviado: o horário previsto pelo atraso muda com

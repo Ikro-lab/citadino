@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 
 type SubscriptionJSON = {
   endpoint: string;
@@ -12,6 +13,10 @@ export async function subscribeUser(
   prefs: { categoriaId?: string | null; timeId?: string | null; lembreteMin?: number },
   tenantId: string
 ) {
+  // Admin logado neste tenant: a inscrição recebe também os avisos da organização.
+  const user = (await auth())?.user;
+  const userId = user?.role === "ADMIN" && user.tenantId === tenantId ? user.id : null;
+
   await prisma.pushSubscription.upsert({
     where: { endpoint: sub.endpoint },
     update: {
@@ -21,6 +26,7 @@ export async function subscribeUser(
       categoriaId: prefs.categoriaId || null,
       timeId: prefs.timeId || null,
       lembreteMin: prefs.lembreteMin ?? 30,
+      userId,
     },
     create: {
       tenantId,
@@ -30,6 +36,7 @@ export async function subscribeUser(
       categoriaId: prefs.categoriaId || null,
       timeId: prefs.timeId || null,
       lembreteMin: prefs.lembreteMin ?? 30,
+      userId,
     },
   });
   return { success: true };

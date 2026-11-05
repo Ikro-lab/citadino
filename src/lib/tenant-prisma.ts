@@ -18,6 +18,7 @@ const TENANT_SCOPED_MODELS = new Set([
   "EnqueteVoto",
   "Patrocinador",
   "PushSubscription",
+  "GolSugerido",
 ]);
 
 const READ_OR_MUTATE_EXISTING_OPS = new Set([

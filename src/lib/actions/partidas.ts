@@ -10,6 +10,7 @@ import { notifyPartidaEvento } from "@/lib/push/notify";
 import { parseDatetimeLocalAsBRT } from "@/lib/date-utils";
 import { extrairYoutubeId, segundoDoLink, youtubeUrlNoSegundo } from "@/lib/youtube";
 import { buscarInicioLiveYoutube } from "@/lib/youtube-live";
+import { casarGolLancado } from "@/lib/gols-sugeridos";
 import { VAGAS, escalacaoAtual, minutoDeJogo, type Titulares } from "@/lib/escalacao";
 import type { FasePartida, TipoEvento } from "@prisma/client";
 
@@ -273,6 +274,8 @@ export async function addEvento(partidaId: string, formData: FormData) {
       }
     }
   }
+  // Gol que a live já mostrou: some o pendente e o clipe fica no segundo visto na live.
+  if (tipo === "GOL") await casarGolLancado(tenantId, eventoId);
 
   revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.treinador.partidaSumula(tenantSlug, partidaId));
