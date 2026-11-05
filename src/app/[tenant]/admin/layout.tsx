@@ -1,4 +1,5 @@
 import { requireAdmin } from "@/lib/require-role";
+import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionNav } from "@/components/nav/section-nav";
@@ -11,11 +12,13 @@ export default async function AdminLayout({
   params: Promise<{ tenant: string }>;
 }) {
   const { tenant: tenantSlug } = await params;
-  await requireAdmin(tenantSlug);
+  const session = await requireAdmin(tenantSlug);
+  const pendentes = await getTenantPrisma(session.user.tenantId!).golSugerido.count({ where: { status: "PENDENTE" } });
 
   const links = [
     { href: paths.admin.root(tenantSlug), label: "Resumo", exact: true },
     { href: paths.admin.partidas(tenantSlug), label: "Partidas" },
+    { href: paths.admin.golsSugeridos(tenantSlug), label: pendentes ? `Gols detectados (${pendentes})` : "Gols detectados" },
     { href: paths.admin.times(tenantSlug), label: "Times" },
     { href: paths.admin.inscricoes(tenantSlug), label: "Inscrições" },
     { href: paths.admin.solicitacoes(tenantSlug), label: "Solicitações" },

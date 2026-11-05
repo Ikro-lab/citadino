@@ -138,3 +138,31 @@ export async function casarGolLancado(tenantId: string, eventoId: string) {
     });
   }
 }
+
+type Db = ReturnType<typeof getTenantPrisma>;
+
+/** Gols detectados com a partida e o elenco do time do gol (para escolher o autor). */
+export async function buscarGolsSugeridos(db: Db, where: { id?: string; status?: string | { not: string } }, take = 30) {
+  const sugestoes = await db.golSugerido.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take,
+    include: {
+      partida: {
+        select: {
+          id: true,
+          linkTransmissaoUrl: true,
+          categoria: { select: { nome: true } },
+          timeCasa: { select: { id: true, nome: true } },
+          timeFora: { select: { id: true, nome: true } },
+        },
+      },
+    },
+  });
+  const atletas = await db.atleta.findMany({
+    where: { timeId: { in: [...new Set(sugestoes.map((s) => s.timeId))] } },
+    orderBy: { numero: "asc" },
+    select: { id: true, nome: true, apelido: true, numero: true, timeId: true },
+  });
+  return sugestoes.map((sugestao) => ({ sugestao, atletas: atletas.filter((a) => a.timeId === sugestao.timeId) }));
+}

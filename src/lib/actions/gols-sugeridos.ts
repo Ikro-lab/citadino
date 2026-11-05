@@ -31,7 +31,7 @@ export async function aprovarGolSugerido(id: string, formData: FormData) {
     where: { id, status: "PENDENTE" },
     data: { status: "APROVADO", resolvidoEm: new Date() },
   });
-  if (count === 0) redirect(paths.admin.golSugerido(tenantSlug, id));
+  if (count === 0) redirect(paths.admin.golsSugeridos(tenantSlug));
 
   const atual = await db.partida.findUniqueOrThrow({ where: { id: sugestao.partidaId } });
   const videoId = extrairYoutubeId(atual.linkTransmissaoUrl);
@@ -62,6 +62,7 @@ export async function aprovarGolSugerido(id: string, formData: FormData) {
   revalidatePath(paths.partida(tenantSlug, partida.id));
   revalidatePath(paths.home(tenantSlug));
   revalidatePath(paths.artilharia(tenantSlug));
+  revalidatePath(paths.admin.golsSugeridos(tenantSlug));
 
   const timeNome = sugestao.timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome;
   await notifyPartidaEvento(tenantId, partida.id, {
@@ -69,7 +70,7 @@ export async function aprovarGolSugerido(id: string, formData: FormData) {
     body: `${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`,
   });
 
-  redirect(paths.admin.golSugerido(tenantSlug, id));
+  redirect(paths.admin.golsSugeridos(tenantSlug));
 }
 
 /** Placar da transmissão errado (ou gol anulado): o pendente some sem lançar nada. */
@@ -84,5 +85,34 @@ export async function descartarGolSugerido(id: string) {
     data: { status: "DESCARTADO", resolvidoEm: new Date() },
   });
   revalidatePath(paths.admin.partidaSumula(tenantSlug, sugestao.partidaId));
-  redirect(paths.admin.partidaSumula(tenantSlug, sugestao.partidaId));
+  redirect(paths.admin.golsSugeridos(tenantSlug));
+}
+
+/**
+ * Corte do clipe atrasado ou adiantado: anda alguns segundos. Se o gol já foi
+ * aprovado, o lance da súmula acompanha.
+ */
+export async function ajustarGolSugerido(id: string, delta: number) {
+  const session = await requireAdmin();
+  const tenantSlug = session.user.tenantSlug!;
+  const db = getTenantPrisma(session.user.tenantId!);
+
+  const sugestao = await db.golSugerido.findUniqueOrThrow({
+    where: { id },
+    include: { partida: { select: { linkTransmissaoUrl: true } } },
+  });
+  const videoSegundo = Math.max(0, sugestao.videoSegundo + delta);
+  await db.golSugerido.update({ where: { id }, data: { videoSegundo } });
+
+  const videoId = extrairYoutubeId(sugestao.partida.linkTransmissaoUrl);
+  if (sugestao.eventoId && videoId) {
+    await db.eventoPartida.update({
+      where: { id: sugestao.eventoId },
+      data: { videoUrl: youtubeUrlNoSegundo(videoId, videoSegundo) },
+    });
+    revalidatePath(paths.partida(tenantSlug, sugestao.partidaId));
+    revalidatePath(paths.admin.partidaSumula(tenantSlug, sugestao.partidaId));
+  }
+  revalidatePath(paths.admin.golsSugeridos(tenantSlug));
+  revalidatePath(paths.admin.golSugerido(tenantSlug, id));
 }

@@ -32,6 +32,8 @@ export const paths = {
     partida: (t: string, id: string) => `/${t}/admin/partidas/${id}`,
     partidaEditar: (t: string, id: string) => `/${t}/admin/partidas/${id}/editar`,
     partidaSumula: (t: string, id: string) => `/${t}/admin/partidas/${id}/sumula`,
+    /** Aba Gols detectados: gols vistos na live para aprovar. */
+    golsSugeridos: (t: string) => `/${t}/admin/gols`,
     /** Gol detectado na live esperando aprovação (aberto pela notificação). */
     golSugerido: (t: string, id: string) => `/${t}/admin/gols/${id}`,
     solicitacoes: (t: string) => `/${t}/admin/solicitacoes`,
