@@ -5,6 +5,7 @@ import { paths } from "@/lib/tenant-path";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PartidaListItem, acaoLinkClass } from "@/components/partidas/partida-list-item";
+import { dayRange, todayStr } from "@/lib/date-utils";
 
 export default async function AdminDashboard({
   params,
@@ -18,7 +19,9 @@ export default async function AdminDashboard({
   const [proximas, aoVivo, solicitacoesPendentes, totalTimes, totalAtletas] =
     await Promise.all([
       db.partida.findMany({
-        where: { status: "AGENDADA", dataHora: { gte: new Date() } },
+        // Desde o começo do dia (BRT), não de agora: jogo atrasado que ainda não
+        // começou continua aparecendo até alguém iniciar a partida.
+        where: { status: "AGENDADA", dataHora: { gte: dayRange(todayStr()).start } },
         orderBy: { dataHora: "asc" },
         take: 5,
         include: {
