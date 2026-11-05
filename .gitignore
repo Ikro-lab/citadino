@@ -56,3 +56,7 @@ next-env.d.ts
 
 # cópias do banco (dados pessoais)
 /backups/
+
+# monitor da live: senha e registro locais
+/monitor/config.env
+/monitor/monitor.log*
