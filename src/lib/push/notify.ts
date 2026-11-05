@@ -45,9 +45,16 @@ export async function notifyPartidaEvento(tenantId: string, partidaId: string, p
 
   const partida = await db.partida.findUnique({
     where: { id: partidaId },
-    select: { categoriaId: true, timeCasaId: true, timeForaId: true, tenant: { select: { slug: true } } },
+    select: {
+      categoriaId: true,
+      timeCasaId: true,
+      timeForaId: true,
+      tenant: { select: { slug: true } },
+      categoria: { select: { campeonato: { select: { ativo: true } } } },
+    },
   });
-  if (!partida) return;
+  // Campeonato inativo (encerrado ou de teste) não avisa o público.
+  if (!partida || !partida.categoria.campeonato.ativo) return;
 
   const subs = await db.pushSubscription.findMany({
     where: {
