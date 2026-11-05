@@ -4,6 +4,7 @@ import type { PartidaDetalhe } from "@/lib/partidas";
 import { nomeDoAtleta, tipoEventoLabel, type TipoEvento } from "@/lib/labels";
 import { EventoIcon } from "./evento-icon";
 import { EventoVideo } from "./evento-video";
+import { CompartilharGol } from "./compartilhar-gol";
 import { paths } from "@/lib/tenant-path";
 
 export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe; tenantSlug: string }) {
@@ -17,12 +18,24 @@ export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe
     );
   }
 
+  // Placar depois de cada gol, para o texto do link compartilhado.
+  const placarNoGol = new Map<string, string>();
+  let golsCasa = 0;
+  let golsFora = 0;
+  for (const e of partida.eventos) {
+    if (e.tipo !== "GOL") continue;
+    if (e.timeId === partida.timeCasa.id) golsCasa++;
+    else golsFora++;
+    placarNoGol.set(e.id, `${partida.timeCasa.nome} ${golsCasa} x ${golsFora} ${partida.timeFora.nome}`);
+  }
+
   return (
     <Card>
       <ol className="flex flex-col gap-3">
         {partida.eventos.map((evento) => {
           const label = tipoEventoLabel[evento.tipo as TipoEvento] ?? tipoEventoLabel.OUTRO;
           const isCasa = evento.timeId === partida.timeCasa.id;
+          const timeNome = isCasa ? partida.timeCasa.nome : partida.timeFora.nome;
 
           return (
             <li key={evento.id} className="flex items-start gap-3 text-sm">
@@ -64,6 +77,13 @@ export function EventTimeline({ partida, tenantSlug }: { partida: PartidaDetalhe
                   <EventoVideo
                     url={evento.videoUrl}
                     className="mt-2 aspect-video max-h-64 w-full rounded-lg bg-black"
+                  />
+                )}
+                {evento.tipo === "GOL" && (
+                  <CompartilharGol
+                    caminho={paths.gol(tenantSlug, evento.id)}
+                    texto={`Gol de ${evento.atleta ? `${nomeDoAtleta(evento.atleta)} (${timeNome})` : timeNome}! ${placarNoGol.get(evento.id)}`}
+                    className="-ml-3 mt-1"
                   />
                 )}
               </div>

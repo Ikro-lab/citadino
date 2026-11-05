@@ -23,9 +23,11 @@ export function ClipeYoutubeAjuste({ eventoId, videoUrl }: { eventoId: string; v
         target="_blank"
         rel="noopener noreferrer"
         className="inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-accent hover:bg-accent-soft"
+        title="Ponto do lance no vídeo da live (não é o minuto do jogo)"
       >
         <PlayCircle size={16} />
-        <span className="tabular-nums">{minutoVideo}</span>
+        {/* Posição no vídeo da transmissão inteira, diferente do minuto do jogo ao lado. */}
+        <span className="tabular-nums">Vídeo {minutoVideo}</span>
       </a>
       <form action={ajustarClipeEvento.bind(null, eventoId, -10)}>
         <button type="submit" className={ajusteClass} aria-label="Voltar o clipe 10 segundos">

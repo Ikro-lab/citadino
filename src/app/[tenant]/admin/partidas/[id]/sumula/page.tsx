@@ -24,6 +24,8 @@ import {
   setEventoAtleta,
 } from "@/lib/actions/partidas";
 import { TrocarAtletaEvento } from "@/components/partidas/trocar-atleta-evento";
+import { CompartilharGol } from "@/components/partidas/compartilhar-gol";
+import { nomeDoAtleta } from "@/lib/labels";
 import { tempoDeJogo } from "@/lib/escalacao";
 
 export default async function SumulaPage({
@@ -155,6 +157,12 @@ export default async function SumulaPage({
                   atletas={(e.timeId === partida.timeCasaId ? partida.timeCasa : partida.timeFora).atletas.map(
                     (a) => ({ id: a.id, nome: a.nome, apelido: a.apelido, numero: a.numero })
                   )}
+                />
+              )}
+              {e.tipo === "GOL" && (
+                <CompartilharGol
+                  caminho={paths.gol(tenantSlug, e.id)}
+                  texto={`Gol de ${e.atleta ? `${nomeDoAtleta(e.atleta)} (${e.time.nome})` : e.time.nome}! ${partida.timeCasa.nome} x ${partida.timeFora.nome}`}
                 />
               )}
               {e.videoUrl && extrairYoutubeId(e.videoUrl) ? (

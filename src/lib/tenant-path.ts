@@ -14,6 +14,8 @@ export const paths = {
   convite: (t: string, token: string) => `/${t}/convite/${token}`,
   atleta: (t: string, id: string) => `/${t}/atleta/${id}`,
   partida: (t: string, id: string) => `/${t}/partida/${id}`,
+  /** Página de um gol (clipe e placar), o link que se compartilha. */
+  gol: (t: string, id: string) => `/${t}/gol/${id}`,
   /** Documento de atleta servido pela rota autenticada (nunca a URL do arquivo). */
   documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante" | "foto") =>
     `/api/${t}/documentos/${tipo}/${id}/${campo}`,
