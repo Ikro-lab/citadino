@@ -43,7 +43,8 @@ const RECURSOS = [
   {
     icone: Clapperboard,
     titulo: "Gols em vídeo",
-    texto: "Cada gol é recortado da transmissão e vai para um feed que a população assiste, curte e compartilha.",
+    texto:
+      "Cada gol vira um vídeo recortado da transmissão, num feed que a população assiste, curte e compartilha. Com o detector automático, o gol é achado sozinho na live.",
   },
   {
     icone: BarChart3,
@@ -227,6 +228,14 @@ export default async function PrefeiturasPage() {
             </li>
           ))}
         </ul>
+        <div className="mt-4 flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent-soft p-4 text-sm">
+          <Radio size={18} className="mt-0.5 shrink-0 text-accent" />
+          <p>
+            <span className="font-semibold">Detector automático de gols: R$ 10 por hora de transmissão, à parte.</span>{" "}
+            Ele assiste à live e recorta cada gol sozinho. Sem o detector, os gols em vídeo continuam incluídos: a mesa
+            liga o lance à transmissão pelo painel.
+          </p>
+        </div>
       </section>
 
       <section className="rounded-2xl bg-accent p-6 text-accent-foreground">
