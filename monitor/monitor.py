@@ -15,7 +15,9 @@ import subprocess
 import sys
 import tempfile
 import time
+import unicodedata
 import urllib.error
+from difflib import SequenceMatcher
 import urllib.request
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
@@ -27,8 +29,9 @@ from rapidocr_onnxruntime import RapidOCR
 AQUI = Path(__file__).resolve().parent
 INTERVALO = 5  # segundos entre leituras do placar
 ESPERA_SEM_JOGO = 60  # segundos entre consultas ao site sem partida ao vivo
-# Placar da transmissão sobe ~7s depois do lance; o clipe marca o lance (o player abre 10s antes).
-GOL_ANTES_DO_PLACAR = 7
+# Placar da transmissão sobe ~7s depois do lance; o clipe começa uns 10s antes dele,
+# para dar para ver a jogada que levou ao gol.
+GOL_ANTES_DO_PLACAR = 17
 # Reserva quando não dá para saber a posição exata no vídeo: atraso medido da live.
 LATENCIA_LIVE = 65
 # Faixa em volta do "x" do placar, num quadro 1280x720 (serve para nomes curtos e longos).
@@ -145,6 +148,97 @@ def ler_placar(arquivo):
     return tuple(int(g.replace("o", "0").replace("O", "0")) for g in m.groups())
 
 
+# Selo vermelho "REPLAY" no canto superior esquerdo: a transmissão repete o lance
+# logo depois do gol, muitas vezes antes de o operador atualizar o placar (que já
+# chegou a subir 90s depois). O gol fica ~7s antes do replay começar.
+FAIXA_REPLAY = (35, 35, 275, 110)
+CLIPE_ANTES_DO_REPLAY = 22  # ~15s de jogada antes do gol
+REPLAY_VALE_POR = 300  # segundos de vídeo: replay mais antigo que isso não é deste gol
+REPLAY_SEM_GOL_AVISO = 150  # replay sem o placar mudar depois disso: anota no registro
+
+
+def tem_replay(arquivo):
+    im = Image.open(arquivo).convert("RGB")
+    if im.size != (1280, 720):
+        im = im.resize((1280, 720))
+    c = im.crop(FAIXA_REPLAY)
+    px = c.load()
+    vermelhos = sum(1 for x in range(0, c.width, 2) for y in range(0, c.height, 2)
+                    if (lambda r, g, b: r > 170 and g < 80 and b < 80)(*px[x, y]))
+    if vermelhos / ((c.width // 2) * (c.height // 2)) < 0.3:
+        return False
+    r, _ = ocr(c.resize((c.width * 2, c.height * 2)), use_det=False, use_cls=False)
+    return bool(r) and "EPLA" in _normalizar(r[0][0])
+
+
+# Faixa dos nomes dos times dos dois lados do placar, e a divisa entre os lados.
+FAIXA_NOMES = (0, 20, 640, 80)
+DIVISA_LADOS = 300
+
+
+def _normalizar(texto):
+    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    return re.sub(r"[^A-Z0-9]", "", sem_acento.upper())
+
+
+def _parecido(a, b):
+    return SequenceMatcher(None, _normalizar(a), _normalizar(b)).ratio()
+
+
+def ordem_da_transmissao(arquivo, casa, fora):
+    """True se a transmissão mostra o visitante do site à esquerda; None se não deu para ler.
+
+    O placar da live não segue a ordem casa x fora do site (ex.: CDC Veterano à
+    esquerda num jogo cadastrado como CDC Master x CDC Veterano).
+    """
+    im = Image.open(arquivo).convert("RGB")
+    if im.size != (1280, 720):
+        im = im.resize((1280, 720))
+    c = im.crop(FAIXA_NOMES)
+    c = c.resize((c.width * 2, c.height * 2))
+    r, _ = ocr(c)
+    esquerda, direita = [], []
+    for caixa, texto, _conf in r or []:
+        if not re.search(r"[A-Za-z]{3}", texto):
+            continue  # números e o "x" do placar
+        centro = sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0]
+        (esquerda if centro < DIVISA_LADOS else direita).append(texto)
+    if not esquerda or not direita:
+        return None
+    esq, dir_ = " ".join(esquerda), " ".join(direita)
+    direta = _parecido(esq, casa) + _parecido(dir_, fora)
+    invertida = _parecido(esq, fora) + _parecido(dir_, casa)
+    if max(direta, invertida) < 1.0 or abs(direta - invertida) < 0.2:
+        return None  # nomes ilegíveis ou parecidos demais para decidir
+    return invertida > direta
+
+
+MAX_GOLS_DE_UMA_VEZ = 3  # salto maior que isso é leitura errada ou placar de outro jogo
+
+
+def gols_entre(antes, depois):
+    """Gols entre dois placares confirmados, um por vez: [(lado, placar depois dele)].
+
+    O placar pode sumir da tela (replay) e voltar com mais de 1 gol; cada um vira
+    uma sugestão, com o placar intermediário. Placar que desce ou salta demais
+    não é gol: vira só a nova base.
+    """
+    if not antes:
+        return []
+    dc, df = depois[0] - antes[0], depois[1] - antes[1]
+    if dc < 0 or df < 0 or not 0 < dc + df <= MAX_GOLS_DE_UMA_VEZ:
+        return []
+    gc, gf = antes
+    gols = []
+    for _ in range(dc):
+        gc += 1
+        gols.append(("casa", (gc, gf)))
+    for _ in range(df):
+        gf += 1
+        gols.append(("fora", (gc, gf)))
+    return gols
+
+
 def acompanhar(partida):
     """Lê o placar enquanto a partida estiver ao vivo; volta quando ela acaba."""
     live = Live(partida["videoId"])
@@ -155,6 +249,11 @@ def acompanhar(partida):
     ultima_leitura = ()  # só para o registro: anota cada leitura nova
     ultima_consulta = time.time()
     falhas = 0
+    casa, _, fora = partida["jogo"].partition(" x ")
+    invertida = None  # a transmissão mostra o visitante à esquerda? (None = ainda não sei)
+    replay_na_tela = False
+    replay_inicio = None  # segundo do vídeo do último replay ainda não ligado a um gol
+    replay_avisado = False
     log.info(f"Acompanhando {partida['jogo']} (live {partida['videoId']})")
 
     while True:
@@ -163,7 +262,23 @@ def acompanhar(partida):
             momento = agora()
             segundo_video = live.quadro(quadro)
             leitura = ler_placar(quadro)
+            if leitura and invertida is None:
+                invertida = ordem_da_transmissao(quadro, casa, fora)
+                if invertida is not None:
+                    log.info(f"Ordem na transmissão: {f'{fora} x {casa} (invertida em relação ao site)' if invertida else f'{casa} x {fora} (igual ao site)'}")
+            if leitura and invertida:
+                leitura = (leitura[1], leitura[0])  # daqui em diante, sempre casa x fora do site
             falhas = 0
+            replay = tem_replay(quadro)
+            if replay and not replay_na_tela and segundo_video is not None:
+                replay_inicio, replay_avisado = segundo_video, False
+                log.info(f"REPLAY na tela (vídeo {round(segundo_video)}s)")
+            replay_na_tela = replay
+            if (replay_inicio is not None and not replay_avisado and segundo_video is not None
+                    and segundo_video - replay_inicio > REPLAY_SEM_GOL_AVISO):
+                replay_avisado = True
+                log.warning(f"Replay em {round(replay_inicio)}s e o placar não mudou: se foi gol, lance na súmula"
+                            f" e use o clipe em ~{round(replay_inicio) - CLIPE_ANTES_DO_REPLAY}s")
             if leitura != ultima_leitura:
                 ultima_leitura = leitura
                 log.info(f"Leitura: {f'{leitura[0]} x {leitura[1]}' if leitura else 'sem placar na tela'}"
@@ -174,16 +289,22 @@ def acompanhar(partida):
                 else:
                     candidato, repeticoes, visto = leitura, 1, (momento, segundo_video)
                 if repeticoes == 2 and leitura != aceito:
-                    gc, gf = leitura
-                    lado = None
-                    if aceito and gc == aceito[0] + 1 and gf == aceito[1]:
-                        lado = "casa"
-                    elif aceito and gf == aceito[1] + 1 and gc == aceito[0]:
-                        lado = "fora"
-                    if lado:
-                        enviar_gol(partida, lado, leitura, visto, inicio_live)
+                    gols = gols_entre(aceito, leitura)
+                    if gols:
+                        if len(gols) > 1:
+                            log.info(f"Placar pulou de {aceito[0]} x {aceito[1]} para {leitura[0]} x {leitura[1]}:"
+                                     f" {len(gols)} gols no mesmo momento (acerte o clipe na aprovação)")
+                        # O replay antes da mudança do placar marca o lance melhor que o placar.
+                        lance = None
+                        if (replay_inicio is not None and visto[1] is not None
+                                and 0 <= visto[1] - replay_inicio <= REPLAY_VALE_POR):
+                            lance = round(replay_inicio) - CLIPE_ANTES_DO_REPLAY
+                        replay_inicio = None
+                        for i, (lado, placar) in enumerate(gols):
+                            ultimo = i == len(gols) - 1
+                            enviar_gol(partida, lado, placar, visto, inicio_live, lance if ultimo else None)
                     else:
-                        log.info(f"Placar base {gc} x {gf}")
+                        log.info(f"Placar base {leitura[0]} x {leitura[1]}")
                     aceito = leitura
         except Exception as e:  # noqa: BLE001 — segue tentando; a live pode oscilar
             falhas += 1
@@ -207,9 +328,12 @@ def acompanhar(partida):
         time.sleep(max(1, INTERVALO - (time.time() - t0)))
 
 
-def enviar_gol(partida, lado, placar, visto, inicio_live):
+def enviar_gol(partida, lado, placar, visto, inicio_live, lance=None):
     momento, segundo_video = visto
-    if segundo_video is not None:
+    if lance is not None:
+        segundo = lance
+        origem = "replay"
+    elif segundo_video is not None:
         segundo = round(segundo_video) - GOL_ANTES_DO_PLACAR
         origem = "posição do trecho"
     elif inicio_live:
