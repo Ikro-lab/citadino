@@ -16,8 +16,16 @@ export const paths = {
   partida: (t: string, id: string) => `/${t}/partida/${id}`,
   /** Página de um gol (clipe e placar), o link que se compartilha. */
   gol: (t: string, id: string) => `/${t}/gol/${id}`,
-  /** Feed de vídeos dos gols, um por tela; `curtidos` ordena pelas curtidas. */
-  gols: (t: string, ordem?: "curtidos") => `/${t}/gols${ordem ? `?ordem=${ordem}` : ""}`,
+  /**
+   * Feed de vídeos dos gols, um por tela. `dia`: só o último dia com gol;
+   * `curtidos`: pelas curtidas. `categoria` (id ou "todas") vale em Recentes.
+   */
+  gols: (t: string, opcoes: { ordem?: "dia" | "curtidos"; categoria?: string } = {}) => {
+    const q = new URLSearchParams();
+    if (opcoes.ordem) q.set("ordem", opcoes.ordem);
+    if (opcoes.categoria) q.set("categoria", opcoes.categoria);
+    return `/${t}/gols${q.size ? `?${q}` : ""}`;
+  },
   /** Documento de atleta servido pela rota autenticada (nunca a URL do arquivo). */
   documento: (t: string, tipo: "atleta" | "inscricao", id: string, campo: "documento" | "comprovante" | "foto") =>
     `/api/${t}/documentos/${tipo}/${id}/${campo}`,

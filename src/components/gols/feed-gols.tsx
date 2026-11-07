@@ -2,13 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { ArrowLeft, Heart, Share2, Trophy } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, Check, ChevronDown, Heart, Share2, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { paths } from "@/lib/tenant-path";
 import { extrairYoutubeId } from "@/lib/youtube";
 import { EventoVideo } from "@/components/partidas/evento-video";
-import { alternarCurtida, carregarMaisGols } from "@/lib/actions/curtidas";
+import { alternarCurtida, carregarMaisGols, guardarCategoriaGols } from "@/lib/actions/curtidas";
 import type { GolDoFeed, OrdemFeed } from "@/lib/feed-gols";
+
+type CategoriaFeed = { id: string; nome: string; gols: number };
 
 const formatarCurtidas = (n: number) =>
   n >= 1000 ? `${(n / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : String(n);
@@ -20,14 +23,26 @@ const formatarCurtidas = (n: number) =>
 export function FeedGols({
   tenantSlug,
   ordem,
+  categoria,
+  categorias,
+  perguntarCategoria,
+  diaRotulo,
   golsIniciais,
   temMaisInicial,
 }: {
   tenantSlug: string;
   ordem: OrdemFeed;
+  /** Categoria de Recentes: id, "todas" ou null (ainda não escolheu). */
+  categoria: string | null;
+  categorias: CategoriaFeed[];
+  perguntarCategoria: boolean;
+  diaRotulo?: string;
   golsIniciais: GolDoFeed[];
   temMaisInicial: boolean;
 }) {
+  const [escolhendo, setEscolhendo] = useState(perguntarCategoria);
+  const nomeCategoria =
+    categoria === "todas" ? "Todas as categorias" : categorias.find((c) => c.id === categoria)?.nome;
   const [gols, setGols] = useState(golsIniciais);
   const [temMais, setTemMais] = useState(temMaisInicial);
   const [ativo, setAtivo] = useState(0);
@@ -54,14 +69,14 @@ export function FeedGols({
   useEffect(() => {
     if (!temMais || carregando || ativo < gols.length - 3) return;
     startCarregar(async () => {
-      const r = await carregarMaisGols(tenantSlug, ordem, gols.length);
+      const r = await carregarMaisGols(tenantSlug, ordem, categoria === "todas" ? null : categoria, gols.length);
       setGols((atual) => {
         const vistos = new Set(atual.map((g) => g.id));
         return [...atual, ...r.gols.filter((g) => !vistos.has(g.id))];
       });
       setTemMais(r.temMais);
     });
-  }, [ativo, gols.length, temMais, carregando, tenantSlug, ordem]);
+  }, [ativo, gols.length, temMais, carregando, tenantSlug, ordem, categoria]);
 
   const atualizar = useCallback((id: string, dados: Partial<GolDoFeed>) => {
     setGols((atual) => atual.map((g) => (g.id === id ? { ...g, ...dados } : g)));
@@ -69,27 +84,56 @@ export function FeedGols({
 
   return (
     <div className="fixed inset-x-0 top-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-[35] bg-black text-white md:bottom-0">
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between gap-2 bg-gradient-to-b from-black/70 to-transparent px-3 pb-6 pt-[calc(0.75rem+env(safe-area-inset-top))]">
-        <Link
-          href={paths.home(tenantSlug)}
-          aria-label="Voltar"
-          className="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10"
-        >
-          <ArrowLeft size={22} />
-        </Link>
-        <nav className="pointer-events-auto flex gap-1 rounded-full bg-black/40 p-1 text-sm font-semibold">
-          <AbaOrdem href={paths.gols(tenantSlug)} ativa={ordem === "recentes"}>
-            Recentes
-          </AbaOrdem>
-          <AbaOrdem href={paths.gols(tenantSlug, "curtidos")} ativa={ordem === "curtidos"}>
-            Mais curtidos
-          </AbaOrdem>
-        </nav>
-        <span className="w-10" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 bg-gradient-to-b from-black/70 to-transparent px-2 pb-6 pt-[calc(0.75rem+env(safe-area-inset-top))]">
+        <div className="flex w-full items-center gap-1">
+          <Link
+            href={paths.home(tenantSlug)}
+            aria-label="Voltar"
+            className="pointer-events-auto flex h-10 w-10 shrink-0 items-center justify-center rounded-full hover:bg-white/10"
+          >
+            <ArrowLeft size={22} />
+          </Link>
+          <nav className="pointer-events-auto mx-auto flex gap-0.5 rounded-full bg-black/40 p-1 text-[13px] font-semibold">
+            <AbaOrdem href={paths.gols(tenantSlug)} ativa={ordem === "recentes"}>
+              Recentes
+            </AbaOrdem>
+            <AbaOrdem href={paths.gols(tenantSlug, { ordem: "dia" })} ativa={ordem === "dia"}>
+              Gols do dia
+            </AbaOrdem>
+            <AbaOrdem href={paths.gols(tenantSlug, { ordem: "curtidos" })} ativa={ordem === "curtidos"}>
+              Mais curtidos
+            </AbaOrdem>
+          </nav>
+          <span className="w-10 shrink-0" />
+        </div>
+        {ordem === "recentes" && nomeCategoria && (
+          <button
+            type="button"
+            onClick={() => setEscolhendo(true)}
+            className="pointer-events-auto flex items-center gap-1 rounded-full bg-black/40 px-3 py-1 text-xs font-semibold"
+          >
+            {nomeCategoria}
+            <ChevronDown size={14} />
+          </button>
+        )}
+        {ordem === "dia" && diaRotulo && (
+          <span className="rounded-full bg-black/40 px-3 py-1 text-xs font-semibold">
+            {diaRotulo === "Hoje" ? "Gols de hoje" : `Gols de ${diaRotulo}`}
+          </span>
+        )}
       </div>
 
+      {escolhendo && (
+        <EscolherCategoria
+          tenantSlug={tenantSlug}
+          categorias={categorias}
+          atual={categoria}
+          onFechar={categoria ? () => setEscolhendo(false) : undefined}
+        />
+      )}
+
       <div ref={rolagemRef} className="h-full snap-y snap-mandatory overflow-y-auto overscroll-contain [scrollbar-width:none]">
-        {gols.length === 0 && (
+        {gols.length === 0 && !escolhendo && (
           <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
             <Trophy size={32} className="text-white/60" />
             <p className="font-semibold">Ainda não tem gol em vídeo.</p>
@@ -118,13 +162,68 @@ export function FeedGols({
   );
 }
 
+/** Escolha da categoria de Recentes; fica guardada no aparelho por um ano. */
+function EscolherCategoria({
+  tenantSlug,
+  categorias,
+  atual,
+  onFechar,
+}: {
+  tenantSlug: string;
+  categorias: CategoriaFeed[];
+  atual: string | null;
+  onFechar?: () => void;
+}) {
+  const router = useRouter();
+  const total = categorias.reduce((n, c) => n + c.gols, 0);
+  const opcoes = [{ id: "todas", nome: "Todas as categorias", gols: total }, ...categorias];
+
+  async function escolher(id: string) {
+    await guardarCategoriaGols(id);
+    onFechar?.();
+    router.replace(paths.gols(tenantSlug, { categoria: id }));
+  }
+
+  return (
+    <div className="absolute inset-0 z-20 flex flex-col justify-end bg-black/70 sm:items-center sm:justify-center" onClick={onFechar}>
+      <div
+        className="max-h-[80%] w-full overflow-y-auto rounded-t-2xl bg-neutral-900 p-4 sm:max-w-md sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-lg font-bold">Quais gols você quer ver?</h2>
+        <p className="mb-3 text-sm text-white/70">Escolha a categoria. Dá para trocar depois no topo da tela.</p>
+        <ul className="flex flex-col gap-1">
+          {opcoes.map((c) => (
+            <li key={c.id}>
+              <button
+                type="button"
+                onClick={() => escolher(c.id)}
+                className={cn(
+                  "flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 text-left font-semibold hover:bg-white/10",
+                  atual === c.id && "bg-white/10"
+                )}
+              >
+                <span>{c.nome}</span>
+                <span className="flex items-center gap-2 text-sm font-normal text-white/60">
+                  {c.gols === 1 ? "1 gol" : `${c.gols} gols`}
+                  {atual === c.id && <Check size={18} className="text-white" />}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function AbaOrdem({ href, ativa, children }: { href: string; ativa: boolean; children: React.ReactNode }) {
   return (
     <Link
       href={href}
       replace
       aria-current={ativa ? "page" : undefined}
-      className={cn("rounded-full px-3 py-1.5", ativa ? "bg-white text-black" : "text-white/80 hover:text-white")}
+      className={cn("whitespace-nowrap rounded-full px-2.5 py-1.5", ativa ? "bg-white text-black" : "text-white/80 hover:text-white")}
     >
       {children}
     </Link>

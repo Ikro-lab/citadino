@@ -1,10 +1,11 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getDeviceIdReadOnly, getOrCreateDeviceId } from "@/lib/device-id";
-import { buscarFeedGols, type OrdemFeed } from "@/lib/feed-gols";
+import { buscarFeedGols, COOKIE_CATEGORIA_GOLS, type OrdemFeed } from "@/lib/feed-gols";
 import { curtidasExibidas } from "@/lib/curtidas";
 
 /**
@@ -33,12 +34,27 @@ export async function alternarCurtida(
 }
 
 /** Próximo pedaço do feed de gols (rolagem infinita). */
-export async function carregarMaisGols(tenantSlug: string, ordem: OrdemFeed, pular: number) {
+export async function carregarMaisGols(
+  tenantSlug: string,
+  ordem: OrdemFeed,
+  categoriaId: string | null,
+  pular: number
+) {
   const tenant = await getTenantBySlug(tenantSlug);
   return buscarFeedGols(
     tenant.id,
-    ordem === "curtidos" ? "curtidos" : "recentes",
+    { ordem: ordem === "curtidos" || ordem === "dia" ? ordem : "recentes", categoriaId },
     Math.max(0, Math.floor(pular) || 0),
     await getDeviceIdReadOnly()
   );
+}
+
+/** Guarda no aparelho a categoria escolhida em Recentes (id ou "todas"). */
+export async function guardarCategoriaGols(categoria: string) {
+  if (!/^[\w-]{1,40}$/.test(categoria)) return;
+  (await cookies()).set(COOKIE_CATEGORIA_GOLS, categoria, {
+    path: "/",
+    sameSite: "lax",
+    maxAge: 60 * 60 * 24 * 365,
+  });
 }
