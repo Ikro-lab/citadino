@@ -6,7 +6,8 @@ import { YoutubeClipe } from "./youtube-clipe";
 const SEGUNDOS_ANTES = 10;
 const SEGUNDOS_DEPOIS = 8;
 
-export function EventoVideo({ url, className }: { url: string; className?: string }) {
+/** `ativo`: modo do feed de gols (toca sozinho enquanto está na tela). */
+export function EventoVideo({ url, className, ativo }: { url: string; className?: string; ativo?: boolean }) {
   const videoId = extrairYoutubeId(url);
 
   if (videoId) {
@@ -17,6 +18,7 @@ export function EventoVideo({ url, className }: { url: string; className?: strin
         inicio={Math.max(0, momento - SEGUNDOS_ANTES)}
         fim={momento + SEGUNDOS_DEPOIS}
         className={className}
+        ativo={ativo}
       />
     );
   }

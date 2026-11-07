@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, Target, Vote, LogIn, LayoutDashboard, Shield } from "lucide-react";
+import { Home, Clapperboard, Trophy, Target, Vote, LogIn, LayoutDashboard, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { paths } from "@/lib/tenant-path";
 import type { Role } from "@prisma/client";
@@ -13,6 +13,7 @@ export function BottomNav({ role, tenantSlug }: { role: Role | null; tenantSlug:
 
   const items = [
     { href: home, label: "Feed", icon: Home },
+    { href: paths.gols(tenantSlug), label: "Gols", icon: Clapperboard },
     { href: paths.classificacao(tenantSlug), label: "Tabela", icon: Trophy },
     { href: paths.artilharia(tenantSlug), label: "Artilharia", icon: Target },
     { href: paths.enquete(tenantSlug), label: "Enquete", icon: Vote },

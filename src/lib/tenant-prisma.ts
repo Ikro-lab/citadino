@@ -19,6 +19,7 @@ const TENANT_SCOPED_MODELS = new Set([
   "Patrocinador",
   "PushSubscription",
   "GolSugerido",
+  "CurtidaGol",
 ]);
 
 const READ_OR_MUTATE_EXISTING_OPS = new Set([

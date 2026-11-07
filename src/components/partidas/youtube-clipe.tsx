@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Play, RotateCcw, ExternalLink } from "lucide-react";
+import { Play, RotateCcw, ExternalLink, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { youtubeUrlNoSegundo } from "@/lib/youtube";
 
@@ -10,6 +10,8 @@ type YTPlayer = {
   playVideo(): void;
   pauseVideo(): void;
   getCurrentTime(): number;
+  mute(): void;
+  unMute(): void;
   destroy(): void;
 };
 
@@ -56,35 +58,68 @@ function carregarApiYoutube(): Promise<YTNamespace> {
 
 type Estado = "capa" | "tocando" | "fim" | "indisponivel";
 
+// Feed de gols: o som escolhido vale para os próximos vídeos da rolagem.
+let somLigadoNoFeed = false;
+
 /**
  * Toca só o trecho do lance (início → fim) de um vídeo do YouTube. Durante a
  * live o player embutido ignora `start/end` e vai para o ao vivo, então aqui
  * o player é controlado: volta ao segundo do lance e pausa no fim. Se o
  * YouTube não deixar voltar no tempo (live sem histórico), mostra o aviso.
+ *
+ * Com `ativo` (feed de gols), toca sozinho e sem som enquanto estiver na tela,
+ * repete o lance e libera o player quando sai dela.
  */
 export function YoutubeClipe({
   videoId,
   inicio,
   fim,
   className,
+  ativo,
 }: {
   videoId: string;
   inicio: number;
   fim: number;
   className?: string;
+  ativo?: boolean;
 }) {
+  const automatico = ativo !== undefined;
   const [estado, setEstado] = useState<Estado>("capa");
+  const [som, setSom] = useState(somLigadoNoFeed);
   const alvoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
   const timerRef = useRef<number | null>(null);
+  const ativoRef = useRef(ativo);
+  ativoRef.current = ativo;
 
-  useEffect(
-    () => () => {
-      if (timerRef.current) window.clearInterval(timerRef.current);
-      playerRef.current?.destroy();
-    },
-    []
-  );
+  function liberar() {
+    if (timerRef.current) window.clearInterval(timerRef.current);
+    timerRef.current = null;
+    playerRef.current?.destroy();
+    playerRef.current = null;
+    alvoRef.current?.replaceChildren();
+  }
+
+  useEffect(() => liberar, []);
+
+  // Feed: entra na tela, toca; sai, libera (dezenas de iframes travam o celular).
+  useEffect(() => {
+    if (!automatico) return;
+    if (ativo) {
+      tocar();
+    } else {
+      liberar();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ativo]);
+
+  function alternarSom() {
+    const ligar = !som;
+    somLigadoNoFeed = ligar;
+    setSom(ligar);
+    if (ligar) playerRef.current?.unMute();
+    else playerRef.current?.mute();
+  }
 
   function vigiar(player: YTPlayer) {
     if (timerRef.current) window.clearInterval(timerRef.current);
@@ -111,6 +146,10 @@ export function YoutubeClipe({
       }
 
       if (t >= fim) {
+        if (automatico && ativoRef.current) {
+          player.seekTo(inicio, true);
+          return;
+        }
         player.pauseVideo();
         window.clearInterval(timerRef.current!);
         setEstado("fim");
@@ -129,16 +168,29 @@ export function YoutubeClipe({
 
     setEstado("tocando");
     const YT = await carregarApiYoutube();
-    if (!alvoRef.current) return;
+    if (!alvoRef.current || playerRef.current) return;
+    // Rolou para o próximo antes de a API carregar.
+    if (automatico && !ativoRef.current) return;
     const div = document.createElement("div");
     alvoRef.current.replaceChildren(div);
 
     playerRef.current = new YT.Player(div, {
       videoId,
       host: "https://www.youtube-nocookie.com",
-      playerVars: { start: inicio, end: fim, autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 },
+      playerVars: {
+        start: inicio,
+        end: fim,
+        autoplay: 1,
+        playsinline: 1,
+        rel: 0,
+        modestbranding: 1,
+        // Celular só deixa tocar sozinho sem som.
+        mute: automatico && !somLigadoNoFeed ? 1 : 0,
+        ...(automatico ? { controls: 0, disablekb: 1, fs: 0 } : {}),
+      },
       events: {
         onReady: (e) => {
+          if (automatico && somLigadoNoFeed) e.target.unMute();
           e.target.seekTo(inicio, true);
           e.target.playVideo();
         },
@@ -150,8 +202,10 @@ export function YoutubeClipe({
   }
 
   const base = cn("relative overflow-hidden", className);
+  // Fora da tela, no feed, o player foi liberado: volta para a capa.
+  const visivel: Estado = automatico && !ativo && estado !== "indisponivel" ? "capa" : estado;
 
-  if (estado === "indisponivel") {
+  if (visivel === "indisponivel") {
     return (
       <div className={cn(base, "flex flex-col items-center justify-center gap-3 p-4 text-center text-white")}>
         <p className="text-sm">O replay deste lance fica disponível quando a transmissão terminar.</p>
@@ -172,7 +226,18 @@ export function YoutubeClipe({
     <div className={base}>
       <div ref={alvoRef} className="absolute inset-0 [&>iframe]:h-full [&>iframe]:w-full" />
 
-      {estado === "capa" && (
+      {automatico && visivel === "tocando" && (
+        <button
+          type="button"
+          onClick={alternarSom}
+          aria-label={som ? "Tirar o som" : "Ligar o som"}
+          className="absolute right-2 top-2 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white"
+        >
+          {som ? <Volume2 size={20} /> : <VolumeX size={20} />}
+        </button>
+      )}
+
+      {visivel === "capa" && (
         <button
           type="button"
           onClick={tocar}
@@ -186,7 +251,7 @@ export function YoutubeClipe({
         </button>
       )}
 
-      {estado === "fim" && (
+      {visivel === "fim" && (
         <button
           type="button"
           onClick={tocar}

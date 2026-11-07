@@ -45,6 +45,9 @@ export function TopHeader({
           <NavLink href={paths.home(tenantSlug)} exact className={navLinkClass} activeClassName={navLinkActive}>
             Feed
           </NavLink>
+          <NavLink href={paths.gols(tenantSlug)} className={navLinkClass} activeClassName={navLinkActive}>
+            Gols
+          </NavLink>
           <NavLink href={paths.classificacao(tenantSlug)} className={navLinkClass} activeClassName={navLinkActive}>
             Classificação
           </NavLink>

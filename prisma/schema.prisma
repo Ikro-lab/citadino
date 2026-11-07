@@ -89,6 +89,7 @@ model Tenant {
   patrocinadores Patrocinador[]
   pushSubs       PushSubscription[]
   golsSugeridos  GolSugerido[]
+  curtidasGol    CurtidaGol[]
 }
 
 model User {
@@ -406,6 +407,8 @@ model EventoPartida {
   lancadoPor  User?    @relation("EventosLancadosPor", fields: [lancadoPorId], references: [id])
   createdAt   DateTime @default(now())
 
+  curtidas    CurtidaGol[]
+
   @@index([tenantId])
   // Sem este, a tela da partida ao vivo (polling) lê a tabela inteira de eventos.
   @@index([partidaId])
@@ -503,6 +506,21 @@ model GolSugerido {
 
   @@index([tenantId])
   @@index([partidaId, status])
+}
+
+/// Curtida num gol do feed de vídeos. Anônima, como o voto da enquete: uma
+/// por aparelho (cookie citadino_device) por gol.
+model CurtidaGol {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  eventoId  String
+  evento    EventoPartida @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  deviceId  String
+  createdAt DateTime @default(now())
+
+  @@unique([eventoId, deviceId])
+  @@index([tenantId])
 }
 
 /// Lembrete "faltam X min" já enviado: o horário previsto pelo atraso muda com
