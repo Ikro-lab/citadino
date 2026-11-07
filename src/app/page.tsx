@@ -46,6 +46,17 @@ export default async function LandingPage() {
           enviou (ex: <code>citadino.com/seu-campeonato</code>).
         </p>
       )}
+
+      <Link
+        href="/prefeituras"
+        className="mt-8 flex items-center justify-between gap-3 rounded-2xl bg-field px-4 py-3 text-sm hover:bg-border"
+      >
+        <span>
+          <span className="font-semibold">É de uma prefeitura?</span>{" "}
+          <span className="text-muted">Leve o Citadino para o campeonato da sua cidade.</span>
+        </span>
+        <ChevronRight size={18} className="shrink-0 text-muted" />
+      </Link>
     </div>
   );
 }
