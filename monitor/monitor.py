@@ -150,9 +150,11 @@ def ler_placar(arquivo):
 
 # Selo vermelho "REPLAY" no canto superior esquerdo: a transmissão repete o lance
 # logo depois do gol, muitas vezes antes de o operador atualizar o placar (que já
-# chegou a subir 90s depois). O gol fica ~7s antes do replay começar.
+# chegou a subir 90s depois). O replay entra de 2s a 16s depois do gol (06/11:
+# Beco 11550 -> replay 11552; Renascer 12510 -> 12526). O site mostra o clipe de
+# 10s antes a 8s depois do segundo marcado, então 8s antes do replay pega os dois.
 FAIXA_REPLAY = (35, 35, 275, 110)
-CLIPE_ANTES_DO_REPLAY = 22  # ~15s de jogada antes do gol
+CLIPE_ANTES_DO_REPLAY = 8
 REPLAY_VALE_POR = 300  # segundos de vídeo: replay mais antigo que isso não é deste gol
 REPLAY_SEM_GOL_AVISO = 150  # replay sem o placar mudar depois disso: anota no registro
 
