@@ -8,7 +8,6 @@ import { paths } from "@/lib/tenant-path";
 import { extrairYoutubeId } from "@/lib/youtube";
 import { EventoVideo } from "@/components/partidas/evento-video";
 import { alternarCurtida, carregarMaisGols } from "@/lib/actions/curtidas";
-import { MULTIPLICADOR_CURTIDAS } from "@/lib/curtidas";
 import type { GolDoFeed, OrdemFeed } from "@/lib/feed-gols";
 
 const formatarCurtidas = (n: number) =>
@@ -161,7 +160,7 @@ function ItemGol({
     enviandoRef.current = true;
     // Mostra na hora; o servidor confirma o total.
     const antes = { curtido: gol.curtido, curtidas: gol.curtidas };
-    onAtualizar(gol.id, { curtido: !antes.curtido, curtidas: Math.max(0, antes.curtidas + (antes.curtido ? -1 : 1) * MULTIPLICADOR_CURTIDAS) });
+    onAtualizar(gol.id, { curtido: !antes.curtido, curtidas: Math.max(0, antes.curtidas + (antes.curtido ? -1 : 1)) });
     try {
       const r = await alternarCurtida(gol.id);
       onAtualizar(gol.id, "error" in r ? antes : r);

@@ -1,7 +1,7 @@
 import "server-only";
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { nomeDoAtleta } from "@/lib/labels";
-import { MULTIPLICADOR_CURTIDAS } from "@/lib/curtidas";
+import { curtidasExibidas } from "@/lib/curtidas";
 
 export const GOLS_POR_PAGINA = 10;
 
@@ -22,7 +22,7 @@ export type GolDoFeed = {
   placarFora: number;
   categoria: string;
   partidaId: string;
-  /** Já multiplicado por MULTIPLICADOR_CURTIDAS. */
+  /** Como este aparelho vê o total (ver curtidasExibidas). */
   curtidas: number;
   curtido: boolean;
 };
@@ -86,7 +86,7 @@ export async function buscarFeedGols(
       placarFora: ate.length - placarCasa,
       categoria: partida.categoria.nome,
       partidaId: partida.id,
-      curtidas: e._count.curtidas * MULTIPLICADOR_CURTIDAS,
+      curtidas: curtidasExibidas(e._count.curtidas, e.curtidas.length > 0),
       curtido: e.curtidas.length > 0,
     };
   });

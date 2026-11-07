@@ -5,7 +5,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { getTenantBySlug } from "@/lib/tenant";
 import { getDeviceIdReadOnly, getOrCreateDeviceId } from "@/lib/device-id";
 import { buscarFeedGols, type OrdemFeed } from "@/lib/feed-gols";
-import { MULTIPLICADOR_CURTIDAS } from "@/lib/curtidas";
+import { curtidasExibidas } from "@/lib/curtidas";
 
 /**
  * Curte ou descurte um gol (uma curtida por aparelho). Rota pública: o tenant
@@ -29,7 +29,7 @@ export async function alternarCurtida(
     await db.curtidaGol.create({ data: { tenantId: evento.tenantId, eventoId, deviceId } }).catch(() => {});
   }
   const total = await db.curtidaGol.count({ where: { eventoId } });
-  return { curtido, curtidas: total * MULTIPLICADOR_CURTIDAS };
+  return { curtido, curtidas: curtidasExibidas(total, curtido) };
 }
 
 /** Próximo pedaço do feed de gols (rolagem infinita). */
