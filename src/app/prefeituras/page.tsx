@@ -231,9 +231,12 @@ export default async function PrefeiturasPage() {
         <div className="mt-4 flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent-soft p-4 text-sm">
           <Radio size={18} className="mt-0.5 shrink-0 text-accent" />
           <p>
-            <span className="font-semibold">Detector automático de gols: R$ 10 por hora de transmissão, à parte.</span>{" "}
-            Ele assiste à live e recorta cada gol sozinho. Sem o detector, os gols em vídeo continuam incluídos: a mesa
-            liga o lance à transmissão pelo painel.
+            <span className="font-semibold">
+              Brinde para os 10 primeiros municípios: detector automático de gols grátis no primeiro contrato.
+            </span>{" "}
+            Ele assiste à live e recorta cada gol sozinho. Da renovação em diante, e para quem chegar depois dos 10
+            primeiros, o detector custa R$ 10 por hora de transmissão, à parte do valor do campeonato. Sem o detector,
+            os gols em vídeo continuam incluídos: a mesa liga o lance à transmissão pelo painel.
           </p>
         </div>
       </section>
