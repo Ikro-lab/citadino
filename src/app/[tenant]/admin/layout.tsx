@@ -3,6 +3,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { paths } from "@/lib/tenant-path";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionNav } from "@/components/nav/section-nav";
+import { STATUS_ESPERANDO } from "@/lib/gols-sugeridos";
 
 export default async function AdminLayout({
   children,
@@ -13,7 +14,9 @@ export default async function AdminLayout({
 }) {
   const { tenant: tenantSlug } = await params;
   const session = await requireAdmin(tenantSlug);
-  const pendentes = await getTenantPrisma(session.user.tenantId!).golSugerido.count({ where: { status: "PENDENTE" } });
+  const pendentes = await getTenantPrisma(session.user.tenantId!).golSugerido.count({
+    where: { status: { in: STATUS_ESPERANDO } },
+  });
 
   const links = [
     { href: paths.admin.root(tenantSlug), label: "Resumo", exact: true },

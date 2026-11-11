@@ -3,7 +3,8 @@
 Fica ligado o tempo todo. A cada minuto pergunta ao site se há partida ao vivo
 com link do YouTube; quando há, lê o placar da live a cada INTERVALO segundos e,
 quando um time sobe 1 gol (confirmado em 2 leituras), manda o gol ao site, que
-avisa o admin para aprovar (ver src/lib/gols-sugeridos.ts).
+lança o gol na súmula e deixa o clipe para o admin aprovar; quando o placar
+volta 1 gol, avisa o site para tirar o gol que lançou (ver src/lib/gols-sugeridos.ts).
 
 Só fala com o site, com a senha MONITOR_SECRET (arquivo config.env ao lado).
 """
@@ -241,6 +242,17 @@ def gols_entre(antes, depois):
     return gols
 
 
+def voltou_um_gol(antes, depois):
+    """Lado cujo placar desceu exatamente 1 (o outro igual): o operador corrigiu um gol."""
+    if not antes:
+        return None
+    if depois == (antes[0] - 1, antes[1]):
+        return "casa"
+    if depois == (antes[0], antes[1] - 1):
+        return "fora"
+    return None
+
+
 def acompanhar(partida):
     """Lê o placar enquanto a partida estiver ao vivo; volta quando ela acaba."""
     live = Live(partida["videoId"])
@@ -305,6 +317,8 @@ def acompanhar(partida):
                         for i, (lado, placar) in enumerate(gols):
                             ultimo = i == len(gols) - 1
                             enviar_gol(partida, lado, placar, visto, inicio_live, lance if ultimo else None)
+                    elif voltou_um_gol(aceito, leitura):
+                        desfazer_gol(partida, voltou_um_gol(aceito, leitura), leitura)
                     else:
                         log.info(f"Placar base {leitura[0]} x {leitura[1]}")
                     aceito = leitura
@@ -353,6 +367,17 @@ def enviar_gol(partida, lado, placar, visto, inicio_live, lance=None):
         log.warning(f"Site recusou o gol ({e.code}): {e.read()[:200]!r}")
     except Exception as e:  # noqa: BLE001
         log.warning(f"Não consegui enviar o gol: {e}")
+
+
+def desfazer_gol(partida, lado, placar):
+    """Placar da live voltou um gol (operador corrigiu): o site tira o gol que lançou sozinho."""
+    corpo = {"acao": "desfazer", "videoId": partida["videoId"], "lado": lado,
+             "placarCasa": placar[0], "placarFora": placar[1]}
+    try:
+        resposta = api("POST", "gols-sugeridos", corpo)
+        log.info(f"Placar voltou ({lado}) para {placar[0]} x {placar[1]} -> {resposta.get('resultado')}")
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Não consegui avisar o placar que voltou: {e}")
 
 
 def main():

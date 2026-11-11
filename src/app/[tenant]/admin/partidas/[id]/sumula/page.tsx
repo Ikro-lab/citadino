@@ -27,6 +27,7 @@ import { TrocarAtletaEvento } from "@/components/partidas/trocar-atleta-evento";
 import { CompartilharGol } from "@/components/partidas/compartilhar-gol";
 import { nomeDoAtleta } from "@/lib/labels";
 import { tempoDeJogo } from "@/lib/escalacao";
+import { STATUS_ESPERANDO } from "@/lib/gols-sugeridos";
 
 export default async function SumulaPage({
   params,
@@ -53,7 +54,7 @@ export default async function SumulaPage({
   if (!partida) notFound();
   const tempo = tempoDeJogo(partida);
   const golsPendentes = await db.golSugerido.findMany({
-    where: { partidaId: id, status: "PENDENTE" },
+    where: { partidaId: id, status: { in: STATUS_ESPERANDO } },
     orderBy: { createdAt: "asc" },
   });
 
@@ -74,12 +75,12 @@ export default async function SumulaPage({
     <div className="flex flex-col gap-6">
       {golsPendentes.length > 0 && (
         <Card className="border-live">
-          <h2 className="mb-2 font-semibold">Gols vistos na transmissão, esperando aprovação</h2>
+          <h2 className="mb-2 font-semibold">Gols da transmissão esperando aprovação</h2>
           <div className="flex flex-col gap-2">
             {golsPendentes.map((g) => (
               <Link key={g.id} href={paths.admin.golSugerido(tenantSlug, g.id)} className={acaoLinkClass}>
                 Gol de {g.timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome} ({g.placarCasa} x{" "}
-                {g.placarFora}): conferir
+                {g.placarFora}): {g.status === "CLIPE" ? "aprovar o clipe" : "conferir"}
               </Link>
             ))}
           </div>

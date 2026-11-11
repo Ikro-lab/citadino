@@ -237,7 +237,7 @@ export async function addEvento(partidaId: string, formData: FormData) {
   let eventoId = "";
   const partida = await db.$transaction(async (tx) => {
     const evento = await tx.eventoPartida.create({
-      data: { tenantId, partidaId, tipo, timeId, atletaId, minuto, descricao },
+      data: { tenantId, partidaId, tipo, timeId, atletaId, minuto, descricao, lancadoPorId: session!.user.id },
     });
     eventoId = evento.id;
 
@@ -274,15 +274,16 @@ export async function addEvento(partidaId: string, formData: FormData) {
       }
     }
   }
-  // Gol que a live já mostrou: some o pendente e o clipe fica no segundo visto na live.
-  if (tipo === "GOL") await casarGolLancado(tenantId, eventoId);
+  // Gol que a live já mostrou: o clipe dela fica para aprovar e, se a transmissão
+  // já tinha lançado esse gol, ele não conta duas vezes nem avisa o público de novo.
+  const repetido = tipo === "GOL" && (await casarGolLancado(tenantId, eventoId));
 
   revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.treinador.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.partida(tenantSlug, partidaId));
   revalidatePath(paths.home(tenantSlug));
 
-  if (tipo === "GOL") {
+  if (tipo === "GOL" && !repetido) {
     const timeNome = timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome;
     await notifyPartidaEvento(tenantId, partidaId, {
       title: `Gol de ${timeNome}!`,
@@ -384,6 +385,11 @@ export async function deleteEvento(eventoId: string, partidaId: string) {
     const evento = await tx.eventoPartida.delete({ where: { id: eventoId } });
 
     if (evento.tipo === "GOL") {
+      // Gol apagado: o clipe dele na aba Gols detectados não tem mais o que aprovar.
+      await tx.golSugerido.updateMany({
+        where: { eventoId },
+        data: { status: "DESCARTADO", eventoId: null, resolvidoEm: new Date() },
+      });
       const current = await tx.partida.findUniqueOrThrow({ where: { id: partidaId } });
       const isCasa = evento.timeId === current.timeCasaId;
       await tx.partida.update({

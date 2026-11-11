@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getTenantBySlug } from "@/lib/tenant";
-import { registrarGolSugerido } from "@/lib/gols-sugeridos";
+import { desfazerGolAutomatico, registrarGolSugerido } from "@/lib/gols-sugeridos";
 
 /**
- * Entrada do monitor da live: um gol visto no placar da transmissão.
+ * Entrada do monitor da live: um gol visto no placar da transmissão, ou
+ * (acao "desfazer") o placar que voltou um gol.
  * Protegida por MONITOR_SECRET (Authorization: Bearer ...); sem a variável, fica desligada.
  */
 export async function POST(req: Request, { params }: { params: Promise<{ tenant: string }> }) {
@@ -22,10 +23,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ tenant:
   const segundo = inteiro(body?.segundo);
   const placarCasa = inteiro(body?.placarCasa);
   const placarFora = inteiro(body?.placarFora);
-  if (!videoId || !lado || segundo === null || placarCasa === null || placarFora === null) {
+  if (!videoId || !lado || placarCasa === null || placarFora === null) {
     return NextResponse.json({ error: "dados inválidos" }, { status: 400 });
   }
 
+  if (body?.acao === "desfazer") {
+    return NextResponse.json(await desfazerGolAutomatico({ tenantId: tenant.id, videoId, lado, placarCasa, placarFora }));
+  }
+  if (segundo === null) return NextResponse.json({ error: "dados inválidos" }, { status: 400 });
   const resultado = await registrarGolSugerido({ tenantId: tenant.id, videoId, lado, segundo, placarCasa, placarFora });
   return NextResponse.json(resultado);
 }

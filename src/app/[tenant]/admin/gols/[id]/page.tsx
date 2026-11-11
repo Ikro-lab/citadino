@@ -18,7 +18,7 @@ export default async function GolSugeridoPage({ params }: { params: Promise<{ te
       <Link href={paths.admin.golsSugeridos(tenantSlug)} className="text-sm font-semibold text-accent hover:underline">
         ← Todos os gols detectados
       </Link>
-      <GolSugeridoCard sugestao={item.sugestao} atletas={item.atletas} tenantSlug={tenantSlug} />
+      <GolSugeridoCard sugestao={item.sugestao} atletas={item.atletas} autorId={item.autorId} tenantSlug={tenantSlug} />
     </div>
   );
 }

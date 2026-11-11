@@ -5,16 +5,23 @@ import { Button } from "@/components/ui/button";
 import { Label, Select } from "@/components/ui/input";
 import { EventoVideo } from "@/components/partidas/evento-video";
 import { acaoLinkClass } from "@/components/partidas/partida-list-item";
-import { ajustarGolSugerido, aprovarGolSugerido, descartarGolSugerido } from "@/lib/actions/gols-sugeridos";
+import {
+  ajustarGolSugerido,
+  aprovarClipeGol,
+  aprovarGolSugerido,
+  descartarGolSugerido,
+  golSemClipe,
+} from "@/lib/actions/gols-sugeridos";
 import { extrairYoutubeId, youtubeUrlNoSegundo } from "@/lib/youtube";
 import { formatHora } from "@/lib/date-utils";
 import { nomeDoAtleta } from "@/lib/labels";
 import { paths } from "@/lib/tenant-path";
 
 const SITUACAO: Record<string, string> = {
-  APROVADO: "Aprovado e lançado na súmula.",
+  APROVADO: "Gol na súmula com o clipe da transmissão.",
+  SEM_CLIPE: "Gol na súmula, sem clipe.",
   LANCADO: "Já tinha sido lançado na súmula; o clipe veio da transmissão.",
-  DESCARTADO: "Descartado: nenhum gol foi lançado.",
+  DESCARTADO: "Descartado: o gol não está na súmula.",
 };
 
 const ajusteClass =
@@ -46,32 +53,56 @@ function tempoVideo(segundo: number) {
 
 /**
  * Gol visto no placar da live: o lance em vídeo (com ajuste do corte), o autor e
- * os botões de aprovar ou descartar. Usado na aba Gols detectados e na página
- * aberta pela notificação.
+ * os botões. Gol já lançado pela transmissão (CLIPE): aprovar o clipe, ficar sem
+ * clipe ou tirar o gol. Gol pendente (placar da live diferente do site): aprovar
+ * ou descartar. Usado na aba Gols detectados e na página aberta pela notificação.
  */
 export function GolSugeridoCard({
   sugestao,
   atletas,
+  autorId,
   tenantSlug,
 }: {
   sugestao: GolSugeridoComPartida;
   atletas: { id: string; nome: string; apelido: string | null; numero: number }[];
+  autorId: string | null;
   tenantSlug: string;
 }) {
   const { partida } = sugestao;
   const time = sugestao.timeId === partida.timeCasa.id ? partida.timeCasa : partida.timeFora;
   const videoId = extrairYoutubeId(partida.linkTransmissaoUrl);
   const pendente = sugestao.status === "PENDENTE";
+  const clipe = sugestao.status === "CLIPE";
+  const esperando = pendente || clipe;
+
+  const escolhaAutor = (
+    <div>
+      <Label htmlFor={`atleta-${sugestao.id}`}>Quem fez o gol ({time.nome})</Label>
+      <Select id={`atleta-${sugestao.id}`} name="atletaId" defaultValue={autorId ?? ""}>
+        <option value="">Escolher depois</option>
+        {atletas.map((a) => (
+          <option key={a.id} value={a.id}>
+            #{a.numero} {nomeDoAtleta(a)}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
 
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between gap-2">
         <Badge variant="accent">{partida.categoria.nome}</Badge>
-        <Badge variant={pendente ? "live" : "neutral"}>
-          {pendente ? "Esperando aprovação" : "Resolvido"} · {formatHora(sugestao.createdAt)}
+        <Badge variant={esperando ? "live" : "neutral"}>
+          {clipe ? "Clipe esperando aprovação" : pendente ? "Esperando aprovação" : "Resolvido"} ·{" "}
+          {formatHora(sugestao.createdAt)}
         </Badge>
       </div>
-      <h2 className="text-xl font-semibold">Gol de {time.nome}?</h2>
+      <h2 className="text-xl font-semibold">{pendente ? `Gol de ${time.nome}?` : `Gol de ${time.nome}`}</h2>
+      {pendente && (
+        <p className="mt-1 text-sm text-muted">O placar da transmissão não bateu com o do site; o gol só entra se aprovado.</p>
+      )}
+      {clipe && <p className="mt-1 text-sm text-muted">Já está na súmula. Falta aprovar o clipe e escolher quem fez.</p>}
       <p className="mt-1 font-display text-2xl font-bold tabular-nums">
         {partida.timeCasa.nome} {sugestao.placarCasa} x {sugestao.placarFora} {partida.timeFora.nome}
       </p>
@@ -104,20 +135,27 @@ export function GolSugeridoCard({
         </>
       )}
 
-      {pendente ? (
+      {clipe ? (
+        <div className="mt-4 border-t border-border pt-4">
+          <form action={aprovarClipeGol.bind(null, sugestao.id)} className="flex flex-col gap-3">
+            {escolhaAutor}
+            <Button type="submit" size="lg" className="w-full">
+              Aprovar clipe
+            </Button>
+            <Button type="submit" formAction={golSemClipe.bind(null, sugestao.id)} variant="secondary" size="lg" className="w-full">
+              Manter o gol sem clipe
+            </Button>
+          </form>
+          <form action={descartarGolSugerido.bind(null, sugestao.id)} className="mt-2">
+            <Button type="submit" variant="secondary" size="lg" className="w-full">
+              Não foi gol (tirar da súmula)
+            </Button>
+          </form>
+        </div>
+      ) : pendente ? (
         <div className="mt-4 border-t border-border pt-4">
           <form action={aprovarGolSugerido.bind(null, sugestao.id)} className="flex flex-col gap-3">
-            <div>
-              <Label htmlFor={`atleta-${sugestao.id}`}>Quem fez o gol ({time.nome})</Label>
-              <Select id={`atleta-${sugestao.id}`} name="atletaId" defaultValue="">
-                <option value="">Escolher depois</option>
-                {atletas.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    #{a.numero} {nomeDoAtleta(a)}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            {escolhaAutor}
             <Button type="submit" size="lg" className="w-full">
               Aprovar gol
             </Button>
