@@ -67,6 +67,8 @@ TENANT = CFG.get("TENANT", "cid")
 SENHA = CFG["MONITOR_SECRET"]
 FFMPEG = CFG.get("FFMPEG") or shutil.which("ffmpeg") or "ffmpeg"
 YTDLP = [sys.executable, "-m", "yt_dlp"]
+# Rodando com pythonw (sem console), cada ffmpeg/yt-dlp abriria uma janela de terminal.
+SEM_JANELA = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 
 def api(metodo, caminho, corpo=None):
@@ -96,7 +98,7 @@ class Live:
         saida = subprocess.run(
             [*YTDLP, "--no-warnings", "-f", "232/231/230/best[height<=720]", "-g",
              f"https://www.youtube.com/watch?v={self.video_id}"],
-            capture_output=True, text=True, timeout=90,
+            capture_output=True, text=True, timeout=90, creationflags=SEM_JANELA,
         )
         url = saida.stdout.strip().splitlines()[-1] if saida.stdout.strip() else ""
         if not url.startswith("http"):
@@ -125,7 +127,7 @@ class Live:
         destino.unlink(missing_ok=True)
         subprocess.run(
             [FFMPEG, "-hide_banner", "-loglevel", "error", "-y", "-i", url, "-frames:v", "1", str(destino)],
-            capture_output=True, timeout=45,
+            capture_output=True, timeout=45, creationflags=SEM_JANELA,
         )
         if not destino.exists():
             self.manifesto = None
