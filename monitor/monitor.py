@@ -211,6 +211,13 @@ def ordem_da_transmissao(arquivo, casa, fora):
     if not esquerda or not direita:
         return None
     esq, dir_ = " ".join(esquerda), " ".join(direita)
+    # Nome idêntico ao de um time decide (ex.: "RENASCER" x "RENASCER FUT" num jogo
+    # cadastrado como renascer B x Renascer, em que a semelhança empata).
+    n = _normalizar
+    exato_direta = n(esq) == n(casa) or n(dir_) == n(fora)
+    exato_invertida = n(esq) == n(fora) or n(dir_) == n(casa)
+    if exato_direta != exato_invertida:
+        return exato_invertida
     direta = _parecido(esq, casa) + _parecido(dir_, fora)
     invertida = _parecido(esq, fora) + _parecido(dir_, casa)
     if max(direta, invertida) < 1.0 or abs(direta - invertida) < 0.2:
