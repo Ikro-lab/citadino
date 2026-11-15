@@ -5,6 +5,7 @@ import {
   Check,
   Clapperboard,
   FileCheck2,
+  Handshake,
   MessageCircle,
   Radio,
   Smartphone,
@@ -65,6 +66,12 @@ const RECURSOS = [
     icone: Trophy,
     titulo: "Engajamento toda semana",
     texto: "Enquete do melhor da rodada e perfil de cada atleta: o campeonato vira assunto na cidade.",
+  },
+  {
+    icone: Handshake,
+    titulo: "Espaço para patrocinadores",
+    texto:
+      "Os apoiadores do comércio local aparecem com logo e link em três níveis (Master, Ouro e Prata), no topo, no rodapé e no meio do feed de gols, a parte mais vista. A Secretaria cadastra e troca pelo painel.",
   },
 ];
 
@@ -194,7 +201,10 @@ export default async function PrefeiturasPage() {
 
       <section className="mb-12">
         <h2 className="mb-1 font-display text-2xl font-bold">Preço pelo porte do município</h2>
-        <p className="mb-4 text-sm text-muted">Contrato anual, tudo incluído, sem limite de categorias ou times.</p>
+        <p className="mb-4 text-sm text-muted">
+          Contrato anual ou só nos meses do campeonato, pelo mesmo valor mensal. Tudo incluído, sem limite de
+          categorias ou times.
+        </p>
         <div className="overflow-hidden rounded-2xl bg-surface dark:border dark:border-border">
           <table className="w-full text-left">
             <thead className="text-sm text-muted">
@@ -220,7 +230,9 @@ export default async function PrefeiturasPage() {
             "Implantação e treinamento",
             "Suporte por WhatsApp nos dias de jogo",
             "Gols em vídeo da transmissão",
+            "Espaço para patrocinadores",
             "Valor dentro do limite de dispensa",
+            "Pode contratar só os meses do campeonato",
           ].map((item) => (
             <li key={item} className="flex items-center gap-2">
               <Check size={16} className="shrink-0 text-accent" />
