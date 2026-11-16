@@ -1,4 +1,4 @@
-import type { LinhaClassificacao } from "@/lib/classificacao";
+import { compararCampanha as porCampanha, type LinhaClassificacao } from "@/lib/classificacao";
 
 /**
  * Chaveamento do mata-mata da tabela oficial (Cidreira 2026), montado pela
@@ -10,6 +10,10 @@ import type { LinhaClassificacao } from "@/lib/classificacao";
  *   venc. (1x8) x venc. (4x5) e venc. (2x7) x venc. (3x6).
  * - Veterano e Feminino Livre: 4 melhores; semis 1x4 e 2x3.
  * Categorias fora desta lista não têm chaveamento projetado.
+ *
+ * Times de grupos diferentes (melhores terceiros, ordem geral 1º a 8º) são
+ * comparados pelos pontos e pelos critérios gerais de desempate do
+ * regulamento, sem confronto direto (não se enfrentaram).
  */
 const FORMATOS: Record<string, { vagas: 4 | 8; porGrupo?: number }> = {
   "Masculino Livre": { vagas: 8, porGrupo: 2 },
@@ -21,11 +25,10 @@ export type Vaga = { semente: number; time: { timeId: string; nome: string } | n
 export type ConfrontoProjetado = { rotulo: string; casa: Vaga | string; fora: Vaga | string };
 export type FaseProjetada = { fase: "QUARTAS" | "SEMIFINAL" | "FINAL"; jogos: ConfrontoProjetado[] };
 
-const porCampanha = (a: LinhaClassificacao, b: LinhaClassificacao) =>
-  b.pontos - a.pontos || b.saldoGols - a.saldoGols || b.golsPro - a.golsPro || a.nome.localeCompare(b.nome);
-
 /** Classificados em ordem de semente (1º primeiro). Grupos já vêm ordenados. */
 function classificados(grupos: LinhaClassificacao[][], vagas: number, porGrupo?: number) {
+  // Grupo único: vale a ordem da tabela, que já aplicou o confronto direto.
+  if (grupos.length === 1) return grupos[0].slice(0, vagas);
   if (!porGrupo) return grupos.flat().sort(porCampanha).slice(0, vagas);
   const diretos = grupos.flatMap((g) => g.slice(0, porGrupo));
   const repescagem = grupos
