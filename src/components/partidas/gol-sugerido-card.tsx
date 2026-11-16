@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Label, Select } from "@/components/ui/input";
 import { EventoVideo } from "@/components/partidas/evento-video";
 import { acaoLinkClass } from "@/components/partidas/partida-list-item";
-import { ajustarGolSugerido, aprovarGolSugerido, descartarGolSugerido } from "@/lib/actions/gols-sugeridos";
+import {
+  ajustarGolSugerido,
+  anularGolAutomatico,
+  aprovarGolSugerido,
+  definirAutorGolAutomatico,
+  descartarGolSugerido,
+} from "@/lib/actions/gols-sugeridos";
 import { extrairYoutubeId, youtubeUrlNoSegundo } from "@/lib/youtube";
 import { formatHora } from "@/lib/date-utils";
 import { nomeDoAtleta } from "@/lib/labels";
@@ -62,16 +68,34 @@ export function GolSugeridoCard({
   const time = sugestao.timeId === partida.timeCasa.id ? partida.timeCasa : partida.timeFora;
   const videoId = extrairYoutubeId(partida.linkTransmissaoUrl);
   const pendente = sugestao.status === "PENDENTE";
+  // Lançado sozinho pelo monitor: já está na súmula, falta só o autor.
+  const automatico = sugestao.status === "AUTOMATICO";
+  const seletorAutor = (
+    <div>
+      <Label htmlFor={`atleta-${sugestao.id}`}>Quem fez o gol ({time.nome})</Label>
+      <Select id={`atleta-${sugestao.id}`} name="atletaId" defaultValue="">
+        <option value="">Escolher depois</option>
+        {atletas.map((a) => (
+          <option key={a.id} value={a.id}>
+            #{a.numero} {nomeDoAtleta(a)}
+          </option>
+        ))}
+      </Select>
+    </div>
+  );
 
   return (
     <Card>
       <div className="mb-3 flex items-center justify-between gap-2">
         <Badge variant="accent">{partida.categoria.nome}</Badge>
-        <Badge variant={pendente ? "live" : "neutral"}>
-          {pendente ? "Esperando aprovação" : "Resolvido"} · {formatHora(sugestao.createdAt)}
+        <Badge variant={pendente || automatico ? "live" : "neutral"}>
+          {pendente ? "Esperando aprovação" : automatico ? "Falta o autor" : "Resolvido"} ·{" "}
+          {formatHora(sugestao.createdAt)}
         </Badge>
       </div>
-      <h2 className="text-xl font-semibold">Gol de {time.nome}?</h2>
+      <h2 className="text-xl font-semibold">
+        {automatico ? `Gol de ${time.nome}, lançado pela transmissão` : `Gol de ${time.nome}?`}
+      </h2>
       <p className="mt-1 font-display text-2xl font-bold tabular-nums">
         {partida.timeCasa.nome} {sugestao.placarCasa} x {sugestao.placarFora} {partida.timeFora.nome}
       </p>
@@ -104,20 +128,24 @@ export function GolSugeridoCard({
         </>
       )}
 
-      {pendente ? (
+      {automatico ? (
+        <div className="mt-4 border-t border-border pt-4">
+          <form action={definirAutorGolAutomatico.bind(null, sugestao.id)} className="flex flex-col gap-3">
+            {seletorAutor}
+            <Button type="submit" size="lg" className="w-full">
+              Salvar autor
+            </Button>
+          </form>
+          <form action={anularGolAutomatico.bind(null, sugestao.id)} className="mt-2">
+            <Button type="submit" variant="secondary" size="lg" className="w-full">
+              Anular (não foi gol)
+            </Button>
+          </form>
+        </div>
+      ) : pendente ? (
         <div className="mt-4 border-t border-border pt-4">
           <form action={aprovarGolSugerido.bind(null, sugestao.id)} className="flex flex-col gap-3">
-            <div>
-              <Label htmlFor={`atleta-${sugestao.id}`}>Quem fez o gol ({time.nome})</Label>
-              <Select id={`atleta-${sugestao.id}`} name="atletaId" defaultValue="">
-                <option value="">Escolher depois</option>
-                {atletas.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    #{a.numero} {nomeDoAtleta(a)}
-                  </option>
-                ))}
-              </Select>
-            </div>
+            {seletorAutor}
             <Button type="submit" size="lg" className="w-full">
               Aprovar gol
             </Button>

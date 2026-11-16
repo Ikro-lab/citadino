@@ -3,7 +3,8 @@
 Fica ligado o tempo todo. A cada minuto pergunta ao site se há partida ao vivo
 com link do YouTube; quando há, lê o placar da live a cada INTERVALO segundos e,
 quando um time sobe 1 gol (confirmado em 2 leituras), manda o gol ao site, que
-avisa o admin para aprovar (ver src/lib/gols-sugeridos.ts).
+lança sozinho se o placar bater com o do site, ou pede aprovação ao admin se não
+bater (ver src/lib/gols-sugeridos.ts).
 
 Só fala com o site, com a senha MONITOR_SECRET (arquivo config.env ao lado).
 """
@@ -34,8 +35,10 @@ ESPERA_SEM_JOGO = 60  # segundos entre consultas ao site sem partida ao vivo
 GOL_ANTES_DO_PLACAR = 17
 # Reserva quando não dá para saber a posição exata no vídeo: atraso medido da live.
 LATENCIA_LIVE = 65
-# Faixa em volta do "x" do placar, num quadro 1280x720 (serve para nomes curtos e longos).
-FAIXA_PLACAR = (170, 28, 360, 70)
+# Faixas em volta do "x" do placar, num quadro 1280x720, tentadas em ordem. Com nome
+# curto à esquerda o placar anda para a esquerda (13/11: "CAC 0 x 1", o "0" em ~155px
+# ficava fora da primeira faixa).
+FAIXAS_PLACAR = [(170, 28, 360, 70), (120, 28, 360, 70)]
 
 log = logging.getLogger("monitor")
 
@@ -139,13 +142,14 @@ def ler_placar(arquivo):
     im = Image.open(arquivo).convert("RGB")
     if im.size != (1280, 720):
         im = im.resize((1280, 720))
-    c = im.crop(FAIXA_PLACAR)
-    c = c.resize((c.width * 2, c.height * 2))
-    r, _ = ocr(c, use_det=False, use_cls=False)
-    m = re.search(r"([0-9oO]{1,2})\s*[xX×]\s*([0-9oO]{1,2})", r[0][0] if r else "")
-    if not m:
-        return None
-    return tuple(int(g.replace("o", "0").replace("O", "0")) for g in m.groups())
+    for faixa in FAIXAS_PLACAR:
+        c = im.crop(faixa)
+        c = c.resize((c.width * 2, c.height * 2))
+        r, _ = ocr(c, use_det=False, use_cls=False)
+        m = re.search(r"([0-9oO]{1,2})\s*[xX×]\s*([0-9oO]{1,2})", r[0][0] if r else "")
+        if m:
+            return tuple(int(g.replace("o", "0").replace("O", "0")) for g in m.groups())
+    return None
 
 
 # Selo vermelho "REPLAY" no canto superior esquerdo: a transmissão repete o lance
@@ -199,12 +203,16 @@ def ordem_da_transmissao(arquivo, casa, fora):
     c = im.crop(FAIXA_NOMES)
     c = c.resize((c.width * 2, c.height * 2))
     r, _ = ocr(c)
+    caixas = [(sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0], texto) for caixa, texto, _conf in r or []]
+    # A divisa é o "x" do placar quando ele aparece: com nome curto à esquerda o placar
+    # anda e o nome da direita chega a ficar antes do pixel fixo (13/11: REALEZA em 298px).
+    xis = [centro for centro, texto in caixas if texto.strip() in ("x", "X", "×")]
+    divisa = xis[0] if xis else DIVISA_LADOS
     esquerda, direita = [], []
-    for caixa, texto, _conf in r or []:
+    for centro, texto in caixas:
         if not re.search(r"[A-Za-z]{3}", texto):
             continue  # números e o "x" do placar
-        centro = sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0]
-        (esquerda if centro < DIVISA_LADOS else direita).append(texto)
+        (esquerda if centro < divisa else direita).append(texto)
     if not esquerda or not direita:
         return None
     esq, dir_ = " ".join(esquerda), " ".join(direita)

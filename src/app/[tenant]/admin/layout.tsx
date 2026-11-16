@@ -13,7 +13,7 @@ export default async function AdminLayout({
 }) {
   const { tenant: tenantSlug } = await params;
   const session = await requireAdmin(tenantSlug);
-  const pendentes = await getTenantPrisma(session.user.tenantId!).golSugerido.count({ where: { status: "PENDENTE" } });
+  const pendentes = await getTenantPrisma(session.user.tenantId!).golSugerido.count({ where: { status: { in: ["PENDENTE", "AUTOMATICO"] } } });
 
   const links = [
     { href: paths.admin.root(tenantSlug), label: "Resumo", exact: true },

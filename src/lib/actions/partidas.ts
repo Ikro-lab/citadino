@@ -275,14 +275,16 @@ export async function addEvento(partidaId: string, formData: FormData) {
     }
   }
   // Gol que a live já mostrou: some o pendente e o clipe fica no segundo visto na live.
-  if (tipo === "GOL") await casarGolLancado(tenantId, eventoId);
+  // Se o monitor já tinha lançado esse gol sozinho, o lance do admin se junta a ele.
+  const { mesclado } = tipo === "GOL" ? await casarGolLancado(tenantId, eventoId) : { mesclado: false };
 
   revalidatePath(paths.admin.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.treinador.partidaSumula(tenantSlug, partidaId));
   revalidatePath(paths.partida(tenantSlug, partidaId));
   revalidatePath(paths.home(tenantSlug));
+  revalidatePath(paths.artilharia(tenantSlug));
 
-  if (tipo === "GOL") {
+  if (tipo === "GOL" && !mesclado) {
     const timeNome = timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome;
     await notifyPartidaEvento(tenantId, partidaId, {
       title: `Gol de ${timeNome}!`,

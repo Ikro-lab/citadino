@@ -1,7 +1,9 @@
 # Monitor da live
 
-Lê o placar da transmissão no YouTube e, a cada gol, avisa o site: o admin recebe a
-notificação "Gol de …?" para aprovar e escolher o autor (`src/lib/gols-sugeridos.ts`).
+Lê o placar da transmissão no YouTube e, a cada gol, avisa o site. Se o placar da live
+for o do site mais esse gol, o site lança o gol sozinho na súmula (sem autor, com o
+clipe) e o admin só escolhe quem fez. Se não bater, o admin recebe "Gol de …?" para
+aprovar (`src/lib/gols-sugeridos.ts`).
 
 - Pergunta ao site, a cada minuto, se há partida ao vivo com link do YouTube
   (`GET /api/[tenant]/monitor`); sem jogo, fica parado.

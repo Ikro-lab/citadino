@@ -498,7 +498,8 @@ model GolSugerido {
   placarFora   Int
   /// Segundo do vídeo da live em que o gol aconteceu.
   videoSegundo Int
-  /// PENDENTE, APROVADO (pelo aviso), LANCADO (o admin já tinha lançado na súmula) ou DESCARTADO.
+  /// PENDENTE, AUTOMATICO (lançado sozinho, sem autor), APROVADO (pelo aviso ou com o autor escolhido),
+  /// LANCADO (o admin já tinha lançado na súmula) ou DESCARTADO.
   status       String   @default("PENDENTE")
   eventoId     String?
   createdAt    DateTime @default(now())
