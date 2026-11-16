@@ -4,8 +4,9 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Escudo } from "@/components/times/escudo";
 import type { LinhaClassificacao } from "@/lib/classificacao";
 
-// No celular ficam só as colunas que decidem a posição (P, J, V, SG);
-// E, D, GP e GC aparecem a partir de telas maiores.
+// No celular ficam só as colunas que mais decidem a posição pelo regulamento
+// (P, J, V, GC: pontos, vitórias e menos gols sofridos); E, D, GP e SG
+// aparecem a partir de telas maiores.
 const colunas: { key: keyof LinhaClassificacao; label: string; title: string; mobile: boolean }[] = [
   { key: "pontos", label: "P", title: "Pontos", mobile: true },
   { key: "jogos", label: "J", title: "Jogos", mobile: true },
@@ -13,8 +14,8 @@ const colunas: { key: keyof LinhaClassificacao; label: string; title: string; mo
   { key: "empates", label: "E", title: "Empates", mobile: false },
   { key: "derrotas", label: "D", title: "Derrotas", mobile: false },
   { key: "golsPro", label: "GP", title: "Gols pró", mobile: false },
-  { key: "golsContra", label: "GC", title: "Gols contra", mobile: false },
-  { key: "saldoGols", label: "SG", title: "Saldo de gols", mobile: true },
+  { key: "golsContra", label: "GC", title: "Gols contra", mobile: true },
+  { key: "saldoGols", label: "SG", title: "Saldo de gols", mobile: false },
 ];
 
 export function StandingsTable({
