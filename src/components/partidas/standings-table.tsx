@@ -4,16 +4,16 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Escudo } from "@/components/times/escudo";
 import type { LinhaClassificacao } from "@/lib/classificacao";
 
-// No celular ficam só as colunas que decidem a posição (P, J, V, SG);
-// E, D, GP e GC aparecem a partir de telas maiores.
+// No celular ficam P, J, V, gols feitos, gols sofridos e saldo;
+// E e D aparecem a partir de telas maiores.
 const colunas: { key: keyof LinhaClassificacao; label: string; title: string; mobile: boolean }[] = [
   { key: "pontos", label: "P", title: "Pontos", mobile: true },
   { key: "jogos", label: "J", title: "Jogos", mobile: true },
   { key: "vitorias", label: "V", title: "Vitórias", mobile: true },
   { key: "empates", label: "E", title: "Empates", mobile: false },
   { key: "derrotas", label: "D", title: "Derrotas", mobile: false },
-  { key: "golsPro", label: "GP", title: "Gols pró", mobile: false },
-  { key: "golsContra", label: "GC", title: "Gols contra", mobile: false },
+  { key: "golsPro", label: "GP", title: "Gols feitos", mobile: true },
+  { key: "golsContra", label: "GC", title: "Gols sofridos", mobile: true },
   { key: "saldoGols", label: "SG", title: "Saldo de gols", mobile: true },
 ];
 
@@ -33,13 +33,13 @@ export function StandingsTable({
       <table className="w-full table-fixed text-sm tabular-nums">
         <thead>
           <tr className="border-b border-border text-xs text-muted">
-            <th className="w-8 py-2.5 pl-3 text-left font-medium">#</th>
+            <th className="w-7 py-2.5 pl-3 text-left font-medium sm:w-8">#</th>
             <th className="py-2.5 pl-2 text-left font-medium">Time</th>
             {colunas.map((c) => (
               <th
                 key={c.key}
                 title={c.title}
-                className={cn("w-9 py-2.5 text-center font-medium sm:w-10", !c.mobile && "hidden sm:table-cell")}
+                className={cn("w-7 py-2.5 text-center font-medium sm:w-10", !c.mobile && "hidden sm:table-cell")}
               >
                 <abbr title={c.title} className="no-underline">
                   {c.label}
@@ -83,6 +83,11 @@ export function StandingsTable({
           ))}
         </tbody>
       </table>
+      <p className="border-t border-border px-3 py-2 text-xs text-muted">
+        P pontos · J jogos · V vitórias
+        <span className="hidden sm:inline"> · E empates · D derrotas</span> · GP gols feitos · GC gols sofridos · SG
+        saldo de gols
+      </p>
     </Card>
   );
 }
