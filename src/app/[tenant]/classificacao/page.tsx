@@ -169,6 +169,11 @@ export default async function ClassificacaoPage({
             <StandingsTable linhas={linhasGeral} />
           )}
 
+          <p className="text-xs text-muted">
+            Desempate: pontos, confronto direto (entre duas equipes), vitórias, menos gols sofridos, mais gols
+            marcados, saldo de gols, disciplina (amarelo 1, vermelho 3) e sorteio.
+          </p>
+
           <div>
             <h2 className="mb-2 font-semibold">Times inscritos</h2>
             <TimesInscritos times={timesInscritos} tenantSlug={tenantSlug} />

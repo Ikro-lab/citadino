@@ -58,7 +58,7 @@ export default async function SumulaPage({
     orderBy: { createdAt: "asc" },
   });
 
-  const suspensos = await getAtletasSuspensosIds(tenant.id, partida.categoriaId);
+  const suspensos = await getAtletasSuspensosIds(tenant.id, partida.categoriaId, partida);
   const timeCasaDisponivel = {
     ...partida.timeCasa,
     atletas: partida.timeCasa.atletas.filter((a) => !suspensos.has(a.id)),

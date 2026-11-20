@@ -1,5 +1,6 @@
 import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { nomeDoAtleta } from "@/lib/labels";
+import { getSituacaoSuspensoes } from "@/lib/suspensoes";
 
 export type ArtilheiroLinha = {
   atletaId: string;
@@ -14,11 +15,7 @@ export type ArtilheiroLinha = {
 
 export async function getArtilharia(tenantId: string, categoriaId: string): Promise<ArtilheiroLinha[]> {
   const db = getTenantPrisma(tenantId);
-  const categoria = await db.categoria.findUnique({
-    where: { id: categoriaId },
-    select: { cartoesParaSuspensao: true },
-  });
-  const limite = categoria?.cartoesParaSuspensao ?? 3;
+  const situacao = await getSituacaoSuspensoes(tenantId, categoriaId);
 
   const eventos = await db.eventoPartida.findMany({
     where: {
@@ -56,24 +53,24 @@ export async function getArtilharia(tenantId: string, categoriaId: string): Prom
   }
 
   return Array.from(map.values())
-    .map((linha) => ({ ...linha, statusSuspensao: suspensaoStatus(linha.amarelos, limite) }))
+    .map((linha) => ({ ...linha, statusSuspensao: situacao.get(linha.atletaId)?.status ?? "ok" }))
     .sort((a, b) => b.gols - a.gols || a.nome.localeCompare(b.nome));
 }
 
-function suspensaoStatus(amarelos: number, limite: number): ArtilheiroLinha["statusSuspensao"] {
-  if (amarelos > 0 && amarelos % limite === 0) return "suspenso";
-  if (amarelos % limite === limite - 1) return "pendurado";
-  return "ok";
-}
-
 /**
- * IDs de atletas suspensos para a próxima partida por acúmulo de cartões
- * amarelos, conforme o limite configurado na categoria. Simplificação: não
- * rastreia se a suspensão já foi "cumprida" em uma partida específica —
- * assume que o atleta segue suspenso enquanto o total de amarelos estiver em
- * um múltiplo exato do limite.
+ * IDs de atletas suspensos (amarelos acumulados ou vermelho, ver
+ * `src/lib/suspensoes.ts`). Com `partida`, a situação de antes daquele jogo:
+ * a suspensão cumprida nele não some da súmula dele.
  */
-export async function getAtletasSuspensosIds(tenantId: string, categoriaId: string): Promise<Set<string>> {
-  const linhas = await getArtilharia(tenantId, categoriaId);
-  return new Set(linhas.filter((l) => l.statusSuspensao === "suspenso").map((l) => l.atletaId));
+export async function getAtletasSuspensosIds(
+  tenantId: string,
+  categoriaId: string,
+  partida?: { id: string; dataHora: Date }
+): Promise<Set<string>> {
+  const situacao = await getSituacaoSuspensoes(
+    tenantId,
+    categoriaId,
+    partida ? { antesDe: partida.dataHora, excetoPartidaId: partida.id } : undefined
+  );
+  return new Set([...situacao].filter(([, s]) => s.status === "suspenso").map(([id]) => id));
 }

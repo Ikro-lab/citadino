@@ -6,6 +6,10 @@ quando um time sobe 1 gol (confirmado em 2 leituras), manda o gol ao site, que
 lança o gol na súmula e deixa o clipe para o admin aprovar; quando o placar
 volta 1 gol, avisa o site para tirar o gol que lançou (ver src/lib/gols-sugeridos.ts).
 
+Confere os nomes do placar da tela: se a live passou para outro jogo de hoje,
+encerra o anterior e inicia o da tela no site; sem jogo ao vivo no site, inicia
+o jogo agendado cujo placar aparece na live.
+
 Só fala com o site, com a senha MONITOR_SECRET (arquivo config.env ao lado).
 """
 import json
@@ -35,8 +39,10 @@ ESPERA_SEM_JOGO = 60  # segundos entre consultas ao site sem partida ao vivo
 GOL_ANTES_DO_PLACAR = 17
 # Reserva quando não dá para saber a posição exata no vídeo: atraso medido da live.
 LATENCIA_LIVE = 65
-# Faixa em volta do "x" do placar, num quadro 1280x720 (serve para nomes curtos e longos).
-FAIXA_PLACAR = (170, 28, 360, 70)
+# Faixas em volta do "x" do placar, num quadro 1280x720, tentadas em ordem. Com nome
+# curto à esquerda o placar anda para a esquerda (13/11: "CAC 0 x 1", o "0" em ~155px
+# ficava fora da primeira faixa).
+FAIXAS_PLACAR = [(170, 28, 360, 70), (120, 28, 360, 70)]
 
 log = logging.getLogger("monitor")
 
@@ -142,13 +148,14 @@ def ler_placar(arquivo):
     im = Image.open(arquivo).convert("RGB")
     if im.size != (1280, 720):
         im = im.resize((1280, 720))
-    c = im.crop(FAIXA_PLACAR)
-    c = c.resize((c.width * 2, c.height * 2))
-    r, _ = ocr(c, use_det=False, use_cls=False)
-    m = re.search(r"([0-9oO]{1,2})\s*[xX×]\s*([0-9oO]{1,2})", r[0][0] if r else "")
-    if not m:
-        return None
-    return tuple(int(g.replace("o", "0").replace("O", "0")) for g in m.groups())
+    for faixa in FAIXAS_PLACAR:
+        c = im.crop(faixa)
+        c = c.resize((c.width * 2, c.height * 2))
+        r, _ = ocr(c, use_det=False, use_cls=False)
+        m = re.search(r"([0-9oO]{1,2})\s*[xX×]\s*([0-9oO]{1,2})", r[0][0] if r else "")
+        if m:
+            return tuple(int(g.replace("o", "0").replace("O", "0")) for g in m.groups())
+    return None
 
 
 # Selo vermelho "REPLAY" no canto superior esquerdo: a transmissão repete o lance
@@ -186,8 +193,62 @@ def _normalizar(texto):
     return re.sub(r"[^A-Z0-9]", "", sem_acento.upper())
 
 
-def _parecido(a, b):
-    return SequenceMatcher(None, _normalizar(a), _normalizar(b)).ratio()
+def _iniciais(texto):
+    sem_acento = unicodedata.normalize("NFKD", texto).encode("ascii", "ignore").decode()
+    return "".join(p[0] for p in re.findall(r"[A-Za-z0-9]+", sem_acento)).upper()
+
+
+def _parecido(tela, site):
+    """Quanto o nome lido na tela (às vezes encurtado) lembra o nome do site, de 0 a 1.
+
+    A transmissão encurta: "CU-ZONAS" para "C.U.Zonas Futsal Feminino", "CAC" para
+    "Cidreira Atlético Clube". Começo igual ou iniciais iguais valem quase como igual.
+    O OCR junta ao nome pedaços do escudo ("AAS PUMAS"): cada palavra vale sozinha também.
+    """
+    palavras = tela.split()
+    if len(palavras) > 1:
+        return max([_parecido(tela.replace(" ", ""), site)] + [_parecido(p, site) for p in palavras if len(_normalizar(p)) >= 4])
+    a, b = _normalizar(tela), _normalizar(site)
+    if not a or not b:
+        return 0.0
+    nota = SequenceMatcher(None, a, b).ratio()
+    if len(a) >= 4 and b.startswith(a) or len(b) >= 4 and a.startswith(b):
+        nota = max(nota, 0.9)
+    if len(a) >= 2 and a == _iniciais(site):
+        nota = max(nota, 0.9)
+    return nota
+
+
+def nomes_na_tela(arquivo):
+    """(nome à esquerda, nome à direita) do placar da transmissão, ou None se não deu para ler."""
+    im = Image.open(arquivo).convert("RGB")
+    if im.size != (1280, 720):
+        im = im.resize((1280, 720))
+    c = im.crop(FAIXA_NOMES)
+    c = c.resize((c.width * 2, c.height * 2))
+    r, _ = ocr(c)
+    caixas = [(sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0], texto) for caixa, texto, _conf in r or []]
+    # A divisa é o "x" do placar quando ele aparece: com nome curto à esquerda o placar
+    # anda e o nome da direita chega a ficar antes do pixel fixo (13/11: REALEZA em 298px).
+    xis = [centro for centro, texto in caixas if texto.strip() in ("x", "X", "×")]
+    divisa = xis[0] if xis else DIVISA_LADOS
+    esquerda, direita = [], []
+    for centro, texto in caixas:
+        if not re.search(r"[A-Za-z]{3}", texto):
+            continue  # números e o "x" do placar
+        (esquerda if centro < divisa else direita).append(texto)
+    if not esquerda or not direita:
+        return None
+    return " ".join(esquerda), " ".join(direita)
+
+
+def comparar(nomes, jogo):
+    """(nota de 0 a 2, invertida) dos nomes da tela contra o jogo "Casa x Fora" do site."""
+    casa, _, fora = jogo.partition(" x ")
+    esq, dir_ = nomes
+    direta = _parecido(esq, casa) + _parecido(dir_, fora)
+    invertida = _parecido(esq, fora) + _parecido(dir_, casa)
+    return max(direta, invertida), invertida > direta
 
 
 def ordem_da_transmissao(arquivo, casa, fora):
@@ -196,21 +257,10 @@ def ordem_da_transmissao(arquivo, casa, fora):
     O placar da live não segue a ordem casa x fora do site (ex.: CDC Veterano à
     esquerda num jogo cadastrado como CDC Master x CDC Veterano).
     """
-    im = Image.open(arquivo).convert("RGB")
-    if im.size != (1280, 720):
-        im = im.resize((1280, 720))
-    c = im.crop(FAIXA_NOMES)
-    c = c.resize((c.width * 2, c.height * 2))
-    r, _ = ocr(c)
-    esquerda, direita = [], []
-    for caixa, texto, _conf in r or []:
-        if not re.search(r"[A-Za-z]{3}", texto):
-            continue  # números e o "x" do placar
-        centro = sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0]
-        (esquerda if centro < DIVISA_LADOS else direita).append(texto)
-    if not esquerda or not direita:
+    nomes = nomes_na_tela(arquivo)
+    if not nomes:
         return None
-    esq, dir_ = " ".join(esquerda), " ".join(direita)
+    esq, dir_ = nomes
     # Nome idêntico ao de um time decide (ex.: "RENASCER" x "RENASCER FUT" num jogo
     # cadastrado como renascer B x Renascer, em que a semelhança empata).
     n = _normalizar
@@ -223,6 +273,42 @@ def ordem_da_transmissao(arquivo, casa, fora):
     if max(direta, invertida) < 1.0 or abs(direta - invertida) < 0.2:
         return None  # nomes ilegíveis ou parecidos demais para decidir
     return invertida > direta
+
+
+# Reconhecer o jogo pelos nomes: nota mínima (de 2) e folga sobre o segundo colocado.
+NOTA_JOGO = 1.0
+FOLGA_JOGO = 0.3
+# Abaixo disso, os nomes da tela não são do jogo acompanhado (outro jogo na live).
+# Nos testes (13 e 16/11), nomes de outro jogo deram de 0,4 a 0,8; o jogo certo, 1,8.
+NOTA_OUTRO_JOGO = 0.9
+CONFERIR_NOMES = 30  # segundos entre conferências dos nomes na tela
+VEZES_PARA_TROCAR = 3  # conferências seguidas vendo o mesmo outro jogo antes de trocar
+
+
+def jogo_na_tela(nomes, jogos):
+    """O jogo (dict do site) cujos times estão na tela, ou None se não der para afirmar."""
+    notas = sorted(((comparar(nomes, j["jogo"])[0], i) for i, j in enumerate(jogos)), reverse=True)
+    if not notas or notas[0][0] < NOTA_JOGO:
+        return None
+    if len(notas) > 1 and notas[0][0] - notas[1][0] < FOLGA_JOGO:
+        return None
+    return jogos[notas[0][1]]
+
+
+def trocar_partida(iniciar, encerrar=None, placar=None):
+    """Pede ao site para encerrar o jogo acompanhado e iniciar o da tela. True se trocou."""
+    corpo = {"iniciarId": iniciar["id"], "encerrarId": encerrar["id"] if encerrar else None}
+    if placar:
+        corpo["placarNaTela"] = list(placar)
+    try:
+        api("POST", "monitor/trocar", corpo)
+        log.info(f"Live mudou de jogo: {(encerrar['jogo'] + ' encerrado; ') if encerrar else ''}{iniciar['jogo']} iniciado")
+        return True
+    except urllib.error.HTTPError as e:
+        log.warning(f"Site recusou a troca de jogo ({e.code}): {e.read()[:200]!r}")
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Não consegui trocar de jogo: {e}")
+    return False
 
 
 MAX_GOLS_DE_UMA_VEZ = 3  # salto maior que isso é leitura errada ou placar de outro jogo
@@ -262,8 +348,14 @@ def voltou_um_gol(antes, depois):
     return None
 
 
-def acompanhar(partida):
-    """Lê o placar enquanto a partida estiver ao vivo; volta quando ela acaba."""
+def acompanhar(partida, proximas=()):
+    """Lê o placar enquanto a partida estiver ao vivo; volta quando ela acaba.
+
+    A cada CONFERIR_NOMES segundos confere os nomes no placar da tela. Se forem de
+    outro jogo, os gols param de ir ao site; se forem de um jogo de hoje ainda
+    agendado (`proximas`), por VEZES_PARA_TROCAR conferências seguidas, pede ao
+    site para encerrar este e iniciar aquele, e volta.
+    """
     live = Live(partida["videoId"])
     quadro = Path(tempfile.gettempdir()) / "monitor-placar.png"
     inicio_live = partida.get("transmissaoInicioEm")
@@ -277,6 +369,10 @@ def acompanhar(partida):
     replay_na_tela = False
     replay_inicio = None  # segundo do vídeo do último replay ainda não ligado a um gol
     replay_avisado = False
+    proximas = [p for p in proximas if p["videoId"] == partida["videoId"]]
+    ultima_conferencia = 0.0
+    conferem = True  # os nomes na tela são deste jogo (até prova em contrário)
+    outro, vezes_outro = None, 0
     log.info(f"Acompanhando {partida['jogo']} (live {partida['videoId']})")
 
     while True:
@@ -284,7 +380,29 @@ def acompanhar(partida):
         try:
             momento = agora()
             segundo_video = live.quadro(quadro)
-            leitura = ler_placar(quadro)
+            leitura = bruta = ler_placar(quadro)
+            if leitura and time.time() - ultima_conferencia > CONFERIR_NOMES:
+                ultima_conferencia = time.time()
+                nomes = nomes_na_tela(quadro)
+                if nomes:
+                    na_tela = jogo_na_tela(nomes, [partida, *proximas])
+                    if (na_tela and na_tela["id"] == partida["id"]) or (
+                            na_tela is None and comparar(nomes, partida["jogo"])[0] >= NOTA_OUTRO_JOGO):
+                        if not conferem:
+                            log.info("Os nomes na tela voltaram a ser deste jogo.")
+                        conferem, outro, vezes_outro = True, None, 0
+                    else:
+                        if conferem:
+                            log.warning(f"A tela mostra outro jogo ({nomes[0]} x {nomes[1]}): gols não vão ao site.")
+                        conferem = False
+                        if na_tela:
+                            vezes_outro = vezes_outro + 1 if outro and outro["id"] == na_tela["id"] else 1
+                            outro = na_tela
+                            if vezes_outro >= VEZES_PARA_TROCAR:
+                                inv = comparar(nomes, na_tela["jogo"])[1]
+                                if trocar_partida(na_tela, partida, (bruta[1], bruta[0]) if inv else bruta):
+                                    return
+                                vezes_outro = 0
             if leitura and invertida is None:
                 invertida = ordem_da_transmissao(quadro, casa, fora)
                 if invertida is not None:
@@ -313,7 +431,10 @@ def acompanhar(partida):
                     candidato, repeticoes, visto = leitura, 1, (momento, segundo_video)
                 if repeticoes == 2 and leitura != aceito:
                     gols = gols_entre(aceito, leitura)
-                    if gols:
+                    if gols and not conferem:
+                        log.warning(f"Placar foi a {leitura[0]} x {leitura[1]}, mas a tela é de outro jogo: não enviado.")
+                        replay_inicio = None
+                    elif gols:
                         if len(gols) > 1:
                             log.info(f"Placar pulou de {aceito[0]} x {aceito[1]} para {leitura[0]} x {leitura[1]}:"
                                      f" {len(gols)} gols no mesmo momento (acerte o clipe na aprovação)")
@@ -326,7 +447,7 @@ def acompanhar(partida):
                         for i, (lado, placar) in enumerate(gols):
                             ultimo = i == len(gols) - 1
                             enviar_gol(partida, lado, placar, visto, inicio_live, lance if ultimo else None)
-                    elif voltou_um_gol(aceito, leitura):
+                    elif conferem and voltou_um_gol(aceito, leitura):
                         desfazer_gol(partida, voltou_um_gol(aceito, leitura), leitura)
                     else:
                         log.info(f"Placar base {leitura[0]} x {leitura[1]}")
@@ -341,13 +462,15 @@ def acompanhar(partida):
         if time.time() - ultima_consulta > ESPERA_SEM_JOGO:
             ultima_consulta = time.time()
             try:
-                ativas = [p for p in api("GET", "monitor")["partidas"] if p["id"] == partida["id"]]
+                resposta = api("GET", "monitor")
+                ativas = [p for p in resposta["partidas"] if p["id"] == partida["id"]]
             except Exception as e:  # noqa: BLE001
                 log.warning(f"Site não respondeu: {e}")
-                ativas = [partida]
+                ativas, resposta = [partida], {"proximas": proximas}
             if not ativas:
                 log.info("Partida encerrada no site.")
                 return
+            proximas = [p for p in resposta.get("proximas", []) if p["videoId"] == partida["videoId"]]
             inicio = ativas[0].get("transmissaoInicioEm")
             inicio_live = datetime.fromisoformat(inicio.replace("Z", "+00:00")) if inicio else inicio_live
         time.sleep(max(1, INTERVALO - (time.time() - t0)))
@@ -378,6 +501,39 @@ def enviar_gol(partida, lado, placar, visto, inicio_live, lance=None):
         log.warning(f"Não consegui enviar o gol: {e}")
 
 
+VEZES_PARA_INICIAR = 2  # olhadas seguidas (uma por minuto) vendo o mesmo jogo agendado
+
+
+def vigiar(proximas, lives, vistos):
+    """Sem jogo ao vivo no site: olha a live dos jogos de hoje. Se o placar da tela é
+    de um deles por VEZES_PARA_INICIAR olhadas seguidas, pede ao site para iniciá-lo."""
+    quadro = Path(tempfile.gettempdir()) / "monitor-vigia.png"
+    for video_id in dict.fromkeys(p["videoId"] for p in proximas):
+        candidatos = [p for p in proximas if p["videoId"] == video_id]
+        try:
+            live = lives.setdefault(video_id, Live(video_id))
+            live.quadro(quadro)
+            placar = ler_placar(quadro)
+            nomes = nomes_na_tela(quadro) if placar else None
+        except Exception as e:  # noqa: BLE001 — live fora do ar ou ainda não começou
+            log.debug(f"Vigia {video_id}: {e}")
+            continue
+        jogo = jogo_na_tela(nomes, candidatos) if nomes else None
+        if not jogo:
+            for p in candidatos:
+                vistos.pop(p["id"], None)
+            continue
+        vistos[jogo["id"]] = vistos.get(jogo["id"], 0) + 1
+        log.info(f"Placar na live: {nomes[0]} {placar[0]} x {placar[1]} {nomes[1]} = {jogo['jogo']}"
+                 f" ({vistos[jogo['id']]}/{VEZES_PARA_INICIAR})")
+        if vistos[jogo["id"]] >= VEZES_PARA_INICIAR:
+            inv = comparar(nomes, jogo["jogo"])[1]
+            if trocar_partida(jogo, None, (placar[1], placar[0]) if inv else placar):
+                vistos.clear()
+                return True
+    return False
+
+
 def desfazer_gol(partida, lado, placar):
     """Placar da live voltou um gol (operador corrigiu): o site tira o gol que lançou sozinho."""
     corpo = {"acao": "desfazer", "videoId": partida["videoId"], "lado": lado,
@@ -392,19 +548,24 @@ def desfazer_gol(partida, lado, placar):
 def main():
     configurar_log()
     log.info(f"Monitor ligado ({SITE}/{TENANT}).")
+    lives, vistos = {}, {}
     while True:
         try:
-            partidas = api("GET", "monitor")["partidas"]
+            resposta = api("GET", "monitor")
+            partidas, proximas = resposta["partidas"], resposta.get("proximas", [])
         except urllib.error.HTTPError as e:
             log.warning(f"Site respondeu {e.code} (senha certa? MONITOR_SECRET na Vercel?)")
-            partidas = []
+            partidas, proximas = [], []
         except Exception as e:  # noqa: BLE001
             log.warning(f"Sem conexão com o site: {e}")
-            partidas = []
+            partidas, proximas = [], []
         if partidas:
-            acompanhar(partidas[0])
-        else:
-            time.sleep(ESPERA_SEM_JOGO)
+            vistos.clear()
+            acompanhar(partidas[0], proximas)
+            continue
+        if proximas and vigiar(proximas, lives, vistos):
+            continue
+        time.sleep(ESPERA_SEM_JOGO)
 
 
 if __name__ == "__main__":
