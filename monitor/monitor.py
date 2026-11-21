@@ -235,7 +235,9 @@ def nomes_na_tela(arquivo):
     caixas = [(sum(p[0] for p in caixa) / len(caixa) / 2 + FAIXA_NOMES[0], texto) for caixa, texto, _conf in r or []]
     # A divisa é o "x" do placar quando ele aparece: com nome curto à esquerda o placar
     # anda e o nome da direita chega a ficar antes do pixel fixo (13/11: REALEZA em 298px).
-    xis = [centro for centro, texto in caixas if texto.strip() in ("x", "X", "×")]
+    # O OCR também lê o placar inteiro numa caixa só ("0×0"); com nome curto à esquerda
+    # (20/11: "CDC 0×0 FÊNIX") o FÊNIX ficava antes do pixel fixo e o jogo saía invertido.
+    xis = [centro for centro, texto in caixas if re.fullmatch(r"\s*\d{0,2}\s*[xX×]\s*\d{0,2}\s*", texto)]
     divisa = xis[0] if xis else DIVISA_LADOS
     esquerda, direita = [], []
     for centro, texto in caixas:
