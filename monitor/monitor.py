@@ -264,7 +264,8 @@ def ler_tempo(arquivo):
     c = c.resize((c.width * 3, c.height * 3))
     r, _ = ocr(c)
     texto = " ".join(t for _caixa, t, _conf in r or [])
-    periodo = re.search(r"(?<!\d)([12])\s*[Tt]", texto)
+    # "1T 02:54" ou, sem cronômetro, "1º TEMPO" (o OCR lê "1°TEMPO", 20/11).
+    periodo = re.search(r"(?<!\d)([12])\s*[º°ªoO]?\s*[Tt]", texto)
     if not periodo:
         return None
     relogio = re.search(r"(\d{1,2})[:.](\d{2})(?!\d)", texto)
@@ -465,7 +466,7 @@ def acompanhar(partida, proximas=()):
     conferem = True  # os nomes na tela são deste jogo (até prova em contrário)
     outro, vezes_outro = None, 0
     relogio_1t, fim_1t = None, None  # maior cronômetro do 1º tempo visto e a hora daquele quadro
-    vezes_2t, segundo_tempo_marcado = 0, False
+    vezes_2t, segundo_tempo_marcado, primeiro_2t = 0, False, None
     intervalo_marcado, fim_avisado = False, False
     faixa, vezes_faixa, ultima_faixa = None, 0, 0.0
     log.info(f"Acompanhando {partida['jogo']} (live {partida['videoId']})")
@@ -514,11 +515,17 @@ def acompanhar(partida, proximas=()):
                         vezes_2t = 0
                         if relogio is not None and (relogio_1t is None or relogio > relogio_1t):
                             relogio_1t, fim_1t = relogio, filmado
-                    elif relogio is not None:
+                        elif relogio_1t is None:
+                            fim_1t = filmado  # sem cronômetro na tela: último quadro do 1º tempo
+                    else:
                         vezes_2t += 1
+                        if vezes_2t == 1:
+                            primeiro_2t = filmado
                         if vezes_2t >= VEZES_PARA_2T:
+                            # Sem cronômetro ("2º TEMPO" só), vale o primeiro quadro com 2T.
+                            inicio_2t = filmado - timedelta(seconds=relogio) if relogio is not None else primeiro_2t
                             segundo_tempo_marcado = marcar_tempo(
-                                partida, "SEGUNDO_TEMPO", filmado - timedelta(seconds=relogio), fim_1t) is not None
+                                partida, "SEGUNDO_TEMPO", inicio_2t, fim_1t) is not None
                             vezes_2t = 0
             if leitura:
                 faixa, vezes_faixa = None, 0
