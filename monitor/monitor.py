@@ -3,8 +3,11 @@
 Fica ligado o tempo todo. A cada minuto pergunta ao site se há partida ao vivo
 com link do YouTube; quando há, lê o placar da live a cada INTERVALO segundos e,
 quando um time sobe 1 gol (confirmado em 2 leituras), manda o gol ao site, que
-lança o gol na súmula e deixa o clipe para o admin aprovar; quando o placar
-volta 1 gol, avisa o site para tirar o gol que lançou (ver src/lib/gols-sugeridos.ts).
+lança o gol na súmula já com o clipe; quando o placar volta 1 gol, avisa o site
+para tirar o gol que lançou (ver src/lib/gols-sugeridos.ts).
+
+Lê também o tempo e o cronômetro embaixo do placar ("2T 02:54"): quando aparece
+o 2º tempo, marca no site o início dele (e o intervalo, se a mesa não marcou).
 
 Confere os nomes do placar da tela: se a live passou para outro jogo de hoje,
 encerra o anterior e inicia o da tela no site; sem jogo ao vivo no site, inicia
@@ -24,7 +27,7 @@ import unicodedata
 import urllib.error
 from difflib import SequenceMatcher
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -242,6 +245,53 @@ def nomes_na_tela(arquivo):
     return " ".join(esquerda), " ".join(direita)
 
 
+# Tempo e cronômetro embaixo do placar ("2T" e "02:54"), num quadro 1280x720.
+# O cronômetro da Maré Cheia sobe (20/11: "2T 02:54" três minutos depois do 2º tempo).
+FAIXA_TEMPO = (150, 70, 340, 104)
+VEZES_PARA_2T = 3  # leituras seguidas com "2T" antes de marcar o 2º tempo no site
+
+
+def ler_tempo(arquivo):
+    """("1T" ou "2T", segundos no cronômetro ou None), ou None se não deu para ler."""
+    im = Image.open(arquivo).convert("RGB")
+    if im.size != (1280, 720):
+        im = im.resize((1280, 720))
+    c = im.crop(FAIXA_TEMPO)
+    c = c.resize((c.width * 3, c.height * 3))
+    r, _ = ocr(c)
+    texto = " ".join(t for _caixa, t, _conf in r or [])
+    periodo = re.search(r"(?<!\d)([12])\s*[Tt]", texto)
+    if not periodo:
+        return None
+    relogio = re.search(r"(\d{1,2})[:.](\d{2})(?!\d)", texto)
+    segundos = int(relogio.group(1)) * 60 + int(relogio.group(2)) if relogio else None
+    return f"{periodo.group(1)}T", segundos
+
+
+def momento_do_quadro(momento, segundo_video, inicio_live):
+    """Hora em que o quadro foi filmado: início da live + posição no vídeo, ou o atraso estimado."""
+    if inicio_live and segundo_video is not None:
+        return inicio_live + timedelta(seconds=segundo_video)
+    return momento - timedelta(seconds=LATENCIA_LIVE)
+
+
+def marcar_segundo_tempo(partida, inicio_2t, fim_1t):
+    """Pede ao site para marcar o 2º tempo. True quando o site decidiu (marcou ou recusou)."""
+    corpo = {"partidaId": partida["id"], "segundoTempoEm": inicio_2t.isoformat()}
+    if fim_1t:
+        corpo["intervaloEm"] = fim_1t.isoformat()
+    try:
+        resposta = api("POST", "monitor/tempo", corpo)
+        log.info(f"2º tempo na tela (começou ~{inicio_2t.astimezone().strftime('%H:%M:%S')}) -> {resposta.get('resultado')}")
+        return True
+    except urllib.error.HTTPError as e:
+        log.warning(f"Site recusou o 2º tempo ({e.code}): {e.read()[:200]!r}")
+        return True
+    except Exception as e:  # noqa: BLE001
+        log.warning(f"Não consegui marcar o 2º tempo: {e}")
+        return False
+
+
 def comparar(nomes, jogo):
     """(nota de 0 a 2, invertida) dos nomes da tela contra o jogo "Casa x Fora" do site."""
     casa, _, fora = jogo.partition(" x ")
@@ -373,6 +423,8 @@ def acompanhar(partida, proximas=()):
     ultima_conferencia = 0.0
     conferem = True  # os nomes na tela são deste jogo (até prova em contrário)
     outro, vezes_outro = None, 0
+    relogio_1t, fim_1t = None, None  # maior cronômetro do 1º tempo visto e a hora daquele quadro
+    vezes_2t, segundo_tempo_marcado = 0, False
     log.info(f"Acompanhando {partida['jogo']} (live {partida['videoId']})")
 
     while True:
@@ -410,6 +462,21 @@ def acompanhar(partida, proximas=()):
             if leitura and invertida:
                 leitura = (leitura[1], leitura[0])  # daqui em diante, sempre casa x fora do site
             falhas = 0
+            if leitura and conferem and not segundo_tempo_marcado:
+                tempo = ler_tempo(quadro)
+                if tempo:
+                    periodo, relogio = tempo
+                    filmado = momento_do_quadro(momento, segundo_video, inicio_live)
+                    if periodo == "1T":
+                        vezes_2t = 0
+                        if relogio is not None and (relogio_1t is None or relogio > relogio_1t):
+                            relogio_1t, fim_1t = relogio, filmado
+                    elif relogio is not None:
+                        vezes_2t += 1
+                        if vezes_2t >= VEZES_PARA_2T:
+                            segundo_tempo_marcado = marcar_segundo_tempo(
+                                partida, filmado - timedelta(seconds=relogio), fim_1t)
+                            vezes_2t = 0
             replay = tem_replay(quadro)
             if replay and not replay_na_tela and segundo_video is not None:
                 replay_inicio, replay_avisado = segundo_video, False
