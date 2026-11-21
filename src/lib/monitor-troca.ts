@@ -35,10 +35,21 @@ function paraMonitor(p: {
   return { id: p.id, videoId, transmissaoInicioEm: p.transmissaoInicioEm, jogo: `${p.timeCasa.nome} x ${p.timeFora.nome}` };
 }
 
-/** Partidas ao vivo com live, e as de hoje ainda agendadas com live (o monitor reconhece pelos nomes na tela). */
+/**
+ * Janela dos jogos agendados que o monitor pode iniciar pela tela: os de hoje e
+ * os das últimas horas. Rodada atrasada passa da meia-noite (20/11: renascer B x
+ * Beco, marcado para 22:50, começou depois de 0h) e o jogo de ontem saía da lista.
+ */
+const ATRASO_MAXIMO_MS = 6 * 60 * 60_000;
+function janelaDeHoje() {
+  const { start, end } = dayRange(todayStr());
+  return { start: new Date(Math.min(start.getTime(), Date.now() - ATRASO_MAXIMO_MS)), end };
+}
+
+/** Partidas ao vivo com live, e as de hoje (ou atrasadas de ontem) ainda agendadas com live. */
 export async function partidasParaMonitor(tenantId: string) {
   const db = getTenantPrisma(tenantId);
-  const { start, end } = dayRange(todayStr());
+  const { start, end } = janelaDeHoje();
   const [aoVivo, agendadas] = await Promise.all([
     db.partida.findMany({
       where: { status: "AO_VIVO", linkTransmissaoUrl: { not: null } },
@@ -72,7 +83,7 @@ export async function trocarPartidaPelaTela(
   });
   const videoId = extrairYoutubeId(nova?.linkTransmissaoUrl ?? null);
   if (!nova || nova.status !== "AGENDADA" || !videoId) return { erro: "partida para iniciar inválida" as const };
-  const { start, end } = dayRange(todayStr());
+  const { start, end } = janelaDeHoje();
   if (nova.dataHora < start || nova.dataHora > end) return { erro: "partida não é de hoje" as const };
 
   const antiga = t.encerrarId
