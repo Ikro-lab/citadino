@@ -8,6 +8,8 @@ para tirar o gol que lançou (ver src/lib/gols-sugeridos.ts).
 
 Lê também o tempo e o cronômetro embaixo do placar ("2T 02:54"): quando aparece
 o 2º tempo, marca no site o início dele (e o intervalo, se a mesa não marcou).
+Com o placar fora da tela, lê a faixa de baixo da transmissão: "INTERVALO" marca
+o fim do 1º tempo e "FIM DE JOGO" encerra a partida no site.
 
 Confere os nomes do placar da tela: se a live passou para outro jogo de hoje,
 encerra o anterior e inicia o da tela no site; sem jogo ao vivo no site, inicia
@@ -275,21 +277,58 @@ def momento_do_quadro(momento, segundo_video, inicio_live):
     return momento - timedelta(seconds=LATENCIA_LIVE)
 
 
-def marcar_segundo_tempo(partida, inicio_2t, fim_1t):
-    """Pede ao site para marcar o 2º tempo. True quando o site decidiu (marcou ou recusou)."""
-    corpo = {"partidaId": partida["id"], "segundoTempoEm": inicio_2t.isoformat()}
-    if fim_1t:
-        corpo["intervaloEm"] = fim_1t.isoformat()
+# Faixa embaixo da transmissão com o placar fora da tela: "INTERVALO", "FIM DE JOGO"
+# ou "EM INSTANTES" (antes do jogo), com os times e o placar. Fica no meio da tela
+# cheia ou mais à direita quando um anúncio espreme a imagem (20/11), por isso a
+# faixa larga. A leitura leva ~2s: só é feita com o placar de cima fora da tela.
+FAIXA_STATUS = (200, 420, 1180, 700)
+LER_FAIXA_A_CADA = 8  # segundos entre leituras da faixa de baixo
+VEZES_PARA_FAIXA = 2  # leituras seguidas com a mesma faixa antes de avisar o site
+
+
+def ler_faixa(arquivo):
+    """("INTERVALO" | "FIM" | "EM_INSTANTES" | None, placar (esq, dir) da faixa ou None)."""
+    im = Image.open(arquivo).convert("RGB")
+    if im.size != (1280, 720):
+        im = im.resize((1280, 720))
+    r, _ = ocr(im.crop(FAIXA_STATUS))
+    textos = [t for _caixa, t, _conf in r or []]
+    junto = re.sub(r"\s", "", " ".join(textos)).upper()
+    status = ("FIM" if "FIMDEJOGO" in junto else "INTERVALO" if "INTERVALO" in junto
+              else "EM_INSTANTES" if "EMINSTANTES" in junto else None)
+    placar = None
+    for t in textos:
+        m = re.fullmatch(r"\s*(\d{1,2})\s*[xX×]\s*(\d{1,2})\s*", t)
+        if m:
+            placar = (int(m.group(1)), int(m.group(2)))
+            break
+    return status, placar
+
+
+def marcar_tempo(partida, fase, em=None, intervalo=None, placar=None):
+    """Avisa o site de uma fase vista na live (INTERVALO, SEGUNDO_TEMPO ou FIM).
+
+    Devolve o resultado do site ("marcado", "encerrado", "ja_marcado"), "recusado"
+    se o site não aceitou, ou None se não deu para falar com ele (tentar de novo)."""
+    corpo = {"partidaId": partida["id"], "fase": fase}
+    if em:
+        corpo["em"] = em.isoformat()
+    if intervalo:
+        corpo["intervaloEm"] = intervalo.isoformat()
+    if placar:
+        corpo["placarNaTela"] = list(placar)
+    nome = {"INTERVALO": "Intervalo", "SEGUNDO_TEMPO": "2º tempo", "FIM": "Fim de jogo"}[fase]
+    quando = f" (~{em.astimezone().strftime('%H:%M:%S')})" if em else ""
     try:
         resposta = api("POST", "monitor/tempo", corpo)
-        log.info(f"2º tempo na tela (começou ~{inicio_2t.astimezone().strftime('%H:%M:%S')}) -> {resposta.get('resultado')}")
-        return True
+        log.info(f"{nome} na tela{quando} -> {resposta.get('resultado')}")
+        return resposta.get("resultado")
     except urllib.error.HTTPError as e:
-        log.warning(f"Site recusou o 2º tempo ({e.code}): {e.read()[:200]!r}")
-        return True
+        log.warning(f"Site recusou {nome.lower()} ({e.code}): {e.read()[:200]!r}")
+        return "recusado"
     except Exception as e:  # noqa: BLE001
-        log.warning(f"Não consegui marcar o 2º tempo: {e}")
-        return False
+        log.warning(f"Não consegui avisar {nome.lower()}: {e}")
+        return None
 
 
 def comparar(nomes, jogo):
@@ -425,6 +464,8 @@ def acompanhar(partida, proximas=()):
     outro, vezes_outro = None, 0
     relogio_1t, fim_1t = None, None  # maior cronômetro do 1º tempo visto e a hora daquele quadro
     vezes_2t, segundo_tempo_marcado = 0, False
+    intervalo_marcado, fim_avisado = False, False
+    faixa, vezes_faixa, ultima_faixa = None, 0, 0.0
     log.info(f"Acompanhando {partida['jogo']} (live {partida['videoId']})")
 
     while True:
@@ -474,9 +515,29 @@ def acompanhar(partida, proximas=()):
                     elif relogio is not None:
                         vezes_2t += 1
                         if vezes_2t >= VEZES_PARA_2T:
-                            segundo_tempo_marcado = marcar_segundo_tempo(
-                                partida, filmado - timedelta(seconds=relogio), fim_1t)
+                            segundo_tempo_marcado = marcar_tempo(
+                                partida, "SEGUNDO_TEMPO", filmado - timedelta(seconds=relogio), fim_1t) is not None
                             vezes_2t = 0
+            if leitura:
+                faixa, vezes_faixa = None, 0
+            elif conferem and time.time() - ultima_faixa >= LER_FAIXA_A_CADA:
+                ultima_faixa = time.time()
+                status, placar_faixa = ler_faixa(quadro)
+                vezes_faixa = vezes_faixa + 1 if status and status == faixa else (1 if status else 0)
+                faixa = status
+                if status and vezes_faixa == VEZES_PARA_FAIXA:
+                    filmado = momento_do_quadro(momento, segundo_video, inicio_live)
+                    if status == "INTERVALO" and not intervalo_marcado and not segundo_tempo_marcado:
+                        intervalo_marcado = marcar_tempo(partida, "INTERVALO", filmado) is not None
+                    elif status == "FIM" and not fim_avisado:
+                        if placar_faixa and invertida:
+                            placar_faixa = (placar_faixa[1], placar_faixa[0])
+                        resultado = marcar_tempo(partida, "FIM", filmado, placar=placar_faixa)
+                        fim_avisado = resultado is not None
+                        if resultado in ("encerrado", "ja_marcado"):
+                            return
+                    elif status == "EM_INSTANTES":
+                        log.info("Faixa EM INSTANTES na tela: o próximo jogo vai começar.")
             replay = tem_replay(quadro)
             if replay and not replay_na_tela and segundo_video is not None:
                 replay_inicio, replay_avisado = segundo_video, False

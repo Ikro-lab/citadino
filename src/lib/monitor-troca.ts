@@ -140,19 +140,25 @@ export async function trocarPartidaPelaTela(
   return { partida: paraMonitor(atualizada) };
 }
 
-/** Antes disso desde o início do jogo, um "2T" na tela é leitura errada. */
+/** Antes disso desde o início do jogo, "INTERVALO" ou "2T" na tela é leitura errada. */
 const PRIMEIRO_TEMPO_MINIMO_MS = 8 * 60_000;
+/** Antes disso desde o início do jogo, "FIM DE JOGO" na tela é leitura errada. */
+const JOGO_MINIMO_MS = 20 * 60_000;
+
+export type FaseNaTela = "INTERVALO" | "SEGUNDO_TEMPO" | "FIM";
 
 /**
- * O monitor viu "2T" no placar da transmissão: marca o início do 2º tempo e,
- * se a mesa não marcou, o fim do 1º. `segundoTempoEm` vem do cronômetro da
- * tela (momento do quadro menos o tempo mostrado); `intervaloEm`, do último
- * quadro com o 1º tempo correndo (sem ele, o intervalo fica no mesmo instante).
- * Se a mesa já marcou o 2º tempo, não mexe.
+ * O monitor viu na transmissão uma mudança de fase do jogo:
+ * - INTERVALO: faixa "INTERVALO" embaixo da tela; marca o fim do 1º tempo.
+ * - SEGUNDO_TEMPO: "2T" no placar; marca o início do 2º tempo (pelo cronômetro
+ *   da tela) e, se a mesa não marcou, o intervalo (último quadro do 1º tempo).
+ * - FIM: faixa "FIM DE JOGO"; encerra a partida, a não ser que o placar da
+ *   faixa seja diferente do site (aí só avisa os admins).
+ * O que a mesa já marcou fica como está.
  */
-export async function marcarSegundoTempoPelaTela(
+export async function marcarTempoPelaTela(
   tenantId: string,
-  t: { partidaId: string; segundoTempoEm: Date; intervaloEm: Date | null }
+  t: { partidaId: string; fase: FaseNaTela; em: Date; intervaloEm: Date | null; placarNaTela: [number, number] | null }
 ) {
   const db = getTenantPrisma(tenantId);
   const partida = await db.partida.findUnique({
@@ -160,32 +166,75 @@ export async function marcarSegundoTempoPelaTela(
     include: { timeCasa: true, timeFora: true, tenant: { select: { slug: true } } },
   });
   if (!partida || partida.status !== "AO_VIVO" || !partida.iniciadaEm) return { erro: "partida não está ao vivo" as const };
-  if (partida.segundoTempoEm) return { resultado: "ja_marcado" as const };
 
   const inicio = partida.iniciadaEm.getTime();
-  const segundo = Math.min(t.segundoTempoEm.getTime(), Date.now());
-  if (segundo - inicio < PRIMEIRO_TEMPO_MINIMO_MS) return { erro: "cedo demais para o 2º tempo" as const };
-  const intervalo = Math.max(inicio, Math.min(partida.intervaloEm?.getTime() ?? t.intervaloEm?.getTime() ?? segundo, segundo));
+  const em = Math.min(t.em.getTime(), Date.now());
+  const slug = partida.tenant.slug;
+  const placar = `${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`;
+  const revalidar = () => {
+    revalidatePath(paths.admin.partidaSumula(slug, partida.id));
+    revalidatePath(paths.partida(slug, partida.id));
+    revalidatePath(paths.home(slug));
+  };
 
+  if (t.fase === "INTERVALO") {
+    if (partida.intervaloEm || partida.segundoTempoEm) return { resultado: "ja_marcado" as const };
+    if (em - inicio < PRIMEIRO_TEMPO_MINIMO_MS) return { erro: "cedo demais para o intervalo" as const };
+    const { count } = await db.partida.updateMany({
+      where: { id: partida.id, status: "AO_VIVO", intervaloEm: null, segundoTempoEm: null },
+      data: { intervaloEm: new Date(em) },
+    });
+    if (count !== 1) return { resultado: "ja_marcado" as const };
+    revalidar();
+    await notifyPartidaEvento(tenantId, partida.id, { title: `Intervalo: ${placar}`, body: "Fim do 1º tempo." });
+    return { resultado: "marcado" as const };
+  }
+
+  if (t.fase === "SEGUNDO_TEMPO") {
+    if (partida.segundoTempoEm) return { resultado: "ja_marcado" as const };
+    if (em - inicio < PRIMEIRO_TEMPO_MINIMO_MS) return { erro: "cedo demais para o 2º tempo" as const };
+    const intervalo = Math.max(inicio, Math.min(partida.intervaloEm?.getTime() ?? t.intervaloEm?.getTime() ?? em, em));
+    const { count } = await db.partida.updateMany({
+      where: { id: partida.id, status: "AO_VIVO", segundoTempoEm: null },
+      data: { intervaloEm: new Date(intervalo), segundoTempoEm: new Date(em) },
+    });
+    if (count !== 1) return { resultado: "ja_marcado" as const };
+    revalidar();
+    await notifyPartidaEvento(tenantId, partida.id, {
+      title: `Começou o 2º tempo: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
+      body: placar,
+    });
+    await notifyAdmins(tenantId, {
+      title: "2º tempo marcado pela transmissão",
+      body: `${placar}. O monitor viu "2T" no placar da live. Confira na súmula.`,
+      url: paths.admin.partidaSumula(slug, partida.id),
+    });
+    return { resultado: "marcado" as const };
+  }
+
+  // FIM
+  if (em - inicio < JOGO_MINIMO_MS) return { erro: "cedo demais para o fim de jogo" as const };
+  const tela = t.placarNaTela;
+  if (tela && (tela[0] !== partida.placarCasa || tela[1] !== partida.placarFora)) {
+    await notifyAdmins(tenantId, {
+      title: "Fim de jogo na transmissão, placar diferente",
+      body: `A live mostra FIM DE JOGO com ${partida.timeCasa.nome} ${tela[0]} x ${tela[1]} ${partida.timeFora.nome}, e o site está ${partida.placarCasa} x ${partida.placarFora}. Acerte a súmula e encerre o jogo.`,
+      url: paths.admin.partidaSumula(slug, partida.id),
+    });
+    return { erro: "placar da tela diferente do site" as const };
+  }
   const { count } = await db.partida.updateMany({
-    where: { id: partida.id, status: "AO_VIVO", segundoTempoEm: null },
-    data: { intervaloEm: new Date(intervalo), segundoTempoEm: new Date(segundo) },
+    where: { id: partida.id, status: "AO_VIVO" },
+    data: { status: "ENCERRADA" },
   });
   if (count !== 1) return { resultado: "ja_marcado" as const };
-
-  const slug = partida.tenant.slug;
-  revalidatePath(paths.admin.partidaSumula(slug, partida.id));
-  revalidatePath(paths.partida(slug, partida.id));
-  revalidatePath(paths.home(slug));
-  const placar = `${partida.timeCasa.nome} ${partida.placarCasa} x ${partida.placarFora} ${partida.timeFora.nome}`;
-  await notifyPartidaEvento(tenantId, partida.id, {
-    title: `Começou o 2º tempo: ${partida.timeCasa.nome} x ${partida.timeFora.nome}`,
-    body: placar,
-  });
+  revalidar();
+  revalidatePath(paths.classificacao(slug));
+  await notifyPartidaEvento(tenantId, partida.id, { title: `Fim de jogo: ${placar}`, body: "Confira os detalhes da partida." });
   await notifyAdmins(tenantId, {
-    title: "2º tempo marcado pela transmissão",
-    body: `${placar}. O monitor viu "2T" no placar da live. Confira na súmula.`,
+    title: "Jogo encerrado pela transmissão",
+    body: `${placar}. O monitor viu FIM DE JOGO na live. Confira a súmula.`,
     url: paths.admin.partidaSumula(slug, partida.id),
   });
-  return { resultado: "marcado" as const };
+  return { resultado: "encerrado" as const };
 }
