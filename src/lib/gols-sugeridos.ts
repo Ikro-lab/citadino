@@ -4,6 +4,7 @@ import { getTenantPrisma } from "@/lib/tenant-prisma";
 import { notifyAdmins, notifyPartidaEvento } from "@/lib/push/notify";
 import { paths } from "@/lib/tenant-path";
 import { minutoDeJogo } from "@/lib/escalacao";
+import { extrairYoutubeId, youtubeUrlNoSegundo } from "@/lib/youtube";
 
 /**
  * Gol lançado pela transmissão (monitor da live) e o gol lançado pelo admin
@@ -50,7 +51,7 @@ async function partidaDaLive(tenantId: string, videoId: string) {
 
 /**
  * Gol visto na live. O placar da live decide o que fazer:
- * - igual ao do site: o admin já lançou; o lance só ganha o clipe para aprovar;
+ * - igual ao do site: o admin já lançou; o lance ganha o clipe na hora;
  * - um a mais que o do site, do lado do gol: o gol entra na súmula sozinho (sem
  *   autor), o público é avisado e o clipe espera aprovação;
  * - qualquer outra coisa (placar da live trocado, jogo errado): fica pendente e
@@ -72,6 +73,8 @@ export async function registrarGolSugerido(s: Sugestao) {
     placarFora: s.placarFora,
     videoSegundo: s.segundo,
   };
+  // O clipe entra no lance junto com o gol; o admin só ajusta ou tira se precisar.
+  const clipe = youtubeUrlNoSegundo(s.videoId, s.segundo);
 
   // O mesmo gol já informado (o monitor reenvia se cair no meio).
   const repetida = await db.golSugerido.findFirst({
@@ -103,6 +106,8 @@ export async function registrarGolSugerido(s: Sugestao) {
     });
     if (lancado) {
       const sugestao = await db.golSugerido.create({ data: { ...dados, status: "CLIPE", eventoId: lancado.id } });
+      if (!lancado.videoUrl) await db.eventoPartida.update({ where: { id: lancado.id }, data: { videoUrl: clipe } });
+      revalidarPartida(tenantSlug, partida.id);
       revalidatePath(paths.admin.golsSugeridos(tenantSlug));
       return { resultado: "clipe" as const, id: sugestao.id };
     }
@@ -112,7 +117,7 @@ export async function registrarGolSugerido(s: Sugestao) {
     const minuto = minutoDeJogo(partida, Date.now() - ATRASO_DETECCAO_MS);
     const { sugestao, atual } = await db.$transaction(async (tx) => {
       const evento = await tx.eventoPartida.create({
-        data: { tenantId: s.tenantId, partidaId: partida.id, tipo: "GOL", timeId, minuto },
+        data: { tenantId: s.tenantId, partidaId: partida.id, tipo: "GOL", timeId, minuto, videoUrl: clipe },
       });
       const atual = await tx.partida.update({
         where: { id: partida.id },
@@ -127,7 +132,7 @@ export async function registrarGolSugerido(s: Sugestao) {
     await notifyPartidaEvento(s.tenantId, partida.id, { title: `Gol de ${timeNome}!`, body: placar });
     await notifyAdmins(s.tenantId, {
       title: `Gol de ${timeNome} lançado pela transmissão`,
-      body: `${placar}. Toque para aprovar o clipe e escolher quem fez.`,
+      body: `${placar}. Toque para escolher quem fez ou ajustar o clipe.`,
       url: paths.admin.golSugerido(tenantSlug, sugestao.id),
     });
     return { resultado: "lancado" as const, id: sugestao.id };
@@ -205,7 +210,7 @@ export async function desfazerGolAutomatico(s: Omit<Sugestao, "segundo">) {
  * Gol lançado na mão pelo admin. Se a live já tinha mostrado esse gol:
  * - já lançado pela transmissão: o lance do admin fica (com o minuto e o autor
  *   dele) e o da transmissão sai, sem contar o gol duas vezes;
- * - pendente (placar diferente): vira o lance do admin, com o clipe para aprovar.
+ * - pendente (placar diferente): vira o lance do admin, já com o clipe.
  * Devolve true quando o gol era repetido (o público já foi avisado).
  */
 export async function casarGolLancado(tenantId: string, eventoId: string) {
@@ -239,7 +244,7 @@ export async function casarGolLancado(tenantId: string, eventoId: string) {
         where: { id: eventoId },
         data: {
           atletaId: evento.atletaId ?? doMonitor.atletaId,
-          videoUrl: auto.status === "CLIPE" ? null : doMonitor.videoUrl,
+          videoUrl: evento.videoUrl ?? doMonitor.videoUrl,
         },
       });
       await tx.partida.update({
@@ -260,7 +265,13 @@ export async function casarGolLancado(tenantId: string, eventoId: string) {
       where: { id: pendente.id, status: "PENDENTE" },
       data: { status: "CLIPE", eventoId },
     });
-    if (count === 1) await db.eventoPartida.update({ where: { id: eventoId }, data: { videoUrl: null } });
+    const videoId = extrairYoutubeId(evento.partida.linkTransmissaoUrl);
+    if (count === 1 && videoId && !evento.videoUrl) {
+      await db.eventoPartida.update({
+        where: { id: eventoId },
+        data: { videoUrl: youtubeUrlNoSegundo(videoId, pendente.videoSegundo) },
+      });
+    }
   }
   return false;
 }

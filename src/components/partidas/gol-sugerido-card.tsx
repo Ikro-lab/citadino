@@ -53,7 +53,7 @@ function tempoVideo(segundo: number) {
 
 /**
  * Gol visto no placar da live: o lance em vídeo (com ajuste do corte), o autor e
- * os botões. Gol já lançado pela transmissão (CLIPE): aprovar o clipe, ficar sem
+ * os botões. Gol já lançado pela transmissão (CLIPE), já com o clipe: confirmar, ficar sem
  * clipe ou tirar o gol. Gol pendente (placar da live diferente do site): aprovar
  * ou descartar. Usado na aba Gols detectados e na página aberta pela notificação.
  */
@@ -102,7 +102,7 @@ export function GolSugeridoCard({
       {pendente && (
         <p className="mt-1 text-sm text-muted">O placar da transmissão não bateu com o do site; o gol só entra se aprovado.</p>
       )}
-      {clipe && <p className="mt-1 text-sm text-muted">Já está na súmula. Falta aprovar o clipe e escolher quem fez.</p>}
+      {clipe && <p className="mt-1 text-sm text-muted">Já está na súmula, com o clipe. Falta escolher quem fez.</p>}
       <p className="mt-1 font-display text-2xl font-bold tabular-nums">
         {partida.timeCasa.nome} {sugestao.placarCasa} x {sugestao.placarFora} {partida.timeFora.nome}
       </p>
@@ -140,7 +140,7 @@ export function GolSugeridoCard({
           <form action={aprovarClipeGol.bind(null, sugestao.id)} className="flex flex-col gap-3">
             {escolhaAutor}
             <Button type="submit" size="lg" className="w-full">
-              Aprovar clipe
+              Confirmar gol
             </Button>
             <Button type="submit" formAction={golSemClipe.bind(null, sugestao.id)} variant="secondary" size="lg" className="w-full">
               Manter o gol sem clipe

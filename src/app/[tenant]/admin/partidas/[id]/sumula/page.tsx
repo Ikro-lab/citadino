@@ -80,7 +80,7 @@ export default async function SumulaPage({
             {golsPendentes.map((g) => (
               <Link key={g.id} href={paths.admin.golSugerido(tenantSlug, g.id)} className={acaoLinkClass}>
                 Gol de {g.timeId === partida.timeCasaId ? partida.timeCasa.nome : partida.timeFora.nome} ({g.placarCasa} x{" "}
-                {g.placarFora}): {g.status === "CLIPE" ? "aprovar o clipe" : "conferir"}
+                {g.placarFora}): {g.status === "CLIPE" ? "escolher quem fez" : "conferir"}
               </Link>
             ))}
           </div>

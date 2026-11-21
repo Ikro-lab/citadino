@@ -168,7 +168,7 @@ export async function ajustarGolSugerido(id: string, delta: number) {
   await db.golSugerido.update({ where: { id }, data: { videoSegundo } });
 
   const videoId = extrairYoutubeId(sugestao.partida.linkTransmissaoUrl);
-  const clipeNoLance = sugestao.status === "APROVADO" || sugestao.status === "LANCADO";
+  const clipeNoLance = ["APROVADO", "LANCADO", "CLIPE"].includes(sugestao.status);
   if (sugestao.eventoId && videoId && clipeNoLance) {
     await db.eventoPartida.update({
       where: { id: sugestao.eventoId },

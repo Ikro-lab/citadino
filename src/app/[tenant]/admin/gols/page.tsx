@@ -27,8 +27,8 @@ export default async function GolsDetectadosPage({ params }: { params: Promise<{
         ))}
         {pendentes.length === 0 && (
           <EmptyState>
-            Nenhum gol esperando aprovação. Os gols vistos no placar da transmissão entram na súmula sozinhos e aparecem
-            aqui para aprovar o clipe.
+            Nenhum gol esperando aprovação. Os gols vistos no placar da transmissão entram na súmula sozinhos, já com o clipe,
+            e aparecem aqui para escolher quem fez.
           </EmptyState>
         )}
       </section>
